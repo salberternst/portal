@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  oauth2-proxy:
+    build: ./oauth2_proxy
+    restart: always
+    ports: 
+      - 4180:4180
+    volumes:
+      - ./oauth2_proxy/config.template.yaml:/app/config.template.yaml
+    environment:
+      - ISSUER_URL=${ISSUER_URL}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
+    command: |
+      oauth2-proxy 
+        --alpha-config=/tmp/config.yaml 
+        --cookie-secret=${COOKIE_SECRET} 
+        --email-domain="*" 
+        --skip-provider-button
+        --cookie-secure=false
+        --cookie-refresh=3m
+        --redirect-url=http://192-168-178-60.nip.io:4180/oauth2/callback
+        --session-store-type=redis
+        --redis-connection-url=redis://redis
+        --skip-jwt-bearer-tokens=true
+        --cookie-domain="192-168-178-60.nip.io"
+        --cookie-domain=".192-168-178-60.nip.io"
+        --cookie-samesite=lax
+        --cookie-expire=12h
+        --whitelist-domain="192-168-178-60.nip.io"
+        --whitelist-domain=".192-168-178-60.nip.io"
+
+  backend:
+    build: .
+    restart: always
+    volumes:
+      - ./pkg:/app/pkg
+      - ./cmd:/app/cmd
+      - ./go.mod:/app/go.mod
+      - ./go.sum:/app/go.sum
+      - ./config:/app/config
+
+  redis:
+    image: redis

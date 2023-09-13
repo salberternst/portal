@@ -1,0 +1,33 @@
+FROM node:18 as frontend
+WORKDIR /app
+COPY frontend/package-lock.json /app
+COPY frontend/package.json /app
+RUN npm install
+COPY frontend/docs /app/docs
+COPY frontend/src /app/src
+COPY frontend/static /app/static
+COPY frontend/babel.config.js /app/babel.config.js
+COPY frontend/docusaurus.config.js /app/docusaurus.config.js
+COPY frontend/sidebars.js /app/sidebars.js
+ENV REACT_APP_ENV=production
+RUN npm run build
+
+FROM golang:1.21.1 as backend
+RUN curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+WORKDIR /app
+COPY pkg /app/pkg
+COPY cmd /app/cmd
+COPY go.mod /app
+COPY go.sum /app
+
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+
+RUN go build -o bin/server cmd/server/main.go
+RUN chmod +x bin/server
+
+FROM alpine:latest  
+COPY --from=backend /app/bin/server /usr/local/bin
+WORKDIR /app
+COPY --from=frontend /app/build /app/public
+ENTRYPOINT ["server"]  
