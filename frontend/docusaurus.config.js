@@ -16,8 +16,8 @@ const config = {
   organizationName: "fsn.org",
   projectName: "landing_page",
   i18n: {
-    defaultLocale: "en",
-    locales: ["en"],
+    defaultLocale: "de",
+    locales: ["de"],
   },
   customFields: {
     env: process.env.REACT_APP_ENV
@@ -46,11 +46,11 @@ const config = {
         items: [
           {
             to: "/",
-            label: "Home",
+            label: "Homes"
           },
           {
-            to: "/thingsboard",
-            label: "Thingsboard",
+            to: "/things",
+            label: "Things",
           },
           {
             to: "/thing-registry",
@@ -60,7 +60,7 @@ const config = {
             type: "doc",
             docId: "intro",
             position: "left",
-            label: "Documentation",
+            label: "Dokumentation",
           },
         ],
       },

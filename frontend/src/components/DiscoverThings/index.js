@@ -1,5 +1,5 @@
 import React from "react";
-import './index.module.css';
+import styles from './index.module.css';
 
 export default function DiscoverThings({ onThingsDiscovered, onError }) {
   const [error, setError] = React.useState()
@@ -23,9 +23,6 @@ export default function DiscoverThings({ onThingsDiscovered, onError }) {
   }
 
   return (
-    <>
-      <button onClick={discoverThings}>Discover Things</button>
-    </>
-
+    <button className="button button--primary" onClick={discoverThings}>Discover</button>
   );
 }

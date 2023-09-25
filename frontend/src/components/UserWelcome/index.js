@@ -8,7 +8,7 @@ import styles from './styles.module.css';
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
 export default function UserWelcome() {
-  const userInfo = siteConfig.customFields.env === "production" ? useSWR("/api/user/info", fetcher) : {
+  const userInfo = siteConfig.customFields.env === "s" ? useSWR("/api/user/info", fetcher) : {
     data: {
       name: "Example User"
     }

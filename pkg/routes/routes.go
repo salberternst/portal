@@ -13,4 +13,5 @@ func AddRoutes(r *gin.Engine) {
 
 	addUserRoutes(api)
 	addHealthRoutes(api)
+	addThingRoutes(api)
 }

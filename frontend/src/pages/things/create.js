@@ -1,8 +1,11 @@
 import React from "react";
 import Layout from "@theme/Layout";
+import ThingCreate from "../../components/ThingCreate";
+
 
 export default function Thingsboard() {
     const [url, setUrl] = React.useState()
+    const data = { things: [] }
 
     React.useEffect(() => {
         setUrl(new URL(window.location.href))
@@ -13,8 +16,12 @@ export default function Thingsboard() {
     }
     
     return (
-        <Layout title="Thingsboard" description="Landing Page">
-            <iframe src={`${url.protocol}//thingsboard.${url.host}/`} style={{ position: "absolute", width: "100%", height: "100%" }} />
+        <Layout title="Things" description="">
+            <main className="main">
+                <div>
+                    <ThingCreate />
+                </div>
+            </main>
         </Layout>
     );
 }
