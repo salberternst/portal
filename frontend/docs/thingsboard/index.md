@@ -1,3 +1,0 @@
-# Thingsboard
-
-TODO

@@ -88,9 +88,20 @@ func getThing(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, thingsboardThing)
 }
 
+func getThingsboardCredentials(ctx *gin.Context) {
+	credentials, err := models.GetThingsboardToken(ctx.GetHeader("X-Access-Token"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, credentials)
+}
+
 func addThingRoutes(r *gin.RouterGroup) {
 	thingsGroup := r.Group("/things")
 	thingsGroup.GET("/", getThings)
+	thingsGroup.GET("/credentials", getThingsboardCredentials)
 	thingsGroup.POST("/", createThing)
 	thingsGroup.GET("/:id", getThing)
 	thingsGroup.GET("/:id/credentials", getThingCredentials)
