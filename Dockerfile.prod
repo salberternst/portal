@@ -3,12 +3,11 @@ WORKDIR /app
 COPY frontend/package-lock.json /app
 COPY frontend/package.json /app
 RUN npm install
-COPY frontend/docs /app/docs
 COPY frontend/src /app/src
-COPY frontend/static /app/static
-COPY frontend/babel.config.js /app/babel.config.js
-COPY frontend/docusaurus.config.js /app/docusaurus.config.js
-COPY frontend/sidebars.js /app/sidebars.js
+COPY frontend/public /app/public
+COPY frontend/tsconfig.json /app/tsconfig.json
+COPY frontend/vite.config.ts /app/vite.config.ts
+COPY frontend/index.html /app/index.html
 ENV REACT_APP_ENV=production
 RUN npm run build
 
@@ -29,5 +28,5 @@ RUN chmod +x bin/server
 FROM alpine:latest  
 COPY --from=backend /app/bin/server /usr/local/bin
 WORKDIR /app
-COPY --from=frontend /app/build /app/public
+COPY --from=frontend /app/dist /app/public
 ENTRYPOINT ["server"]  
