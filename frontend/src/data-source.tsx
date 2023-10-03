@@ -27,7 +27,7 @@ const fetchThing = async (id: string) => {
 
 const fetchThingCredentials = async (id: string, security: string) => {
   const response = await fetch(
-    `/api/registry/things/${id}/credentials/${security}`
+    `/api/registry/things/${id}/${security}/credentials`
   );
 
   const json = await response.json();
@@ -93,16 +93,17 @@ export default {
       };
     }
   },
-  getManyReference: async (resource: any, params: any) => {
-    console.log(resource, params);
-  },
   getMany: async (resource: any, params: any) => {
-    console.log(resource, params);
-    switch (resource) {
-      case "thingCeredentials":
-        return {
-          data: await fetchThingCredentials(params.id, params.name),
-        };
+    if (resource === "thingCredentials") {
+      const result = await Promise.all(
+        params.ids.map((id) => fetchThingCredentials(params.meta.thingId, id))
+      );
+      console.log(result);
+      return {
+        data: result.map((_, index) => ({
+          id: params.ids[index],
+        })),
+      };
     }
   },
   getOne: async (resource: any, params: any) => {
@@ -116,6 +117,7 @@ export default {
             (name) => ({
               ...description.securityDefinitions[name],
               name,
+              thingId: description.id,
               id: description.id + name,
             })
           ),

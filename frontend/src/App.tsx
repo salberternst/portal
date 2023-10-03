@@ -24,12 +24,14 @@ import {
   FileField,
   useRecordContext,
   TopToolbar,
-  EditButton,
-  Button,
-  Toolbar,
 } from "react-admin";
 import { Route } from "react-router-dom";
-import { Divider, Typography, Switch } from "@mui/material";
+import {
+  Divider,
+  Typography,
+  Switch,
+  Container,
+} from "@mui/material";
 import DeviceHub from "@mui/icons-material/DeviceHub";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import CodeMirror from "@uiw/react-codemirror";
@@ -167,13 +169,29 @@ const ThingShowDescription = () => {
   );
 };
 
+const ThingShowCredentials = () => {
+  return (
+    <>
+      <Typography variant="h6">Security Definitions</Typography>
+      <Divider />
+      <ArrayField source="securityDefinitions">
+        <Datagrid bulkActionButtons={false}>
+          <TextField source="name" />
+          <TextField source="scheme" />
+          <TextField source="description" emptyText="-" />
+        </Datagrid>
+      </ArrayField>
+    </>
+  );
+};
+
 const ThingShow = () => {
   const [displayJson, setDisplayJson] = useState(false);
   const onDisplayJson = () => {
     setDisplayJson(!displayJson);
   };
   return (
-    <Show sx={{ maxWidth: 760, minWidth: 760 }}>
+    <Show>
       <SimpleShowLayout>
         <TopToolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
@@ -184,25 +202,19 @@ const ThingShow = () => {
         <Divider />
         {!displayJson && (
           <>
-            <Labeled label="Id">
+            <Labeled fullWidth label="Id">
               <TextField source="description.id" />
             </Labeled>
-            <Labeled label="Title">
+            <Labeled fullWidth label="Title">
               <TextField source="description.title" />
             </Labeled>
-            <Labeled label="Description">
+            <Labeled fullWidth label="Description">
               <TextField source="description.description" emptyText="-" />
             </Labeled>
-            <Labeled label="Thing Model">
+            <Labeled fullWidth label="Thing Model">
               <TextField source="description.thingModel" emptyText="-" />
             </Labeled>
-            <ArrayField source="securityDefinitions">
-              <Datagrid bulkActionButtons={false} rowClick="show">
-                <TextField source="name" />
-                <TextField source="description" emptyText="-" />
-                <TextField source="scheme" />
-              </Datagrid>
-            </ArrayField>
+            <ThingShowCredentials />
             <ThingShowProperties />
             <ThingShowActions />
             <ThingShowEvents />
@@ -215,17 +227,9 @@ const ThingShow = () => {
 };
 
 const ThingEdit = () => {
-  const [displayJson, setDisplayJson] = useState(false);
-  const onDisplayJson = () => {
-    setDisplayJson(!displayJson);
-  };
   return (
-    <Edit mutationMode="pessimistic" sx={{ maxWidth: 760, minWidth: 760 }}>
-        <TopToolbar>
-          <Switch onChange={onDisplayJson} />
-        </TopToolbar>
+    <Edit mutationMode="pessimistic">
       <SimpleForm>
-        <Divider />
         <TextInput fullWidth source="description.id" label="Id" disabled />
         <TextInput fullWidth source="description.title" label="Title" />
         <TextInput
@@ -275,7 +279,7 @@ const ThingEdit = () => {
 };
 
 const ThingCreate = () => (
-  <Create redirect="show" sx={{ maxWidth: 760, minWidth: 760 }}>
+  <Create redirect="show">
     <SimpleForm>
       <FileInput source="attachments" accept="application/json">
         <FileField source="src" title="title" />
@@ -292,15 +296,9 @@ const CustomMenu = () => (
 );
 
 const CustomLayout = (props: any) => (
-  <Layout
-    sx={{
-      "& .RaLayout-content": {
-        alignItems: "center",
-      },
-    }}
-    {...props}
-    menu={CustomMenu}
-  />
+  <Layout menu={CustomMenu}>
+    <Container maxWidth="lg">{props.children}</Container>
+  </Layout>
 );
 
 export const App = () => (
@@ -317,5 +315,6 @@ export const App = () => (
       edit={ThingEdit}
       create={ThingCreate}
     />
+    <Resource name="thingCredentials" icon={DeviceHub} edit={ThingEdit} />
   </Admin>
 );
