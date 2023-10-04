@@ -12,20 +12,20 @@ spec:
     protocol: HTTP
   resolution: DNS
   location: MESH_EXTERNAL
-# ---
-# apiVersion: networking.istio.io/v1alpha3
-# kind: VirtualService
-# metadata:
-#   name: landingpage-dev
-#   namespace: core
-# spec:
-#   gateways:
-#     - core/gateway
-#   hosts:
-#     - 192-168-178-60.nip.io
-#   http:
-#   - timeout: 3s
-#     route:
-#       - destination:
-#           host: landing-page.192-168-178-60.nip.io
-#         weight: 100
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: landingpage-dev
+  namespace: core
+spec:
+  gateways:
+    - core/gateway
+  hosts:
+    - 192-168-178-60.nip.io
+  http:
+  - timeout: 3s
+    route:
+      - destination:
+          host: landing-page.192-168-178-60.nip.io
+        weight: 100
