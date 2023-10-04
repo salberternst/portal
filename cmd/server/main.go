@@ -9,10 +9,9 @@ func main() {
 	r := gin.Default()
 
 	r.StaticFile("/", "./public/index.html")
-	r.StaticFile("/config.js", "./public/config.js")
+	r.StaticFile("/manifest.json", "./public/manifest.json")
+	r.StaticFile("/cropped-android-chrome-512x512-1-1-192x192.png", "./public/cropped-android-chrome-512x512-1-1-192x192.png")
 	r.Static("/assets", "./public/assets")
-	r.Static("/img", "./public/img")
-	r.StaticFile("/404.html", "./public/404.html")
 
 	routes.AddRoutes(r)
 
