@@ -3,7 +3,7 @@ import { HttpError } from "react-admin";
 const fetchThings = async (pagination: any) => {
   const { page, perPage }: { page: number; perPage: number } = pagination;
   const response = await fetch(
-    `/api/registry/things?page=${page}&pageSize=${perPage}`
+    `/api/registry/things?page=${page}&page_size=${perPage}`
   );
 
   const json = await response.json();
