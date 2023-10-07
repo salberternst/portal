@@ -89,7 +89,7 @@ export default {
       const result = await fetchThings(params.pagination);
       return {
         data: result.things,
-        total: result.totalElements,
+        total: result.totalPages * result.pageSize,
       };
     }
   },
