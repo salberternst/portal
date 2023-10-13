@@ -26,6 +26,9 @@ import {
   SimpleShowLayout,
   UserMenu,
   AppBar,
+  TopToolbar,
+  EditButton,
+  Button
 } from "react-admin";
 import { Route } from "react-router-dom";
 import {
@@ -38,10 +41,10 @@ import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { EditorState } from "@codemirror/state";
+import lzs from "lz-string"
 
 import dataSource from "./data-source";
 import authProvider from './auth-provider';
-
 import { SparqlPage } from "./custom_pages/sparql";
 
 const ThingList = () => (
@@ -231,9 +234,27 @@ const ThingShowTitle = () => {
   )
 }
 
+const ThingShowActionBar = () => {
+  const record = useRecordContext()
+  const onClick = () => {
+    if(record) {
+      const data = "td" + "json" + JSON.stringify(record.description, null, 4)
+      const compressed = lzs.compressToEncodedURIComponent(data)
+      window.open(`http://plugfest.thingweb.io/playground/#${compressed}`)
+    }
+  }
+
+  return (
+    <TopToolbar>
+      <EditButton />
+      <Button color="primary" onClick={onClick} label="Open in Editor"/>
+    </TopToolbar>
+  )
+}
+
 const ThingShow = () => {
   return (
-    <Show>
+    <Show actions={<ThingShowActionBar/>}>
       <SimpleShowLayout>
         <ThingShowTitle />
         <Divider />
@@ -326,7 +347,7 @@ const ThingCreate = () => (
 );
 
 const CustomUserMenu = () => (
-  <UserMenu/>
+  <UserMenu />
 );
 
 const CustomAppBar = () => <AppBar userMenu={<CustomUserMenu />} />;
