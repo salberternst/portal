@@ -8,7 +8,6 @@ import {
   BooleanField,
   TextField,
   Show,
-  SimpleShowLayout,
   Edit,
   SimpleForm,
   TextInput,
@@ -23,14 +22,17 @@ import {
   FileInput,
   FileField,
   useRecordContext,
-  TopToolbar,
+  TabbedShowLayout,
+  SimpleShowLayout,
 } from "react-admin";
 import { Route } from "react-router-dom";
 import {
   Divider,
   Typography,
-  Switch,
   Container,
+  Card,
+  CardHeader,
+  CardContent
 } from "@mui/material";
 import DeviceHub from "@mui/icons-material/DeviceHub";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
@@ -40,7 +42,7 @@ import { EditorState } from "@codemirror/state";
 
 import dataSource from "./data-source";
 import { SparqlPage } from "./custom_pages/sparql";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const ThingList = () => (
   <List empty={false} hasCreate={true} exporter={false}>
@@ -230,38 +232,33 @@ const ThingShowTitle = () => {
 }
 
 const ThingShow = () => {
-  const [displayJson, setDisplayJson] = useState(false);
-  const onDisplayJson = () => {
-    setDisplayJson(!displayJson);
-  };
   return (
     <Show>
       <SimpleShowLayout>
-        <TopToolbar>
-          <ThingShowTitle />
-          <Switch onChange={onDisplayJson} />
-        </TopToolbar>
+        <ThingShowTitle />
         <Divider />
-        {!displayJson && (
-          <>
-            <Labeled fullWidth label="Id">
-              <TextField source="description.id" />
-            </Labeled>
-            <Labeled fullWidth label="Title">
-              <TextField source="description.title" />
-            </Labeled>
-            <Labeled fullWidth label="Description">
-              <TextField source="description.description" emptyText="-" />
-            </Labeled>
-            <ThingShowLinks />
-            <ThingShowCredentials />
-            <ThingShowProperties />
-            <ThingShowActions />
-            <ThingShowEvents />
-          </>
-        )}
-        {displayJson && <ThingShowDescription />}
+        <Labeled fullWidth label="Id">
+          <TextField source="description.id" />
+        </Labeled>
+        <Labeled fullWidth label="Title">
+          <TextField source="description.title" />
+        </Labeled>
+        <Labeled fullWidth label="Description">
+          <TextField source="description.description" emptyText="-" />
+        </Labeled>
       </SimpleShowLayout>
+      <TabbedShowLayout>
+        <TabbedShowLayout.Tab label="summary">
+          <ThingShowLinks />
+          <ThingShowCredentials />
+          <ThingShowProperties />
+          <ThingShowActions />
+          <ThingShowEvents />
+        </TabbedShowLayout.Tab>
+        <TabbedShowLayout.Tab label="Thing Description">
+          <ThingShowDescription />
+        </TabbedShowLayout.Tab>
+      </TabbedShowLayout>
     </Show>
   );
 };
@@ -330,10 +327,11 @@ const ThingCreate = () => (
 
 const CustomMenu = () => (
   <Menu>
+    <Menu.DashboardItem />
     <Menu.ResourceItem name="thingDescriptions" />
     <Menu.Item to="/sparql" primaryText="Query" leftIcon={<QueryStatsIcon />} />
-  </Menu>
-);
+  </Menu >
+)
 
 const CustomLayout = (props: any) => (
   <Layout menu={CustomMenu}>
@@ -341,8 +339,31 @@ const CustomLayout = (props: any) => (
   </Layout>
 );
 
+const Dashboard = () => {
+  const [ data, setData ] = useState({ })
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch(
+        '/user/info',
+      );
+
+      setData(await response.json());
+    };
+
+    fetchData();
+  }, [])
+
+
+  return (
+    <Card>
+      <CardHeader title={`Welcome ${data.name}`} />
+      <CardContent></CardContent>
+    </Card>
+  )
+}
+
 export const App = () => (
-  <Admin dataProvider={dataSource} layout={CustomLayout}>
+  <Admin dataProvider={dataSource} layout={CustomLayout} dashboard={Dashboard}>
     <CustomRoutes>
       <Route path="/sparql" element={<SparqlPage />} />
     </CustomRoutes>
