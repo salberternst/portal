@@ -24,15 +24,14 @@ import {
   useRecordContext,
   TabbedShowLayout,
   SimpleShowLayout,
+  UserMenu,
+  AppBar,
 } from "react-admin";
 import { Route } from "react-router-dom";
 import {
   Divider,
   Typography,
   Container,
-  Card,
-  CardHeader,
-  CardContent
 } from "@mui/material";
 import DeviceHub from "@mui/icons-material/DeviceHub";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
@@ -41,8 +40,9 @@ import { json } from "@codemirror/lang-json";
 import { EditorState } from "@codemirror/state";
 
 import dataSource from "./data-source";
+import authProvider from './auth-provider';
+
 import { SparqlPage } from "./custom_pages/sparql";
-import { useEffect, useState } from "react";
 
 const ThingList = () => (
   <List empty={false} hasCreate={true} exporter={false}>
@@ -325,45 +325,27 @@ const ThingCreate = () => (
   </Create>
 );
 
+const CustomUserMenu = () => (
+  <UserMenu/>
+);
+
+const CustomAppBar = () => <AppBar userMenu={<CustomUserMenu />} />;
+
 const CustomMenu = () => (
   <Menu>
-    <Menu.DashboardItem />
     <Menu.ResourceItem name="thingDescriptions" />
     <Menu.Item to="/sparql" primaryText="Query" leftIcon={<QueryStatsIcon />} />
   </Menu >
 )
 
 const CustomLayout = (props: any) => (
-  <Layout menu={CustomMenu}>
+  <Layout menu={CustomMenu} appBar={CustomAppBar}>
     <Container maxWidth="lg">{props.children}</Container>
   </Layout>
 );
 
-const Dashboard = () => {
-  const [ data, setData ] = useState({ })
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch(
-        '/user/info',
-      );
-
-      setData(await response.json());
-    };
-
-    fetchData();
-  }, [])
-
-
-  return (
-    <Card>
-      <CardHeader title={`Welcome ${data.name}`} />
-      <CardContent></CardContent>
-    </Card>
-  )
-}
-
 export const App = () => (
-  <Admin dataProvider={dataSource} layout={CustomLayout} dashboard={Dashboard}>
+  <Admin loginPage={false} dataProvider={dataSource} layout={CustomLayout} authProvider={authProvider}>
     <CustomRoutes>
       <Route path="/sparql" element={<SparqlPage />} />
     </CustomRoutes>
