@@ -22,10 +22,15 @@ spec:
   gateways:
     - core/gateway
   hosts:
-    - 192-168-178-60.nip.io
+    - '*'
   http:
   - timeout: 3s
+    match:
+      - uri:
+          prefix: /
     route:
       - destination:
           host: landing-page.192-168-178-60.nip.io
+          port:
+            number: 8080
         weight: 100

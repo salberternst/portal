@@ -68,7 +68,7 @@ const ThingShowProperties = () => {
           </Labeled>
           <Labeled fullWidth label="Title">
             <TextField
-              source={`properties.${index}.description`}
+              source={`properties.${index}.title`}
               emptyText="-"
             />
           </Labeled>
@@ -78,6 +78,9 @@ const ThingShowProperties = () => {
               source={`properties.${index}.description`}
               emptyText="-"
             />
+          </Labeled>
+          <Labeled fullWidth label="Unit">
+            <TextField source={`properties.${index}.unit`} emptyText="-" />
           </Labeled>
           <ArrayField source={`properties.${index}.forms`}>
             <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
@@ -105,8 +108,17 @@ const ThingShowActions = () => {
           <Labeled fullWidth label="Name">
             <TextField source={`actions.${index}.name`} />
           </Labeled>
-          <Labeled fullWidth label="description">
+          <Labeled fullWidth label="Title">
+            <TextField
+              source={`actions.${index}.title`}
+              emptyText="-"
+            />
+          </Labeled>
+          <Labeled fullWidth label="Description">
             <TextField source={`actions.${index}.description`} emptyText="-" />
+          </Labeled>
+          <Labeled fullWidth label="Unit">
+            <TextField source={`actions.${index}.unit`} emptyText="-" />
           </Labeled>
           <ArrayField source={`actions.${index}.forms`}>
             <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
@@ -138,8 +150,17 @@ const ThingShowEvents = () => {
           <Labeled fullWidth label="Name">
             <TextField source={`events.${index}.name`} />
           </Labeled>
-          <Labeled fullWidth label="description">
+          <Labeled fullWidth label="Title">
+            <TextField
+              source={`events.${index}.title`}
+              emptyText="-"
+            />
+          </Labeled>
+          <Labeled fullWidth label="Description">
             <TextField source={`events.${index}.description`} emptyText="-" />
+          </Labeled>
+          <Labeled fullWidth label="Unit">
+            <TextField source={`events.${index}.unit`} emptyText="-" />
           </Labeled>
           <ArrayField source={`events.${index}.forms`}>
             <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
@@ -172,7 +193,7 @@ const ThingShowDescription = () => {
 const ThingShowCredentials = () => {
   return (
     <>
-      <Typography variant="h6">Security Definitions</Typography>
+      <Typography variant="h6" sx={{ marginTop: 2 }}>Security Definitions</Typography>
       <Divider />
       <ArrayField source="securityDefinitions">
         <Datagrid bulkActionButtons={false}>
@@ -185,6 +206,29 @@ const ThingShowCredentials = () => {
   );
 };
 
+const ThingShowLinks = () => (
+  <>
+    <Typography variant="h6" sx={{ marginTop: 2 }}>Links</Typography>
+    <Divider />
+    <ArrayField source={`description.links`}>
+      <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
+        <TextField source="rel" label="Relation" emptyText="-" />
+        <TextField source="type" label="Type" emptyText="-" />
+        <TextField source="href" label="Link" emptyText="-" />
+      </Datagrid>
+    </ArrayField>
+  </>
+)
+
+const ThingShowTitle = () => {
+  const record = useRecordContext();
+  return (
+    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+      {record.description?.title}
+    </Typography>
+  )
+}
+
 const ThingShow = () => {
   const [displayJson, setDisplayJson] = useState(false);
   const onDisplayJson = () => {
@@ -194,9 +238,7 @@ const ThingShow = () => {
     <Show>
       <SimpleShowLayout>
         <TopToolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Thing Description
-          </Typography>
+          <ThingShowTitle />
           <Switch onChange={onDisplayJson} />
         </TopToolbar>
         <Divider />
@@ -211,9 +253,7 @@ const ThingShow = () => {
             <Labeled fullWidth label="Description">
               <TextField source="description.description" emptyText="-" />
             </Labeled>
-            <Labeled fullWidth label="Thing Model">
-              <TextField source="description.thingModel" emptyText="-" />
-            </Labeled>
+            <ThingShowLinks />
             <ThingShowCredentials />
             <ThingShowProperties />
             <ThingShowActions />
