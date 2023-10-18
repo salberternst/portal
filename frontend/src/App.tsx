@@ -28,24 +28,23 @@ import {
   TopToolbar,
   EditButton,
   Button,
-  useGetIdentity
+  useGetIdentity,
 } from "react-admin";
 import { Route } from "react-router-dom";
-import {
-  Divider,
-  Typography,
-  Container,
-} from "@mui/material";
+import { Divider, Typography, Container } from "@mui/material";
 import DeviceHub from "@mui/icons-material/DeviceHub";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { EditorState } from "@codemirror/state";
-import lzs from "lz-string"
+import lzs from "lz-string";
+import { useLocation } from "react-router-dom";
 
 import dataSource from "./data-source";
-import authProvider from './auth-provider';
+import authProvider from "./auth-provider";
 import { SparqlPage } from "./custom_pages/sparql";
+import Thingsboard from "./components/thingsboard";
 
 const ThingList = () => (
   <List empty={false} hasCreate={true} exporter={false}>
@@ -72,10 +71,7 @@ const ThingShowProperties = () => {
             <TextField source={`properties.${index}.name`} />
           </Labeled>
           <Labeled fullWidth label="Title">
-            <TextField
-              source={`properties.${index}.title`}
-              emptyText="-"
-            />
+            <TextField source={`properties.${index}.title`} emptyText="-" />
           </Labeled>
           <Labeled fullWidth label="Description">
             <TextField
@@ -114,10 +110,7 @@ const ThingShowActions = () => {
             <TextField source={`actions.${index}.name`} />
           </Labeled>
           <Labeled fullWidth label="Title">
-            <TextField
-              source={`actions.${index}.title`}
-              emptyText="-"
-            />
+            <TextField source={`actions.${index}.title`} emptyText="-" />
           </Labeled>
           <Labeled fullWidth label="Description">
             <TextField source={`actions.${index}.description`} emptyText="-" />
@@ -156,10 +149,7 @@ const ThingShowEvents = () => {
             <TextField source={`events.${index}.name`} />
           </Labeled>
           <Labeled fullWidth label="Title">
-            <TextField
-              source={`events.${index}.title`}
-              emptyText="-"
-            />
+            <TextField source={`events.${index}.title`} emptyText="-" />
           </Labeled>
           <Labeled fullWidth label="Description">
             <TextField source={`events.${index}.description`} emptyText="-" />
@@ -198,7 +188,9 @@ const ThingShowDescription = () => {
 const ThingShowCredentials = () => {
   return (
     <>
-      <Typography variant="h6" sx={{ marginTop: 2 }}>Security Definitions</Typography>
+      <Typography variant="h6" sx={{ marginTop: 2 }}>
+        Security Definitions
+      </Typography>
       <Divider />
       <ArrayField source="securityDefinitions">
         <Datagrid bulkActionButtons={false}>
@@ -213,7 +205,9 @@ const ThingShowCredentials = () => {
 
 const ThingShowLinks = () => (
   <>
-    <Typography variant="h6" sx={{ marginTop: 2 }}>Links</Typography>
+    <Typography variant="h6" sx={{ marginTop: 2 }}>
+      Links
+    </Typography>
     <Divider />
     <ArrayField source={`description.links`}>
       <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
@@ -223,7 +217,7 @@ const ThingShowLinks = () => (
       </Datagrid>
     </ArrayField>
   </>
-)
+);
 
 const ThingShowTitle = () => {
   const record = useRecordContext();
@@ -231,30 +225,30 @@ const ThingShowTitle = () => {
     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
       {record.description?.title}
     </Typography>
-  )
-}
+  );
+};
 
 const ThingShowActionBar = () => {
-  const record = useRecordContext()
+  const record = useRecordContext();
   const onClick = () => {
-    if(record) {
-      const data = "td" + "json" + JSON.stringify(record.description, null, 4)
-      const compressed = lzs.compressToEncodedURIComponent(data)
-      window.open(`http://plugfest.thingweb.io/playground/#${compressed}`)
+    if (record) {
+      const data = "td" + "json" + JSON.stringify(record.description, null, 4);
+      const compressed = lzs.compressToEncodedURIComponent(data);
+      window.open(`http://plugfest.thingweb.io/playground/#${compressed}`);
     }
-  }
+  };
 
   return (
     <TopToolbar>
       <EditButton />
-      <Button color="primary" onClick={onClick} label="Open in Editor"/>
+      <Button color="primary" onClick={onClick} label="Open in Editor" />
     </TopToolbar>
-  )
-}
+  );
+};
 
 const ThingShow = () => {
   return (
-    <Show actions={<ThingShowActionBar/>}>
+    <Show actions={<ThingShowActionBar />}>
       <SimpleShowLayout>
         <ThingShowTitle />
         <Divider />
@@ -346,38 +340,62 @@ const ThingCreate = () => (
   </Create>
 );
 
-const CustomUserMenu = () => { 
+const CustomUserMenu = () => {
   const { isLoading, identity } = useGetIdentity();
 
-  if(isLoading) {
-    return null
+  if (isLoading) {
+    return null;
   }
 
   return (
-  <>
-    <Typography variant="button">{identity.fullName}</Typography>
-  </>
-)}
+    <>
+      <Typography variant="button">{identity.fullName}</Typography>
+    </>
+  );
+};
 
 const CustomAppBar = () => <AppBar userMenu={<CustomUserMenu />} />;
 
 const CustomMenu = () => (
   <Menu>
+    <Menu.Item
+      to="/thingsboard"
+      primaryText="Thingsboard"
+      leftIcon={<DashboardIcon />}
+    />
     <Menu.ResourceItem name="thingDescriptions" />
     <Menu.Item to="/sparql" primaryText="Query" leftIcon={<QueryStatsIcon />} />
-  </Menu >
-)
-
-const CustomLayout = (props: any) => (
-  <Layout menu={CustomMenu} appBar={CustomAppBar}>
-    <Container maxWidth="lg">{props.children}</Container>
-  </Layout>
+  </Menu>
 );
 
+const CustomLayout = (props: any) => {
+  const location = useLocation();
+
+  if (location.pathname === "/thingsboard") {
+    return (
+      <Layout menu={CustomMenu} appBar={CustomAppBar}>
+        {props.children}
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout menu={CustomMenu} appBar={CustomAppBar}>
+      <Container maxWidth="lg">{props.children}</Container>
+    </Layout>
+  );
+};
+
 export const App = () => (
-  <Admin loginPage={false} dataProvider={dataSource} layout={CustomLayout} authProvider={authProvider}>
+  <Admin
+    loginPage={false}
+    dataProvider={dataSource}
+    layout={CustomLayout}
+    authProvider={authProvider}
+  >
     <CustomRoutes>
-      <Route path="/sparql" element={<SparqlPage />}/>
+      <Route path="/sparql" element={<SparqlPage />} />
+      <Route path="/thingsboard" element={<Thingsboard />} />
     </CustomRoutes>
     <Resource
       name="thingDescriptions"
