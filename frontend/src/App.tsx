@@ -24,11 +24,11 @@ import {
   useRecordContext,
   TabbedShowLayout,
   SimpleShowLayout,
-  UserMenu,
   AppBar,
   TopToolbar,
   EditButton,
-  Button
+  Button,
+  useGetIdentity
 } from "react-admin";
 import { Route } from "react-router-dom";
 import {
@@ -346,9 +346,18 @@ const ThingCreate = () => (
   </Create>
 );
 
-const CustomUserMenu = () => (
-  <UserMenu />
-);
+const CustomUserMenu = () => { 
+  const { isLoading, identity } = useGetIdentity();
+
+  if(isLoading) {
+    return null
+  }
+
+  return (
+  <>
+    <Typography variant="button">{identity.fullName}</Typography>
+  </>
+)}
 
 const CustomAppBar = () => <AppBar userMenu={<CustomUserMenu />} />;
 
@@ -368,7 +377,7 @@ const CustomLayout = (props: any) => (
 export const App = () => (
   <Admin loginPage={false} dataProvider={dataSource} layout={CustomLayout} authProvider={authProvider}>
     <CustomRoutes>
-      <Route path="/sparql" element={<SparqlPage />} />
+      <Route path="/sparql" element={<SparqlPage />}/>
     </CustomRoutes>
     <Resource
       name="thingDescriptions"
