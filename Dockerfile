@@ -25,7 +25,7 @@ ENV GOOS=linux
 RUN go build -o bin/server cmd/server/main.go
 RUN chmod +x bin/server
 
-FROM alpine:latest  
+FROM alpine:3  
 COPY --from=backend /app/bin/server /usr/local/bin
 WORKDIR /app
 COPY --from=frontend /app/dist /app/public
