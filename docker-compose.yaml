@@ -21,7 +21,9 @@ services:
       - ./frontend/index.html:/app/index.html
 
   backend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile_dev
     restart: always
     volumes:
       - ./pkg:/app/pkg
