@@ -7,7 +7,7 @@ variables:
   #TRIVY_IGNORE_UNFIXED: "true"
   TRIVY_IGNOREFILE: ".trivyignore"
   CHECKOV_SKIP_CHECK: 
-  CONTAINER_REGISTRY: registry.fsn.iotx.materna.work/registry/private
+  CONTAINER_REGISTRY: registry.fsn.iotx.materna.work/registry/public
   CONTAINER_REGISTRY_USER: ${CI_REGISTRY_USER}
   CONTAINER_REGISTRY_PASSWORD: ${DEVELOPER_REGISTRY_WRITE_TOKEN}
 
