@@ -25,7 +25,8 @@ ENV GOOS=linux
 RUN go build -o bin/server cmd/server/main.go
 RUN chmod +x bin/server
 
-FROM alpine:3  
+FROM alpine:3
+RUN apk add --no-cache curl
 COPY --from=backend /app/bin/server /usr/local/bin
 WORKDIR /app
 COPY --from=frontend /app/dist /app/public

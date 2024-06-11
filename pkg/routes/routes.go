@@ -8,8 +8,9 @@ import (
 func AddRoutes(r *gin.Engine) {
 	api := r.Group("/")
 
+	addHealthRoutes(api)
+
 	// only use the middlewares in the api group
 	api.Use(middleware.TokenMiddleware())
 	addUserRoutes(api)
-	addHealthRoutes(api)
 }
