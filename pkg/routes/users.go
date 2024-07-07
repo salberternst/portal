@@ -6,7 +6,7 @@ import (
 
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-gonic/gin"
-	"github.com/salberternst/fsn_landing_page/pkg/middleware"
+	"github.com/salberternst/portal/pkg/middleware"
 )
 
 type RealmRoleMapping struct {

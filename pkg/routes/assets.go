@@ -6,9 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/salberternst/fsn_landing_page/pkg/api"
-	"github.com/salberternst/fsn_landing_page/pkg/middleware"
-	"github.com/salberternst/fsn_landing_page/pkg/utils"
+	"github.com/salberternst/portal/pkg/api"
+	"github.com/salberternst/portal/pkg/middleware"
+	"github.com/salberternst/portal/pkg/utils"
 )
 
 type Asset struct {

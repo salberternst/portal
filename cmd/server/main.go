@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/salberternst/fsn_landing_page/pkg/routes"
+	"github.com/salberternst/portal/pkg/routes"
 )
 
 func main() {

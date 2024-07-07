@@ -1,4 +1,4 @@
-module github.com/salberternst/fsn_landing_page
+module github.com/salberternst/portal
 
 go 1.21.1
 

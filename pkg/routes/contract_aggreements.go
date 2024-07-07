@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/salberternst/fsn_landing_page/pkg/api"
-	"github.com/salberternst/fsn_landing_page/pkg/middleware"
+	"github.com/salberternst/portal/pkg/api"
+	"github.com/salberternst/portal/pkg/middleware"
 )
 
 type ContractAgreementsQuery struct {
