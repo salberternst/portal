@@ -1,108 +1,163 @@
-import { HttpError } from "react-admin";
-
-const fetchThings = async (pagination: any) => {
-  const { page, perPage }: { page: number; perPage: number } = pagination;
-  const response = await fetch(
-    `/api/registry/things?page=${page}&page_size=${perPage}`
-  );
-
-  const json = await response.json();
-  if (response.ok === false) {
-    throw new HttpError(json.message, response.status);
-  }
-
-  return json;
-};
-
-const fetchThing = async (id: string) => {
-  const response = await fetch(`/api/registry/things/${id}`);
-
-  const json = await response.json();
-  if (response.ok === false) {
-    throw new HttpError(json.message, response.status);
-  }
-
-  return json;
-};
-
-const fetchThingCredentials = async (id: string, security: string) => {
-  const response = await fetch(
-    `/api/registry/things/${id}/${security}/credentials`
-  );
-
-  const json = await response.json();
-  if (response.ok === false) {
-    throw new HttpError(json.message, response.status);
-  }
-
-  return json;
-};
-
-const updateThing = async (thing: any) => {
-  const response = await fetch(`/api/registry/things/${thing.id}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(thing),
-    method: "PUT",
-  });
-
-  if (response.ok === false) {
-    throw new HttpError(response.statusText, response.status);
-  }
-
-  return thing;
-};
-
-const deleteThing = async (id: any) => {
-  const response = await fetch(`/api/registry/things/${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    method: "DELETE",
-  });
-
-  if (response.ok === false) {
-    throw new HttpError(response.statusText, response.status);
-  }
-};
-
-const createThing = async (thing: any) => {
-  const response = await fetch(`/api/registry/things`, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(thing),
-    method: "POST",
-  });
-
-  if (response.ok === false) {
-    throw new HttpError(response.statusText, response.status);
-  }
-
-  return response.json();
-};
+import {
+  createAsset,
+  deleteAsset,
+  fetchAsset,
+  fetchAssets,
+} from "./api/assets";
+import { fetchCatalog, fetchCatalogDataset } from "./api/catalog";
+import {
+  fetchContractAgreement,
+  fetchContractAgreements,
+  fetchContractAgreementNegotiation,
+} from "./api/contract_agreements";
+import {
+  createContractDefinition,
+  deleteContractDefinition,
+  fetchContractDefinition,
+  fetchContractDefinitions,
+} from "./api/contract_definitions";
+import {
+  createContractNegotiation,
+  fetchContractNegotiation,
+} from "./api/contract_negotiations";
+import {
+  createCustomer,
+  deleteCustomer,
+  fetchCustomer,
+  fetchCustomers,
+  updateCustomer,
+} from "./api/customers";
+import {
+  createDevice,
+  deleteDevice,
+  fetchDevice,
+  fetchDevices,
+  updateDevice,
+} from "./api/devices";
+import {
+  createPolicy,
+  deletePolicy,
+  fetchPolicies,
+  fetchPolicy,
+} from "./api/policies";
+import {
+  createThing,
+  deleteThing,
+  fetchThing,
+  fetchThings,
+  updateThing,
+} from "./api/thing_registry";
+import {
+  createTransferProcess,
+  fetchTransferProcess,
+  fetchTransferProcesses,
+} from "./api/transfer_processes";
+import { fetchUsers, fetchUser } from "./api/users";
 
 export default {
   getList: async (resource: any, params: any) => {
     if (resource === "thingDescriptions") {
-      const result = await fetchThings(params.pagination);
+      const result = await fetchThings(params.pagination, params.sort);
       return {
-        data: result.things,
+        data: result.things.map((thing: any) => ({
+          ...thing,
+          description: {},
+        })),
         total: result.totalPages * result.pageSize,
       };
-    }
-  },
-  getMany: async (resource: any, params: any) => {
-    if (resource === "thingCredentials") {
-      const result = await Promise.all(
-        params.ids.map((id) => fetchThingCredentials(params.meta.thingId, id))
-      );
-      console.log(result);
+    } else if (resource === "assets") {
+      const assets = await fetchAssets(params.pagination);
       return {
-        data: result.map((_, index) => ({
-          id: params.ids[index],
+        data: assets.map((asset: any) => ({
+          ...asset,
+          id: asset["@id"],
         })),
+        pageInfo: {
+          hasNextPage: assets.length === params.pagination.perPage,
+          hasPreviousPage: params.pagination.page > 1,
+        },
+      };
+    } else if (resource === "customers") {
+      const customers = await fetchCustomers(params.pagination);
+      return {
+        data: customers,
+        pageInfo: {
+          hasNextPage: customers.length === params.pagination.perPage,
+          hasPreviousPage: params.pagination.page > 1,
+        },
+      };
+    } else if (resource === "users") {
+      const users = await fetchUsers(params.pagination);
+      return {
+        data: users,
+        pageInfo: {
+          hasNextPage: users.length === params.pagination.perPage,
+          hasPreviousPage: params.pagination.page > 1,
+        },
+      };
+    } else if (resource === "policies") {
+      const policies = await fetchPolicies(params.pagination);
+      return {
+        data: policies.map((policy: any) => ({
+          ...policy,
+          id: policy["@id"],
+        })),
+        pageInfo: {
+          hasNextPage: policies.length === params.pagination.perPage,
+          hasPreviousPage: params.pagination.page > 1,
+        },
+      };
+    } else if (resource === "contractdefinitions") {
+      const contracts = await fetchContractDefinitions(params.pagination);
+      return {
+        data: contracts.map((contract: any) => ({
+          ...contract,
+          id: contract["@id"],
+        })),
+        pageInfo: {
+          hasNextPage: contracts.length === params.pagination.perPage,
+          hasPreviousPage: params.pagination.page > 1,
+        },
+      };
+    } else if (resource === "contractagreements") {
+      const contracts = await fetchContractAgreements(params.pagination);
+      return {
+        data: contracts.map((contract: any) => ({
+          contractAgreement: {
+            ...contract,
+            id: contract["@id"],
+          },
+          negotiation: {},
+          dataset: {},
+          id: contract["@id"],
+        })),
+        pageInfo: {
+          hasNextPage: contracts.length === params.pagination.perPage,
+          hasPreviousPage: params.pagination.page > 1,
+        },
+      };
+    } else if (resource === "transferprocesses") {
+      const transferProccesses = await fetchTransferProcesses(
+        params.pagination
+      );
+      return {
+        data: transferProccesses.map((transferProcess: any) => ({
+          ...transferProcess,
+          id: transferProcess["@id"],
+        })),
+        pageInfo: {
+          hasNextPage: transferProccesses.length === params.pagination.perPage,
+          hasPreviousPage: params.pagination.page > 1,
+        },
+      };
+    } else if (resource === "devices") {
+      const devices = await fetchDevices(params.pagination);
+      return {
+        data: devices.data.map((device: any) => ({
+          ...device,
+          id: device.id.id,
+        })),
+        total: devices.totalElements,
       };
     }
   },
@@ -113,94 +168,219 @@ export default {
         data: {
           id: description.id,
           description,
-          securityDefinitions: Object.keys(description.securityDefinitions).map(
-            (name) => ({
-              ...description.securityDefinitions[name],
-              name,
-              thingId: description.id,
-              id: description.id + name,
-            })
-          ),
-          properties: Object.keys(description.properties || {}).map((name) => ({
-            ...description.properties[name],
-            name,
-            thingId: description.id,
-            id: description.id + name,
-          })),
-          actions: Object.keys(description.actions || {}).map((name) => ({
-            ...description.actions[name],
-            name,
-            thingId: description.id,
-            id: description.id + name,
-          })),
-          events: Object.keys(description.events || {}).map((name) => ({
-            ...description.events[name],
-            name,
-            thingId: description.id,
-            id: description.id + name,
-          })),
+        },
+      };
+    } else if (resource === "assets") {
+      const asset = await fetchAsset(params.id);
+      return {
+        data: {
+          ...asset,
+          id: asset["@id"],
+        },
+      };
+    } else if (resource === "customers") {
+      const customer = await fetchCustomer(params.id);
+      return {
+        data: customer,
+      };
+    } else if (resource === "users") {
+      const user = await fetchUser(params.id);
+      return {
+        data: user,
+      };
+    } else if (resource === "policies") {
+      const policy = await fetchPolicy(params.id);
+      return {
+        data: {
+          ...policy,
+          id: policy["@id"],
+        },
+      };
+    } else if (resource === "contractdefinitions") {
+      const contractDefinition = await fetchContractDefinition(params.id);
+      return {
+        data: {
+          ...contractDefinition,
+          id: contractDefinition["@id"],
+        },
+      };
+    } else if (resource === "catalog") {
+      const catalog = await fetchCatalog(params.id);
+      return {
+        data: {
+          id: params.id,
+          ...catalog,
+        },
+        id: params.id,
+      };
+    } else if (resource === "contractnegotiations") {
+      const contractNegotiation = await fetchContractNegotiation(params.id);
+      return {
+        data: {
+          ...contractNegotiation,
+          id: contractNegotiation["@id"],
+        },
+      };
+    } else if (resource === "contractagreements") {
+      const contractAgreement = await fetchContractAgreement(params.id);
+      const negotiation = await fetchContractAgreementNegotiation(
+        contractAgreement["@id"]
+      );
+      const dataset = await fetchCatalogDataset(
+        negotiation["counterPartyAddress"],
+        contractAgreement.assetId
+      );
+      return {
+        data: {
+          contractAgreement,
+          negotiation,
+          dataset,
+          id: contractAgreement["@id"],
+        },
+      };
+    } else if (resource === "transferprocesses") {
+      const transferProcess = await fetchTransferProcess(params.id);
+      return {
+        data: {
+          ...transferProcess,
+          id: transferProcess["@id"],
+        },
+      };
+    } else if (resource === "devices") {
+      const device = await fetchDevice(params.id);
+      return {
+        data: {
+          ...device,
+          id: device.id.id,
         },
       };
     }
   },
   update: async (resource: any, params: any) => {
     if (resource === "thingDescriptions") {
-      const { description, ...rest } = params.data;
-      const updatedThing = await updateThing({
-        ...description,
-        properties: rest.properties?.reduce(
-          (properties, { name, ...property }) => ({
-            ...properties,
-            [name]: property,
-          }),
-          {}
-        ),
-        actions: rest.actions?.reduce(
-          (actions, { name, ...action }) => ({ ...actions, [name]: action }),
-          {}
-        ),
-        events: rest.events?.reduce(
-          (events, { name, ...event }) => ({ ...events, [name]: event }),
-          {}
-        ),
-      });
+      const updatedThing = await updateThing(
+        params.id,
+        params.data.description
+      );
       return {
         data: {
-          id: description.id,
+          id: updatedThing.id,
           description: updatedThing,
-          properties: Object.keys(description.properties || {}).map((name) => ({
-            ...description.properties[name],
-            name,
-            thingId: description.id,
-            id: description.id + name,
-          })),
-          actions: Object.keys(description.actions || {}).map((name) => ({
-            ...description.actions[name],
-            name,
-            thingId: description.id,
-            id: description.id + name,
-          })),
-          events: Object.keys(description.events || {}).map((name) => ({
-            ...description.events[name],
-            name,
-            thingId: description.id,
-            id: description.id + name,
-          })),
+        },
+      };
+    } else if (resource === "customers") {
+      const updatedCustomer = await updateCustomer(params.id, params.data);
+      return {
+        data: updatedCustomer,
+      };
+    } else if (resource === "devices") {
+      const updatedDevice = await updateDevice(params.id, params.data);
+      return {
+        data: {
+          ...updatedDevice,
+          id: updatedDevice.id.id,
         },
       };
     }
   },
-  create: (resource: any, params: any) => {
+  create: async (resource: any, params: any) => {
     if (resource === "thingDescriptions") {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async function (e) {
-          createThing(JSON.parse(e.target.result))
-            .then((createdThing) => resolve({ data: createdThing }))
-            .catch((e) => reject(e));
-        };
-        reader.readAsText(params.data.attachments.rawFile);
+      const createdThing = await createThing(params.data.description);
+      return {
+        data: {
+          id: createdThing.id,
+          description: {},
+        },
+      };
+    } else if (resource === "assets") {
+      await createAsset({
+        ...params.data,
+        "@context": {
+          "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+        },
       });
+
+      return {
+        data: {
+          ...params.data,
+          id: params.data["@id"],
+        },
+      };
+    } else if (resource === "customers") {
+      const customer = await createCustomer(params.data);
+      return {
+        data: customer,
+      };
+    } else if (resource === "policies") {
+      const policy = await createPolicy({
+        ...params.data,
+        policy: {
+          ...params.data.policy,
+        },
+        "@context": {
+          "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+          odrl: "http://www.w3.org/ns/odrl/2/",
+        },
+      });
+      return {
+        data: {
+          ...policy,
+          id: policy["@id"],
+        },
+      };
+    } else if (resource === "contractdefinitions") {
+      const contractDefinition = await createContractDefinition({
+        ...params.data,
+        "@context": {
+          "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+        },
+      });
+      return {
+        data: {
+          ...contractDefinition,
+          id: contractDefinition["@id"],
+        },
+      };
+    } else if (resource === "contractnegotiations") {
+      const contractNegotation = await createContractNegotiation({
+        ...params.data,
+        "@type": "ContractRequest",
+        policy: {
+          ...params.data.policy,
+          "@context": "http://www.w3.org/ns/odrl.jsonld",
+        },
+        "@context": {
+          "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+        },
+      });
+      return {
+        data: {
+          ...contractNegotation,
+          id: contractNegotation["@id"],
+        },
+      };
+    } else if (resource === "transferprocesses") {
+      const transferProcess = await createTransferProcess({
+        ...params.data,
+        "@context": {
+          "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+        },
+        "@type": "TransferRequestDto",
+      });
+      return {
+        data: {
+          ...transferProcess,
+          id: transferProcess["@id"],
+        },
+      };
+    } else if (resource === "devices") {
+      const device = await createDevice(params.data);
+      return {
+        data: {
+          ...device,
+          id: device.id.id,
+        },
+      };
     }
   },
   delete: async (resource: any, params: any) => {
@@ -211,6 +391,51 @@ export default {
           id: params.id,
         },
       };
+    } else if (resource === "assets") {
+      await deleteAsset(params.id);
+      return {
+        data: {
+          id: params.id,
+        },
+      };
+    } else if (resource === "customers") {
+      await deleteCustomer(params.id);
+      return {
+        data: {
+          id: params.id,
+        },
+      };
+    } else if (resource === "policies") {
+      await deletePolicy(params.id);
+      return {
+        data: {
+          id: params.id,
+        },
+      };
+    } else if (resource === "contractdefinitions") {
+      await deleteContractDefinition(params.id);
+      return {
+        data: {
+          id: params.id,
+        },
+      };
+    } else if (resource === "devices") {
+      await deleteDevice(params.id);
+      return {
+        data: {
+          id: params.id,
+        },
+      };
     }
   },
+  getMany: async (resource: any, params: any) => {
+    if (resource === "users") {
+      const users = await Promise.all(
+        params.ids.map((id: any) => fetchUser(id))
+      );
+      return {
+        data: users,
+      };
+    }
+  }
 };

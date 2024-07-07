@@ -1,10 +1,6 @@
 import { useState, useEffect } from "react";
 
-/**
- * Renders an iframe that displays the Thingsboard application.
- * The URL of the iframe is dynamically generated based on the current window location.
- */
-export default function Thingsboard() {
+export default function Keycloak() {
   const [url, setUrl] = useState();
 
   useEffect(() => {
@@ -17,7 +13,7 @@ export default function Thingsboard() {
 
   return (
     <iframe
-      src={`${url.protocol}//thingsboard.${url.host}/`}
+      src={`${url.protocol}//${url.host}/admin/master/console/`}
       style={{ width: "100%", height: "100%" }}
     />
   );

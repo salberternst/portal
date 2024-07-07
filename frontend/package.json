@@ -17,11 +17,12 @@
     "@uiw/react-codemirror": "^4.21.18",
     "ajv-formats-draft2019": "^1.6.1",
     "install": "^0.13.0",
+    "jsonld": "^8.3.2",
     "jsonwebtoken": "^9.0.2",
     "lz-string": "^1.5.0",
     "npm": "^10.2.0",
     "react": "^18.2.0",
-    "react-admin": "^4.14.0",
+    "react-admin": "^5.0.3",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
