@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/salberternst/portal/pkg/middleware"
+	"github.com/salberternst/portal/pkg/utils"
 )
 
 func AddRoutes(r *gin.Engine) {
@@ -27,7 +28,7 @@ func AddRoutes(r *gin.Engine) {
 	addContractAggreementsRoutes(api)
 	addCatalogsRoutes(api)
 	addTransferProcessesRoutes(api)
-	if false {
+	if utils.GetConfig().EnableThingsboard {
 		addDevicesRoutes(api)
 	}
 }
