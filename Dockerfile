@@ -26,10 +26,10 @@ RUN go build -o bin/server cmd/server/main.go
 RUN chmod +x bin/server
 
 FROM alpine:3
-RUN apk add --no-cache curl envsubst
+RUN apk add --no-cache curl
 COPY --from=backend /app/bin/server /usr/local/bin
 WORKDIR /app
 COPY --from=frontend /app/dist /app/public
 USER 1001
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 CMD curl -f http://localhost:8080/health || exit 1
-ENTRYPOINT ["sh", "-c", "envsubst < /app/public/config.js > /app/public/config.js && server"]
+ENTRYPOINT ["server"]  
