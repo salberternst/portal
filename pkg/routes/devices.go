@@ -51,8 +51,7 @@ func getDevices(ctx *gin.Context) {
 func getDevice(ctx *gin.Context) {
 	deviceId := ctx.Param("id")
 
-	device, err := middleware.GetThingsboardAPI(ctx).
-		GetDevice(middleware.GetAccessToken(ctx), deviceId)
+	device, err := middleware.GetThingsboardAPI(ctx).GetDevice(middleware.GetAccessToken(ctx), deviceId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"status":  http.StatusInternalServerError,
@@ -62,8 +61,7 @@ func getDevice(ctx *gin.Context) {
 		return
 	}
 
-	deviceAttributes, err := middleware.GetThingsboardAPI(ctx).
-		GetDeviceAttributes(middleware.GetAccessToken(ctx), deviceId)
+	deviceAttributes, err := middleware.GetThingsboardAPI(ctx).GetDeviceAttributes(middleware.GetAccessToken(ctx), deviceId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"status":  http.StatusInternalServerError,
@@ -73,8 +71,7 @@ func getDevice(ctx *gin.Context) {
 		return
 	}
 
-	deviceCredentials, err := middleware.GetThingsboardAPI(ctx).
-		GetDeviceCredentials(middleware.GetAccessToken(ctx), deviceId)
+	deviceCredentials, err := middleware.GetThingsboardAPI(ctx).GetDeviceCredentials(middleware.GetAccessToken(ctx), deviceId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"status":  http.StatusInternalServerError,

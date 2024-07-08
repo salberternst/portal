@@ -144,10 +144,6 @@ func getCustomer(ctx *gin.Context) {
 
 	customerID := ctx.Param("id")
 
-	accessToken := middleware.GetAccessToken(ctx)
-	thingsboardApi := middleware.GetThingsboardAPI(ctx)
-	fusekiApi := middleware.GetFusekiAPI(ctx)
-
 	group, err := middleware.GetKeycloakClient(ctx).GetGroup(ctx,
 		middleware.GetKeycloakToken(ctx),
 		middleware.GetKeycloakRealm(ctx),
@@ -220,7 +216,10 @@ func getCustomer(ctx *gin.Context) {
 	customerId := (*group.Attributes)["customer-id"][0]
 
 	if utils.GetConfig().EnableThingsboard {
-		thingsboardCustomer, err := thingsboardApi.GetCustomer(accessToken, customerId)
+		thingsboardCustomer, err := middleware.GetThingsboardAPI(ctx).GetCustomer(
+			middleware.GetAccessToken(ctx),
+			customerId,
+		)
 		if err != nil {
 			customer.Thingsboard = &ThingsboardCustomer{
 				Error: err.Error(),
@@ -243,7 +242,9 @@ func getCustomer(ctx *gin.Context) {
 	}
 
 	if utils.GetConfig().EnableFuseki {
-		fusekiDataset, err := fusekiApi.GetDataset(middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId)
+		fusekiDataset, err := middleware.GetFusekiAPI(ctx).GetDataset(
+			middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId,
+		)
 		if err != nil {
 			customer.Fuseki = &FusekiDataset{
 				Error: err.Error(),
@@ -279,19 +280,16 @@ func createCustomer(ctx *gin.Context) {
 		return
 	}
 
-	client := ctx.MustGet("keycloak-client").(*gocloak.GoCloak)
-	thingsboardApi := ctx.MustGet("thingsboard-api").(*api.ThingsboardAPI)
-	fusekiApi := ctx.MustGet("fuseki-api").(*api.FusekiAPI)
-	accessToken := ctx.MustGet("access-token").(string)
-	keycloakToken := ctx.MustGet("keycloak-token").(string)
-
 	var customerId string
 
 	if utils.GetConfig().EnableThingsboard {
-		createdThingsboardCustomer, err := thingsboardApi.CreateCustomer(accessToken, api.ThingsboardCustomer{
-			Name:  customer.Name,
-			Title: customer.Name,
-		})
+		createdThingsboardCustomer, err := middleware.GetThingsboardAPI(ctx).CreateCustomer(
+			middleware.GetAccessToken(ctx),
+			api.ThingsboardCustomer{
+				Name:  customer.Name,
+				Title: customer.Name,
+			},
+		)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"status":  http.StatusInternalServerError,
@@ -307,7 +305,9 @@ func createCustomer(ctx *gin.Context) {
 	}
 
 	if utils.GetConfig().EnableFuseki {
-		if err := fusekiApi.CreateDataset(middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId); err != nil {
+		if err := middleware.GetFusekiAPI(ctx).CreateDataset(
+			middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId,
+		); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"status":  http.StatusInternalServerError,
 				"error":   "unable_to_create_fuseki_dataset",
@@ -317,18 +317,22 @@ func createCustomer(ctx *gin.Context) {
 		}
 	}
 
-	id, err := client.CreateGroup(ctx, keycloakToken, middleware.GetKeycloakRealm(ctx), gocloak.Group{
-		Name: &customer.Name,
-		Attributes: &map[string][]string{
-			"tenant-id":             {middleware.GetAccessTokenClaims(ctx).TenantId},
-			"customer-id":           {customerId},
-			"thingsboard-tenant-id": {middleware.GetAccessTokenClaims(ctx).ThingsboardTenantId},
-			"description":           {customer.Description},
-			"created-by":            {middleware.GetAccessTokenClaims(ctx).Email},
-			"created-at":            {time.Now().String()},
-			"type":                  {CustomerType},
+	id, err := middleware.GetKeycloakClient(ctx).CreateGroup(ctx,
+		middleware.GetKeycloakToken(ctx),
+		middleware.GetKeycloakRealm(ctx),
+		gocloak.Group{
+			Name: &customer.Name,
+			Attributes: &map[string][]string{
+				"tenant-id":             {middleware.GetAccessTokenClaims(ctx).TenantId},
+				"customer-id":           {customerId},
+				"thingsboard-tenant-id": {middleware.GetAccessTokenClaims(ctx).ThingsboardTenantId},
+				"description":           {customer.Description},
+				"created-by":            {middleware.GetAccessTokenClaims(ctx).Email},
+				"created-at":            {time.Now().String()},
+				"type":                  {CustomerType},
+			},
 		},
-	})
+	)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -339,8 +343,8 @@ func createCustomer(ctx *gin.Context) {
 		return
 	}
 
-	role, err := client.GetRealmRole(ctx,
-		keycloakToken,
+	role, err := middleware.GetKeycloakClient(ctx).GetRealmRole(ctx,
+		middleware.GetKeycloakToken(ctx),
 		middleware.GetKeycloakRealm(ctx),
 		"customer",
 	)
@@ -353,15 +357,14 @@ func createCustomer(ctx *gin.Context) {
 		return
 	}
 
-	err = client.AddRealmRoleToGroup(ctx,
-		keycloakToken,
+	if err := middleware.GetKeycloakClient(ctx).AddRealmRoleToGroup(ctx,
+		middleware.GetKeycloakToken(ctx),
 		middleware.GetKeycloakRealm(ctx),
 		id,
 		[]gocloak.Role{
 			*role,
 		},
-	)
-	if err != nil {
+	); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"status":  http.StatusInternalServerError,
 			"error":   "unable_to_add_keycloak_role_to_group",
@@ -378,13 +381,7 @@ func createCustomer(ctx *gin.Context) {
 func deleteCustomer(ctx *gin.Context) {
 	customerID := ctx.Param("id")
 
-	client := ctx.MustGet("keycloak-client").(*gocloak.GoCloak)
-	thingsboardApi := ctx.MustGet("thingsboard-api").(*api.ThingsboardAPI)
-	fusekiApi := ctx.MustGet("fuseki-api").(*api.FusekiAPI)
-	accessToken := ctx.MustGet("access-token").(string)
-	keycloakToken := ctx.MustGet("keycloak-token").(string)
-
-	group, err := client.GetGroup(ctx,
+	group, err := middleware.GetKeycloakClient(ctx).GetGroup(ctx,
 		middleware.GetKeycloakToken(ctx),
 		middleware.GetKeycloakRealm(ctx),
 		customerID,
@@ -408,8 +405,7 @@ func deleteCustomer(ctx *gin.Context) {
 	customerId := (*group.Attributes)["customer-id"][0]
 
 	if utils.GetConfig().EnableThingsboard {
-		err = thingsboardApi.DeleteCustomer(accessToken, customerId)
-		if err != nil {
+		if err := middleware.GetThingsboardAPI(ctx).DeleteCustomer(middleware.GetAccessToken(ctx), customerId); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"status":  http.StatusInternalServerError,
 				"error":   "unable_to_delete_thingsboard_customer",
@@ -420,8 +416,7 @@ func deleteCustomer(ctx *gin.Context) {
 	}
 
 	if utils.GetConfig().EnableFuseki {
-		err = fusekiApi.DeleteDataset(middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId)
-		if err != nil {
+		if err := middleware.GetFusekiAPI(ctx).DeleteDataset(middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId); err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"status":  http.StatusInternalServerError,
 				"error":   "unable_to_delete_fuseki_dataset",
@@ -431,8 +426,9 @@ func deleteCustomer(ctx *gin.Context) {
 		}
 	}
 
-	if err := client.DeleteGroup(ctx,
-		keycloakToken,
+	if err := middleware.GetKeycloakClient(ctx).DeleteGroup(
+		ctx,
+		middleware.GetKeycloakToken(ctx),
 		middleware.GetKeycloakRealm(ctx),
 		customerID,
 	); err != nil {
@@ -459,11 +455,9 @@ func updateCustomer(ctx *gin.Context) {
 		return
 	}
 
-	client := ctx.MustGet("keycloak-client").(*gocloak.GoCloak)
-	keycloakToken := ctx.MustGet("keycloak-token").(string)
-
-	group, err := client.GetGroup(ctx,
-		keycloakToken,
+	group, err := middleware.GetKeycloakClient(ctx).GetGroup(
+		ctx,
+		middleware.GetKeycloakToken(ctx),
 		middleware.GetKeycloakRealm(ctx),
 		customerID,
 	)
@@ -486,8 +480,12 @@ func updateCustomer(ctx *gin.Context) {
 		(*group.Attributes)["description"][0] = updateCustomer.Description
 	}
 
-	err = client.UpdateGroup(ctx, keycloakToken, middleware.GetKeycloakRealm(ctx), *group)
-	if err != nil {
+	if err := middleware.GetKeycloakClient(ctx).UpdateGroup(
+		ctx,
+		middleware.GetKeycloakToken(ctx),
+		middleware.GetKeycloakRealm(ctx),
+		*group,
+	); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"status":  http.StatusInternalServerError,
 			"error":   "unable_to_update_customer",

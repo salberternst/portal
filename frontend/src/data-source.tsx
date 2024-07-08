@@ -52,7 +52,7 @@ import {
   fetchTransferProcess,
   fetchTransferProcesses,
 } from "./api/transfer_processes";
-import { fetchUsers, fetchUser, createUser, deleteUser } from "./api/users";
+import { fetchUser, createUser, deleteUser } from "./api/users";
 
 export default {
   getList: async (resource: any, params: any) => {

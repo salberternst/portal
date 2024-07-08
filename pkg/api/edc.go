@@ -510,7 +510,6 @@ func (e *EdcAPI) GetContractNegotiation(id string) (*ContractNegotiation, error)
 		SetResult(&contractNegotiation).
 		Get(e.url + "/management/v2/contractnegotiations/" + id)
 
-	fmt.Println(resp)
 	if err != nil {
 		return nil, err
 	}
