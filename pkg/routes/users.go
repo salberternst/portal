@@ -185,6 +185,23 @@ func createUser(ctx *gin.Context) {
 		}
 
 		keycloakUser.Groups = &[]string{*group.Path}
+
+		if utils.GetConfig().EnableThingsboard {
+			if err := middleware.GetThingsboardAPI(ctx).CreateUser(middleware.GetAccessToken(ctx),
+				user.Email,
+				user.FirstName,
+				user.LastName,
+				middleware.GetAccessTokenClaims(ctx).TenantId,
+				(*group.Attributes)["customer-id"][0],
+			); err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"status":  "internal_server_error",
+					"error":   err.Error(),
+					"message": "Failed to create user in Thingsboard",
+				})
+				return
+			}
+		}
 	} else if user.IsAdmin {
 		keycloakUser.Groups = &[]string{middleware.GetAccessTokenClaims(ctx).TenantId}
 	} else {
@@ -209,23 +226,6 @@ func createUser(ctx *gin.Context) {
 			"message": "Failed to create user",
 		})
 		return
-	}
-
-	if utils.GetConfig().EnableThingsboard {
-		if err := middleware.GetThingsboardAPI(ctx).CreateUser(middleware.GetKeycloakToken(ctx),
-			user.Email,
-			user.FirstName,
-			user.LastName,
-			middleware.GetAccessTokenClaims(ctx).TenantId,
-			user.Group,
-		); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"status":  "internal_server_error",
-				"error":   err.Error(),
-				"message": "Failed to create user in Thingsboard",
-			})
-			return
-		}
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{

@@ -1,4 +1,4 @@
 var config = {
-    devicesEnabled: false,
-    sparqlEnabled: false
+    devicesEnabled: true,
+    sparqlEnabled: true
 }

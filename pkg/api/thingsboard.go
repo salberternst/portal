@@ -439,15 +439,15 @@ func (tb *ThingsboardAPI) CreateUser(accessToken string, email string, firstName
 			"id":         customerId,
 			"entityType": "CUSTOMER",
 		},
+		"authority": "CUSTOMER_USER",
 	}
 
 	resp, err := tb.client.R().
 		SetHeader("Content-Type", "application/json").
 		SetHeader("X-Authorization", "Bearer "+thingsboardToken).
 		SetBody(user).
-		Post(tb.url + "/api/user")
+		Post(tb.url + "/api/user?sendActivationMail=false")
 
-	fmt.Println(resp)
 	if err != nil {
 		return err
 	}

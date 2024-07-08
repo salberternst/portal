@@ -94,10 +94,10 @@ export const CustomerShow = () => {
       {window.config.devicesEnabled && (
         <>
           <Divider>Thingsboard</Divider>
-          {record.thingsboard.error !== undefined && (
+          {record.thingsboard?.error !== undefined && (
             <Alert severity="error">{record.thingsboard.error}</Alert>
           )}
-          {record.thingsboard.error === undefined && (
+          {record.thingsboard?.error === undefined && (
             <SimpleShowLayout>
               <TextField source="thingsboard.id" label="ID" />
               <TextField source="thingsboard.title" label="Title" />
@@ -130,10 +130,10 @@ export const CustomerShow = () => {
       {window.config.sparqlEnabled && (
         <>
           <Divider>Fuseki</Divider>
-          {record.fuseki.error !== undefined && (
+          {record.fuseki?.error !== undefined && (
             <Alert severity="error">{record.fuseki.error}</Alert>
           )}
-          {record.fuseki.error === undefined && (
+          {record.fuseki?.error === undefined && (
             <SimpleShowLayout>
               <TextField source="fuseki.name" label="Name" />
               <TextField source="fuseki.state" label="State" />
