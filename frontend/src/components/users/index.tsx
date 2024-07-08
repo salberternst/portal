@@ -1,35 +1,71 @@
+import { useEffect, useState } from "react";
 import {
   Labeled,
-  List,
   Datagrid,
   TextField,
   Show,
   SimpleShowLayout,
-  BooleanField,
   ArrayField,
+  Create,
+  SimpleForm,
+  TextInput,
+  required,
+  useNotify,
+  useRedirect,
+  useShowController,
+  TopToolbar,
+  DeleteButton,
+  useRecordContext,
 } from "react-admin";
-import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
 
-export const UsersList = () => (
-  <List empty={false} hasCreate={true} exporter={false}>
-    <Datagrid bulkActionButtons={false} rowClick="show">
-      <TextField source="id" sortable={false} />
-      <TextField source="email" label="Email" sortable={false} />
-      <BooleanField
-        source="emailVerified"
-        label="Email Verified"
-        sortable={false}
-      />
-      <TextField source="firstName" label="First Name" sortable={false} />
-      <TextField source="lastName" label="Last Name" sortable={false} />
-      <BooleanField source="isAdmin" label="Admin" sortable={false} />
-    </Datagrid>
-  </List>
-);
+const UserShowBar = () => {
+  const redirect = useRedirect();
+  const record = useRecordContext();
+  const onRedirect = () => {
+    const customerId = record?.groups[0]?.id;
+    return redirect("show", "/customers", customerId);
+  };
+  return (
+    <TopToolbar>
+      <DeleteButton mutationMode="pessimistic" redirect={onRedirect} />
+    </TopToolbar>
+  );
+};
+
+export const UserCreate = () => {
+  const notify = useNotify();
+  const redirect = useRedirect();
+
+  const onSuccess = (user) => {
+    notify(`User "${user.id}" created successfully.`);
+    redirect("show", "/users", user.id, user);
+  };
+
+  return (
+    <Create mutationOptions={{ onSuccess }}>
+      <SimpleForm>
+        <TextInput source="email" label="Email" validate={[required()]} />
+        <TextInput source="firstName" label="First Name" />
+        <TextInput source="lastName" label="Last Name" />
+        <TextInput source="group" label="Group" readOnly />
+      </SimpleForm>
+    </Create>
+  );
+};
 
 export const UserShow = () => {
+  const [password, setPassword] = useState();
+  const { record } = useShowController();
+
+  useEffect(() => {
+    if (record?.password) {
+      setPassword(record.password);
+    }
+  }, [record?.password]);
+
   return (
-    <Show>
+    <Show actions={<UserShowBar />}>
       <SimpleShowLayout>
         <Labeled fullWidth label="ID">
           <TextField source="id" />
@@ -46,7 +82,12 @@ export const UserShow = () => {
         <Labeled fullWidth label="Last Name">
           <TextField source="lastName" />
         </Labeled>
-        <ArrayField source="groups" >
+        {password && (
+          <Labeled fullWidth label="Password">
+            <Typography variant="body2">{password}</Typography>
+          </Labeled>
+        )}
+        <ArrayField source="groups">
           <Datagrid bulkActionButtons={false}>
             <TextField source="id" />
             <TextField source="name" />

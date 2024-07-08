@@ -6,7 +6,7 @@ import {
   Menu,
   AppBar,
   useGetIdentity,
-  nanoLightTheme
+  nanoLightTheme,
 } from "react-admin";
 import { Route } from "react-router-dom";
 import Divider from "@mui/material/Divider";
@@ -42,7 +42,7 @@ import {
   CustomersList,
   CustomerUpdate,
 } from "./components/customers";
-import { UserShow, UsersList } from "./components/users";
+import { UserCreate, UserShow } from "./components/users";
 import { PoliciesList, PolicyCreate, PolicyShow } from "./components/policies";
 import {
   ContractDefinitionCreate,
@@ -99,7 +99,6 @@ const CustomMenu = () => {
       {window.config.devicesEnabled && <Menu.ResourceItem name="devices" />}
       <Menu.ResourceItem name="thingDescriptions" />
       {isAdmin && <Menu.ResourceItem name="customers" />}
-      {isAdmin && <Menu.ResourceItem name="users" />}
       {window.config.sparqlEnabled && (
         <Menu.Item
           to="/sparql"
@@ -213,8 +212,8 @@ export const App = () => (
       name="users"
       options={{ label: "Users" }}
       icon={PeopleOutlineIcon}
-      list={UsersList}
       show={UserShow}
+      create={UserCreate}
     />
     <Resource
       name="policies"

@@ -208,6 +208,15 @@ func getCustomer(ctx *gin.Context) {
 		Members:     members,
 	}
 
+	if group.Attributes == nil || (*group.Attributes)["customer-id"] == nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error":   "customer_not_found",
+			"message": fmt.Sprintf("customer with id %s not found", customerID),
+			"status":  http.StatusNotFound,
+		})
+		return
+	}
+
 	customerId := (*group.Attributes)["customer-id"][0]
 
 	if utils.GetConfig().EnableThingsboard {

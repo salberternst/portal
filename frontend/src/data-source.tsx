@@ -52,7 +52,7 @@ import {
   fetchTransferProcess,
   fetchTransferProcesses,
 } from "./api/transfer_processes";
-import { fetchUsers, fetchUser } from "./api/users";
+import { fetchUsers, fetchUser, createUser, deleteUser } from "./api/users";
 
 export default {
   getList: async (resource: any, params: any) => {
@@ -83,15 +83,6 @@ export default {
         data: customers,
         pageInfo: {
           hasNextPage: customers.length === params.pagination.perPage,
-          hasPreviousPage: params.pagination.page > 1,
-        },
-      };
-    } else if (resource === "users") {
-      const users = await fetchUsers(params.pagination);
-      return {
-        data: users,
-        pageInfo: {
-          hasNextPage: users.length === params.pagination.perPage,
           hasPreviousPage: params.pagination.page > 1,
         },
       };
@@ -381,6 +372,11 @@ export default {
           id: device.id.id,
         },
       };
+    } else if (resource === "users") {
+      const user = await createUser(params.data);
+      return {
+        data: user,
+      };
     }
   },
   delete: async (resource: any, params: any) => {
@@ -426,6 +422,13 @@ export default {
           id: params.id,
         },
       };
+    } else if (resource === "users") {
+      await deleteUser(params.id);
+      return {
+        data: {
+          id: params.id,
+        },
+      };
     }
   },
   getMany: async (resource: any, params: any) => {
@@ -437,5 +440,5 @@ export default {
         data: users,
       };
     }
-  }
+  },
 };

@@ -7,6 +7,7 @@ import (
 	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-gonic/gin"
 	"github.com/salberternst/portal/pkg/middleware"
+	"github.com/salberternst/portal/pkg/utils"
 )
 
 type RealmRoleMapping struct {
@@ -22,58 +23,23 @@ type Group struct {
 	Name string `json:"name"`
 }
 
-type User struct {
-	Id               string             `json:"id,omitempty"`
-	Email            string             `json:"email"`
-	EmailVerified    bool               `json:"emailVerified,omitempty"`
-	FirstName        string             `json:"firstName"`
-	LastName         string             `json:"lastName"`
-	Group            string             `json:"group,omitempty"`
-	IsAdmin          bool               `json:"isAdmin,omitempty"`
-	RealmRoleMapping []RealmRoleMapping `json:"realmRoleMapping,omitempty"`
-	Groups           []Group            `json:"groups,omitempty"`
+type UserInput struct {
+	Id        string `json:"id,omitempty"`
+	Email     string `json:"email"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	IsAdmin   bool   `json:"isAdmin,omitempty"`
+	Group     string `json:"group,omitempty"`
 }
 
-func getUsers(ctx *gin.Context) {
-	if !middleware.IsAdmin(ctx) {
-		ctx.JSON(http.StatusForbidden, gin.H{
-			"error":   "forbidden",
-			"message": "not allowed to access this resource",
-			"status":  http.StatusForbidden,
-		})
-		return
-	}
-
-	briefRepresentation := false
-	keycloakUsers, err := middleware.GetKeycloakClient(ctx).GetUsers(
-		ctx,
-		middleware.GetKeycloakToken(ctx),
-		middleware.GetKeycloakRealm(ctx),
-		gocloak.GetUsersParams{
-			BriefRepresentation: &briefRepresentation,
-		},
-	)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  "internal_server_error",
-			"error":   err.Error(),
-			"message": "Failed to get users",
-		})
-		return
-	}
-
-	users := []User{}
-	for _, keycloakUser := range keycloakUsers {
-		users = append(users, User{
-			Id:            *keycloakUser.ID,
-			Email:         *keycloakUser.Email,
-			EmailVerified: *keycloakUser.EmailVerified,
-			FirstName:     *keycloakUser.FirstName,
-			LastName:      *keycloakUser.LastName,
-		})
-	}
-
-	ctx.JSON(http.StatusOK, users)
+type User struct {
+	Id            string  `json:"id,omitempty"`
+	Email         string  `json:"email"`
+	EmailVerified bool    `json:"emailVerified,omitempty"`
+	FirstName     string  `json:"firstName"`
+	LastName      string  `json:"lastName"`
+	Groups        []Group `json:"groups,omitempty"`
+	Password      string  `json:"password,omitempty"`
 }
 
 func getUser(ctx *gin.Context) {
@@ -141,9 +107,15 @@ func getUser(ctx *gin.Context) {
 		Id:            *keycloakUser.ID,
 		Email:         *keycloakUser.Email,
 		EmailVerified: *keycloakUser.EmailVerified,
-		FirstName:     *keycloakUser.FirstName,
-		LastName:      *keycloakUser.LastName,
 		Groups:        userGroups,
+	}
+
+	if keycloakUser.FirstName != nil {
+		user.FirstName = *keycloakUser.FirstName
+	}
+
+	if keycloakUser.LastName != nil {
+		user.LastName = *keycloakUser.LastName
 	}
 
 	ctx.JSON(http.StatusOK, user)
@@ -159,7 +131,7 @@ func createUser(ctx *gin.Context) {
 		return
 	}
 
-	user := User{}
+	user := UserInput{}
 	if err := ctx.BindJSON(&user); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"status":  http.StatusBadRequest,
@@ -169,17 +141,67 @@ func createUser(ctx *gin.Context) {
 		return
 	}
 
+	keycloakUserPassword := utils.GenerateRandomPassword(16)
+
+	keycloakUser := gocloak.User{
+		Username:      &user.Email,
+		Email:         &user.Email,
+		FirstName:     &user.FirstName,
+		LastName:      &user.LastName,
+		Enabled:       gocloak.BoolP(true),
+		EmailVerified: gocloak.BoolP(true),
+		Credentials: &[]gocloak.CredentialRepresentation{
+			{
+				Temporary: gocloak.BoolP(true),
+				Type:      gocloak.StringP("password"),
+				Value:     &keycloakUserPassword,
+			},
+		},
+	}
+
+	if user.Group != "" {
+		group, err := middleware.GetKeycloakClient(ctx).GetGroup(ctx,
+			middleware.GetKeycloakToken(ctx),
+			middleware.GetKeycloakRealm(ctx),
+			user.Group,
+		)
+
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"status":  "internal_server_error",
+				"error":   err.Error(),
+				"message": "Failed to get group",
+			})
+			return
+		}
+
+		if (*group.Attributes)["tenant-id"][0] != middleware.GetAccessTokenClaims(ctx).TenantId {
+			ctx.JSON(http.StatusForbidden, gin.H{
+				"status":  http.StatusForbidden,
+				"error":   "forbidden",
+				"message": "You are not allowed to create users for this customer",
+			})
+			return
+		}
+
+		keycloakUser.Groups = &[]string{*group.Path}
+	} else if user.IsAdmin {
+		keycloakUser.Groups = &[]string{middleware.GetAccessTokenClaims(ctx).TenantId}
+	} else {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  http.StatusBadRequest,
+			"error":   "bad_request",
+			"message": "Customer or admin flag is required",
+		})
+		return
+	}
+
 	userId, err := middleware.GetKeycloakClient(ctx).CreateUser(ctx,
 		middleware.GetKeycloakToken(ctx),
 		middleware.GetKeycloakRealm(ctx),
-		gocloak.User{
-			Email:         &user.Email,
-			EmailVerified: &user.EmailVerified,
-			FirstName:     &user.FirstName,
-			LastName:      &user.LastName,
-			Groups:        &[]string{user.Group},
-		},
+		keycloakUser,
 	)
+
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"status":  "internal_server_error",
@@ -189,14 +211,73 @@ func createUser(ctx *gin.Context) {
 		return
 	}
 
+	if utils.GetConfig().EnableThingsboard {
+		if err := middleware.GetThingsboardAPI(ctx).CreateUser(middleware.GetKeycloakToken(ctx),
+			user.Email,
+			user.FirstName,
+			user.LastName,
+			middleware.GetAccessTokenClaims(ctx).TenantId,
+			user.Group,
+		); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"status":  "internal_server_error",
+				"error":   err.Error(),
+				"message": "Failed to create user in Thingsboard",
+			})
+			return
+		}
+	}
+
 	ctx.JSON(http.StatusCreated, gin.H{
-		"id": userId,
+		"id":       userId,
+		"password": keycloakUserPassword,
 	})
+}
+
+func DeleteUser(ctx *gin.Context) {
+	if !middleware.IsAdmin(ctx) {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"error":   "forbidden",
+			"message": "not allowed to access this resource",
+			"status":  http.StatusForbidden,
+		})
+		return
+	}
+
+	userId := ctx.Param("id")
+
+	if err := middleware.GetKeycloakClient(ctx).DeleteUser(ctx,
+		middleware.GetKeycloakToken(ctx),
+		middleware.GetKeycloakRealm(ctx),
+		userId,
+	); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "internal_server_error",
+			"error":   err.Error(),
+			"message": "Failed to delete user",
+		})
+		return
+	}
+
+	if utils.GetConfig().EnableThingsboard {
+		if err := middleware.GetThingsboardAPI(ctx).DeleteUser(middleware.GetKeycloakToken(ctx),
+			userId,
+		); err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"status":  "internal_server_error",
+				"error":   err.Error(),
+				"message": "Failed to delete user in Thingsboard",
+			})
+			return
+		}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{})
 }
 
 func addUsersRoute(r *gin.RouterGroup) {
 	usersGroup := r.Group("/users")
-	usersGroup.GET("/", getUsers)
 	usersGroup.POST("/", createUser)
 	usersGroup.GET("/:id", getUser)
+	usersGroup.DELETE("/:id", DeleteUser)
 }

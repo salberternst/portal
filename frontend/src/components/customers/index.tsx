@@ -15,13 +15,37 @@ import {
   useShowController,
   ArrayField,
   ReferenceField,
+  Button,
+  useRedirect,
+  useRecordContext,
 } from "react-admin";
 import Divider from "@mui/material/Divider";
 import Alert from "@mui/material/Alert";
+import AddIcon from "@mui/icons-material/Add";
+
+const AddUserButton = () => {
+  const redirect = useRedirect();
+  const record = useRecordContext();
+
+  const handleClick = () => {
+    redirect(
+      "create",
+      "/users",
+      undefined,
+      {},
+      { record: { group: record?.id } }
+    );
+  };
+
+  return (
+    <Button onClick={handleClick} startIcon={<AddIcon />} label="Add User" />
+  );
+};
 
 const CustomerShowBar = () => {
   return (
     <TopToolbar>
+      <AddUserButton />
       <EditButton />
       <DeleteButton mutationMode="pessimistic" />
     </TopToolbar>
@@ -56,10 +80,7 @@ export const CustomerShow = () => {
         </Labeled>
         <Labeled fullWidth label="Members">
           <ArrayField source="members">
-            <Datagrid 
-              bulkActionButtons={false} 
-              rowClick={false}
-            >
+            <Datagrid bulkActionButtons={false} rowClick={false}>
               <ReferenceField source="id" reference="users" link="show">
                 <TextField source="id" />
               </ReferenceField>

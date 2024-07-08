@@ -420,3 +420,63 @@ func (tb *ThingsboardAPI) UpdateDevice(accessToken string, deviceID string, devi
 
 	return nil
 }
+
+func (tb *ThingsboardAPI) CreateUser(accessToken string, email string, firstName string, lastName string, tenantId string, customerId string) error {
+	thingsboardToken, err := tb.ExchangeToken(accessToken)
+	if err != nil {
+		return err
+	}
+
+	user := map[string]interface{}{
+		"email":     email,
+		"firstName": firstName,
+		"lastName":  lastName,
+		"tenantId": map[string]string{
+			"id":         tenantId,
+			"entityType": "TENANT",
+		},
+		"customerId": map[string]string{
+			"id":         customerId,
+			"entityType": "CUSTOMER",
+		},
+	}
+
+	resp, err := tb.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("X-Authorization", "Bearer "+thingsboardToken).
+		SetBody(user).
+		Post(tb.url + "/api/user")
+
+	fmt.Println(resp)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode() != 200 {
+		return fmt.Errorf("unable to create user: %s", resp.String())
+	}
+
+	return nil
+}
+
+func (tb *ThingsboardAPI) DeleteUser(accessToken string, userID string) error {
+	thingsboardToken, err := tb.ExchangeToken(accessToken)
+	if err != nil {
+		return err
+	}
+
+	resp, err := tb.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("X-Authorization", "Bearer "+thingsboardToken).
+		Delete(tb.url + "/api/user/" + userID)
+
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode() != 200 {
+		return fmt.Errorf("unable to delete user: %s", resp.String())
+	}
+
+	return nil
+}
