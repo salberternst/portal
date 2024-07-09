@@ -27,6 +27,8 @@ func getDevices(ctx *gin.Context) {
 	var devices map[string]interface{}
 	var err error
 
+	// todo: implement query parameters
+
 	if middleware.GetAccessTokenClaims(ctx).CustomerId == "" {
 		devices, err = middleware.GetThingsboardAPI(ctx).GetTenantDevices(middleware.GetAccessToken(ctx))
 	} else {
@@ -37,11 +39,7 @@ func getDevices(ctx *gin.Context) {
 	}
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_get_devices",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -53,31 +51,19 @@ func getDevice(ctx *gin.Context) {
 
 	device, err := middleware.GetThingsboardAPI(ctx).GetDevice(middleware.GetAccessToken(ctx), deviceId)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_get_device",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
 	deviceAttributes, err := middleware.GetThingsboardAPI(ctx).GetDeviceAttributes(middleware.GetAccessToken(ctx), deviceId)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_get_device_attributes",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
 	deviceCredentials, err := middleware.GetThingsboardAPI(ctx).GetDeviceCredentials(middleware.GetAccessToken(ctx), deviceId)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_get_device_credentials",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -90,11 +76,7 @@ func getDevice(ctx *gin.Context) {
 func createDevice(ctx *gin.Context) {
 	createDevice := CreateDevice{}
 	if err := ctx.BindJSON(&createDevice); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"error":   "bad_request",
-			"message": err.Error(),
-		})
+		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
 
@@ -112,11 +94,7 @@ func createDevice(ctx *gin.Context) {
 
 	createdDevice, err := middleware.GetThingsboardAPI(ctx).CreateDevice(middleware.GetAccessToken(ctx), thingsboardCreateDevice)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_create_device",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -126,11 +104,7 @@ func createDevice(ctx *gin.Context) {
 	deviceId := createdDevice["id"].(map[string]interface{})["id"].(string)
 
 	if err = middleware.GetThingsboardAPI(ctx).CreateDeviceAttributes(middleware.GetAccessToken(ctx), deviceId, attributes); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_create_device_attributes",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -141,11 +115,7 @@ func deleteDevice(ctx *gin.Context) {
 	deviceId := ctx.Param("id")
 
 	if err := middleware.GetThingsboardAPI(ctx).DeleteDevice(middleware.GetAccessToken(ctx), deviceId); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_delete_device",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -159,21 +129,13 @@ func updateDevice(ctx *gin.Context) {
 
 	updateDevice := UpdateDevice{}
 	if err := ctx.BindJSON(&updateDevice); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"error":   "bad_request",
-			"message": err.Error(),
-		})
+		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
 
 	device, err := middleware.GetThingsboardAPI(ctx).GetDevice(middleware.GetAccessToken(ctx), deviceId)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_get_device",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -193,11 +155,7 @@ func updateDevice(ctx *gin.Context) {
 	}
 
 	if err := middleware.GetThingsboardAPI(ctx).UpdateDevice(middleware.GetAccessToken(ctx), deviceId, device); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_update_device",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -206,20 +164,12 @@ func updateDevice(ctx *gin.Context) {
 		attributes["thing-model"] = updateDevice.ThingModel
 
 		if err := middleware.GetThingsboardAPI(ctx).CreateDeviceAttributes(middleware.GetAccessToken(ctx), deviceId, attributes); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"status":  http.StatusInternalServerError,
-				"error":   "unable_to_create_device_attributes",
-				"message": err.Error(),
-			})
+			RespondWithInternalServerError(ctx)
 			return
 		}
 	} else {
 		if err := middleware.GetThingsboardAPI(ctx).DeleteDeviceAttribute(middleware.GetAccessToken(ctx), deviceId, "thing-model"); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"status":  http.StatusInternalServerError,
-				"error":   "unable_to_delete_device_attribute",
-				"message": err.Error(),
-			})
+			RespondWithInternalServerError(ctx)
 			return
 		}
 	}

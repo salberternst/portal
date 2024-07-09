@@ -23,7 +23,7 @@ type Group struct {
 	Name string `json:"name"`
 }
 
-type UserInput struct {
+type CreateUser struct {
 	Id        string `json:"id,omitempty"`
 	Email     string `json:"email"`
 	FirstName string `json:"firstName"`
@@ -44,11 +44,7 @@ type User struct {
 
 func getUser(ctx *gin.Context) {
 	if !middleware.IsAdmin(ctx) {
-		ctx.JSON(http.StatusForbidden, gin.H{
-			"error":   "forbidden",
-			"message": "not allowed to access this resource",
-			"status":  http.StatusForbidden,
-		})
+		RespondWithForbidden(ctx)
 		return
 	}
 
@@ -60,11 +56,7 @@ func getUser(ctx *gin.Context) {
 		userId,
 	)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_get_user",
-			"message": fmt.Sprintf("Failed to get user: %s", err.Error()),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -82,11 +74,7 @@ func getUser(ctx *gin.Context) {
 	)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_get_user_groups",
-			"message": fmt.Sprintf("Failed to get user groups: %s", err.Error()),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -123,21 +111,13 @@ func getUser(ctx *gin.Context) {
 
 func createUser(ctx *gin.Context) {
 	if !middleware.IsAdmin(ctx) {
-		ctx.JSON(http.StatusForbidden, gin.H{
-			"error":   "forbidden",
-			"message": "not allowed to access this resource",
-			"status":  http.StatusForbidden,
-		})
+		RespondWithForbidden(ctx)
 		return
 	}
 
-	user := UserInput{}
+	user := CreateUser{}
 	if err := ctx.BindJSON(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"error":   "bad_request",
-			"message": fmt.Sprintf("Failed to bind JSON: %s", err.Error()),
-		})
+		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
 
@@ -167,20 +147,12 @@ func createUser(ctx *gin.Context) {
 		)
 
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"status":  "internal_server_error",
-				"error":   err.Error(),
-				"message": "Failed to get group",
-			})
+			RespondWithInternalServerError(ctx)
 			return
 		}
 
 		if (*group.Attributes)["tenant-id"][0] != middleware.GetAccessTokenClaims(ctx).TenantId {
-			ctx.JSON(http.StatusForbidden, gin.H{
-				"status":  http.StatusForbidden,
-				"error":   "forbidden",
-				"message": "You are not allowed to create users for this customer",
-			})
+			RespondWithForbidden(ctx)
 			return
 		}
 
@@ -194,22 +166,14 @@ func createUser(ctx *gin.Context) {
 				middleware.GetAccessTokenClaims(ctx).TenantId,
 				(*group.Attributes)["customer-id"][0],
 			); err != nil {
-				ctx.JSON(http.StatusInternalServerError, gin.H{
-					"status":  "internal_server_error",
-					"error":   err.Error(),
-					"message": "Failed to create user in Thingsboard",
-				})
+				RespondWithInternalServerError(ctx)
 				return
 			}
 		}
 	} else if user.IsAdmin {
 		keycloakUser.Groups = &[]string{middleware.GetAccessTokenClaims(ctx).TenantId}
 	} else {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"error":   "bad_request",
-			"message": "Customer or admin flag is required",
-		})
+		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
 
@@ -220,11 +184,7 @@ func createUser(ctx *gin.Context) {
 	)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  "internal_server_error",
-			"error":   err.Error(),
-			"message": "Failed to create user",
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -236,11 +196,7 @@ func createUser(ctx *gin.Context) {
 
 func DeleteUser(ctx *gin.Context) {
 	if !middleware.IsAdmin(ctx) {
-		ctx.JSON(http.StatusForbidden, gin.H{
-			"error":   "forbidden",
-			"message": "not allowed to access this resource",
-			"status":  http.StatusForbidden,
-		})
+		RespondWithForbidden(ctx)
 		return
 	}
 
@@ -251,11 +207,7 @@ func DeleteUser(ctx *gin.Context) {
 		middleware.GetKeycloakRealm(ctx),
 		userId,
 	); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  "internal_server_error",
-			"error":   err.Error(),
-			"message": "Failed to delete user",
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -263,11 +215,7 @@ func DeleteUser(ctx *gin.Context) {
 		if err := middleware.GetThingsboardAPI(ctx).DeleteUser(middleware.GetKeycloakToken(ctx),
 			userId,
 		); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"status":  "internal_server_error",
-				"error":   err.Error(),
-				"message": "Failed to delete user in Thingsboard",
-			})
+			RespondWithInternalServerError(ctx)
 			return
 		}
 	}

@@ -439,6 +439,16 @@ export default {
       return {
         data: users,
       };
+    } else if (resource === "policies") {
+      const policies = await Promise.all(
+        params.ids.map((id: any) => fetchPolicy(id))
+      );
+      return {
+        data: policies.map((policy: any) => ({
+          ...policy,
+          id: policy["@id"],
+        })),
+      };
     }
   },
 };

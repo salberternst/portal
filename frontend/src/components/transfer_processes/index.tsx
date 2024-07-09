@@ -32,6 +32,10 @@ export const TransferProcessesShow = () => (
       <TextField source="@type" label="Type" />
       <TextField source="type" />
       <TextField source="state" />
+      <TextField source="stateTimestamp" />
+      <TextField source="correlationId" />
+      <TextField source="assetId" />
+      <TextField source="contractId" />
       <Labeled label="Data Destination">
         <SimpleShowLayout>
           <TextField source="dataDestination.type" label="Type" />

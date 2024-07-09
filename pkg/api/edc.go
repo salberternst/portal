@@ -79,12 +79,13 @@ type Policy struct {
 }
 
 type PolicyDefinition struct {
-	Context           *interface{}      `json:"@context"`
-	CreatedAt         uint              `json:"createdAt"`
-	ID                string            `json:"@id"`
-	Type              string            `json:"@type"`
-	Policy            Policy            `json:"policy"`
-	PrivateProperties map[string]string `json:"privateProperties,omitempty"`
+	Context              *interface{}           `json:"@context"`
+	CreatedAt            uint                   `json:"createdAt"`
+	ID                   string                 `json:"@id"`
+	Type                 string                 `json:"@type"`
+	Policy               Policy                 `json:"policy"`
+	PrivateProperties    map[string]string      `json:"privateProperties,omitempty"`
+	ExtensibleProperties map[string]interface{} `json:"extensibleProperties,omitempty"`
 }
 
 type Asset struct {
@@ -255,7 +256,11 @@ type TransferProcess struct {
 	PrivateProperties   map[string]string       `json:"privateProperties,omitempty"`
 	Protocol            string                  `json:"protocol,omitempty"`
 	State               string                  `json:"state,omitempty"`
+	StateTimestamp      int64                   `json:"stateTimestamp,omitempty"`
 	Type                string                  `json:"type,omitempty"`
+	CorrelationId       string                  `json:"correlationId,omitempty"`
+	AssetId             string                  `json:"assetId,omitempty"`
+	ContractId          string                  `json:"contractId,omitempty"`
 }
 
 type EdcAPI struct {
@@ -643,6 +648,8 @@ func (e *EdcAPI) GetTransferProcess(id string) (*TransferProcess, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println(resp)
 
 	if resp.StatusCode() != 200 {
 		return nil, fmt.Errorf("unable to get transfer process: %s", resp.String())

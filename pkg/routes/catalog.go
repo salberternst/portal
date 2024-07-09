@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,44 +8,32 @@ import (
 	"github.com/salberternst/portal/pkg/middleware"
 )
 
-func GetCatalog(ctx *gin.Context) {
+func getCatalog(ctx *gin.Context) {
 	catalogRequest := api.CatalogRequest{}
 	if err := ctx.BindJSON(&catalogRequest); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"error":   "bad_request",
-			"message": fmt.Sprintf("unable to bind catalog request: %v", err),
-		})
+		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
 
 	catalog, err := middleware.GetEdcAPI(ctx).GetCatalog(catalogRequest)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
 	ctx.JSON(http.StatusOK, catalog)
 }
 
-func GetCatalogDataset(ctx *gin.Context) {
+func getCatalogDataset(ctx *gin.Context) {
 	var datasetRequest api.DatasetRequest
 	if err := ctx.BindJSON(&datasetRequest); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"error":   "bad_request",
-			"message": fmt.Sprintf("unable to bind dataset request: %v", err),
-		})
+		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
 
 	catalogDataset, err := middleware.GetEdcAPI(ctx).GetCatalogDataset(datasetRequest)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_get_catalog_dataset",
-			"message": fmt.Sprintf("unable to get catalog dataset: %v", err),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -55,6 +42,6 @@ func GetCatalogDataset(ctx *gin.Context) {
 
 func addCatalogsRoutes(r *gin.RouterGroup) {
 	contractAgreements := r.Group("/catalog")
-	contractAgreements.POST("/", GetCatalog)
-	contractAgreements.POST("/dataset", GetCatalogDataset)
+	contractAgreements.POST("/", getCatalog)
+	contractAgreements.POST("/dataset", getCatalogDataset)
 }

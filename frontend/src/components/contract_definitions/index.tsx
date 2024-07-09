@@ -75,11 +75,13 @@ export const ContractDefinitionCreate = (props: any) => (
     <SimpleForm>
       <TextInput
         source="privateProperties.name"
+        label="Name"
         fullWidth
         validate={[required()]}
       />
       <TextInput
         source="privateProperties.description"
+        label="Description"
         fullWidth
         multiline
         rows={4}

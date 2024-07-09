@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -50,28 +51,15 @@ type CustomerUpdate struct {
 	Description string `json:"description"`
 }
 
-type CustomerQuery struct {
-	Page     uint `form:"page,default=1" binding:"required"`
-	PageSize uint `form:"page_size,default=20" binding:"required"`
-}
-
 func getCustomers(ctx *gin.Context) {
 	if !middleware.IsAdmin(ctx) {
-		ctx.JSON(http.StatusForbidden, gin.H{
-			"error":   "forbidden",
-			"message": "not allowed to access this resource",
-			"status":  http.StatusForbidden,
-		})
+		RespondWithForbidden(ctx)
 		return
 	}
 
-	customerQuery := CustomerQuery{}
+	customerQuery := QueryParams{}
 	if err := ctx.BindQuery(&customerQuery); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"error":   "invalid_request",
-			"message": err.Error(),
-		})
+		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
 
@@ -88,11 +76,7 @@ func getCustomers(ctx *gin.Context) {
 		},
 	)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_get_customers",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -134,11 +118,7 @@ func getCustomers(ctx *gin.Context) {
 
 func getCustomer(ctx *gin.Context) {
 	if !middleware.IsAdmin(ctx) {
-		ctx.JSON(http.StatusForbidden, gin.H{
-			"error":   "forbidden",
-			"message": "not allowed to access this resource",
-			"status":  http.StatusForbidden,
-		})
+		RespondWithForbidden(ctx)
 		return
 	}
 
@@ -150,11 +130,7 @@ func getCustomer(ctx *gin.Context) {
 		customerID,
 	)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"error":   "customer_not_found",
-			"message": fmt.Sprintf("customer with id %s not found", customerID),
-			"status":  http.StatusNotFound,
-		})
+		RespondWithResourceNotFound(ctx, customerID)
 		return
 	}
 
@@ -162,11 +138,7 @@ func getCustomer(ctx *gin.Context) {
 	if group.Attributes != nil {
 		tenantId, ok := (*group.Attributes)["tenant-id"]
 		if !ok || tenantId[0] != middleware.GetAccessTokenClaims(ctx).TenantId {
-			ctx.JSON(http.StatusNotFound, gin.H{
-				"error":   "customer_not_found",
-				"message": fmt.Sprintf("customer with id %s not found", customerID),
-				"status":  http.StatusNotFound,
-			})
+			RespondWithResourceNotFound(ctx, customerID)
 			return
 		}
 
@@ -174,11 +146,7 @@ func getCustomer(ctx *gin.Context) {
 			description = desc[0]
 		}
 	} else {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"error":   "customer_not_found",
-			"message": fmt.Sprintf("customer with id %s not found", customerID),
-			"status":  http.StatusNotFound,
-		})
+		RespondWithResourceNotFound(ctx, customerID)
 		return
 	}
 
@@ -189,11 +157,7 @@ func getCustomer(ctx *gin.Context) {
 		gocloak.GetGroupsParams{},
 	)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_get_group_members",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -205,11 +169,7 @@ func getCustomer(ctx *gin.Context) {
 	}
 
 	if group.Attributes == nil || (*group.Attributes)["customer-id"] == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"error":   "customer_not_found",
-			"message": fmt.Sprintf("customer with id %s not found", customerID),
-			"status":  http.StatusNotFound,
-		})
+		RespondWithResourceNotFound(ctx, customerID)
 		return
 	}
 
@@ -262,21 +222,13 @@ func getCustomer(ctx *gin.Context) {
 
 func createCustomer(ctx *gin.Context) {
 	if !middleware.IsAdmin(ctx) {
-		ctx.JSON(http.StatusForbidden, gin.H{
-			"error":   "forbidden",
-			"message": "not allowed to access this resource",
-			"status":  http.StatusForbidden,
-		})
+		RespondWithForbidden(ctx)
 		return
 	}
 
 	customer := Customer{}
 	if err := ctx.BindJSON(&customer); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"status":  http.StatusBadRequest,
-			"error":   "invalid_request",
-			"message": err.Error(),
-		})
+		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
 
@@ -291,11 +243,7 @@ func createCustomer(ctx *gin.Context) {
 			},
 		)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"status":  http.StatusInternalServerError,
-				"error":   "unable_to_create_thingsboard_customer",
-				"message": err.Error(),
-			})
+			RespondWithInternalServerError(ctx)
 			return
 		}
 
@@ -308,11 +256,7 @@ func createCustomer(ctx *gin.Context) {
 		if err := middleware.GetFusekiAPI(ctx).CreateDataset(
 			middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId,
 		); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"status":  http.StatusInternalServerError,
-				"error":   "unable_to_create_fuseki_dataset",
-				"message": err.Error(),
-			})
+			RespondWithInternalServerError(ctx)
 			return
 		}
 	}
@@ -335,11 +279,7 @@ func createCustomer(ctx *gin.Context) {
 	)
 
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_create_keycloak_group",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -349,11 +289,7 @@ func createCustomer(ctx *gin.Context) {
 		"customer",
 	)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_get_keycloak_role",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -365,11 +301,7 @@ func createCustomer(ctx *gin.Context) {
 			*role,
 		},
 	); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_add_keycloak_role_to_group",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
@@ -387,18 +319,19 @@ func deleteCustomer(ctx *gin.Context) {
 		customerID,
 	)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "customer not found",
-			"status":  http.StatusNotFound,
-		})
+		var apiErr *gocloak.APIError
+		if errors.As(err, &apiErr) {
+			if apiErr.Code == http.StatusNotFound {
+				RespondWithResourceNotFound(ctx, customerID)
+				return
+			}
+		}
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
 	if group.Attributes == nil || (*group.Attributes)["customer-id"] == nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "customer not found",
-			"status":  http.StatusNotFound,
-		})
+		RespondWithResourceNotFound(ctx, customerID)
 		return
 	}
 
@@ -406,22 +339,14 @@ func deleteCustomer(ctx *gin.Context) {
 
 	if utils.GetConfig().EnableThingsboard {
 		if err := middleware.GetThingsboardAPI(ctx).DeleteCustomer(middleware.GetAccessToken(ctx), customerId); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"status":  http.StatusInternalServerError,
-				"error":   "unable_to_delete_thingsboard_customer",
-				"message": err.Error(),
-			})
+			RespondWithInternalServerError(ctx)
 			return
 		}
 	}
 
 	if utils.GetConfig().EnableFuseki {
 		if err := middleware.GetFusekiAPI(ctx).DeleteDataset(middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId); err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"status":  http.StatusInternalServerError,
-				"error":   "unable_to_delete_fuseki_dataset",
-				"message": err.Error(),
-			})
+			RespondWithInternalServerError(ctx)
 			return
 		}
 	}
@@ -432,17 +357,12 @@ func deleteCustomer(ctx *gin.Context) {
 		middleware.GetKeycloakRealm(ctx),
 		customerID,
 	); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_delete_keycloak_group",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"message": "customer deleted",
-		"status":  http.StatusOK,
+		"id": customerID,
 	})
 }
 
@@ -451,7 +371,7 @@ func updateCustomer(ctx *gin.Context) {
 
 	updateCustomer := CustomerUpdate{}
 	if err := ctx.BindJSON(&updateCustomer); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
 
@@ -462,19 +382,23 @@ func updateCustomer(ctx *gin.Context) {
 		customerID,
 	)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"status":  http.StatusNotFound,
-			"error":   "customer_not_found",
-			"message": fmt.Sprintf("customer with id %s not found", customerID),
-		})
+		var apiErr *gocloak.APIError
+		if errors.As(err, &apiErr) {
+			if apiErr.Code == http.StatusNotFound {
+				RespondWithResourceNotFound(ctx, customerID)
+				return
+			}
+		}
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
-	if group.Attributes == nil {
-		group.Attributes = &map[string][]string{
-			"description": {updateCustomer.Description},
-		}
-	} else if (*group.Attributes)["description"] == nil {
+	if group.Attributes == nil || (*group.Attributes)["customer-id"] == nil {
+		RespondWithResourceNotFound(ctx, customerID)
+		return
+	}
+
+	if (*group.Attributes)["description"] == nil {
 		(*group.Attributes)["description"] = []string{updateCustomer.Description}
 	} else {
 		(*group.Attributes)["description"][0] = updateCustomer.Description
@@ -486,11 +410,7 @@ func updateCustomer(ctx *gin.Context) {
 		middleware.GetKeycloakRealm(ctx),
 		*group,
 	); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"status":  http.StatusInternalServerError,
-			"error":   "unable_to_update_customer",
-			"message": err.Error(),
-		})
+		RespondWithInternalServerError(ctx)
 		return
 	}
 
