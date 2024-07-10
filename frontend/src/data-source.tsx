@@ -219,10 +219,20 @@ export default {
       const negotiation = await fetchContractAgreementNegotiation(
         contractAgreement["@id"]
       );
-      const dataset = await fetchCatalogDataset(
-        negotiation["counterPartyAddress"],
-        contractAgreement.assetId
-      );
+      let dataset;
+      if (negotiation.type === "CONSUMER") {
+        dataset = await fetchCatalogDataset(
+          negotiation["counterPartyAddress"],
+          contractAgreement.assetId
+        );
+      } else {
+        const asset = await fetchAsset(contractAgreement.assetId);
+        dataset = {
+          id: asset["@id"],
+          name: asset.properties.name,
+          contenttype: asset.properties.contenttype,
+        };
+      }
       return {
         data: {
           contractAgreement,

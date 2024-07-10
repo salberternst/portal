@@ -155,7 +155,8 @@ func (a *CallbackAddressSelector) UnmarshalJSON(data []byte) error {
 type ContractNegotiation struct {
 	Context             *interface{}            `json:"@context"`
 	Id                  string                  `json:"@id,omitempty"`
-	Type                string                  `json:"@type,omitempty"`
+	Type_               string                  `json:"@type,omitempty"`
+	Type                string                  `json:"type,omitempty"`
 	CallbackAddresses   CallbackAddressSelector `json:"callbackAddresses,omitempty"`
 	ContractAgreementId string                  `json:"contractAgreementId,omitempty"`
 	CounterPartyAddress string                  `json:"counterPartyAddress,omitempty"`

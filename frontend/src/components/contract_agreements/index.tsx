@@ -28,22 +28,24 @@ export const ContractAgreementShow = () => {
           showTime
         />
       </SimpleShowLayout>
-      <Button
-        component={Link}
-        to={{
-          pathname: "/transferprocesses/create",
-        }}
-        state={{
-          record: {
-            counterPartyAddress: record?.negotiation.counterPartyAddress,
-            contractId: record?.id,
-            assetId: record?.dataset.id,
-          },
-        }}
-        variant="contained"
-        fullWidth
-        label="Transfer"
-      />
+      {record?.negotiation.state !== "TERMINATED" && (
+        <Button
+          component={Link}
+          to={{
+            pathname: "/transferprocesses/create",
+          }}
+          state={{
+            record: {
+              counterPartyAddress: record?.negotiation.counterPartyAddress,
+              contractId: record?.id,
+              assetId: record?.dataset.id,
+            },
+          }}
+          variant="contained"
+          label="Transfer"
+          fullWidth
+        />
+      )}
       <SimpleShowLayout>
         <Labeled label="Asset">
           <SimpleShowLayout>
@@ -82,16 +84,19 @@ export const ContractAgreementShow = () => {
           </SimpleShowLayout>
         </Labeled>
       </SimpleShowLayout>
-      <Button
-        component={Link}
-        to={{
-          pathname: `/contractnegotiations/${record?.negotiation["@id"]}/terminate`,
-        }}
-        color="warning"
-        variant="contained"
-        label="Terminate"
-        fullWidth
-      />
+      {record?.negotiation.state !== "TERMINATED" && (
+        <Button
+          component={Link}
+          to={{
+            pathname: `/contractnegotiations/${record?.negotiation["@id"]}/terminate`,
+          }}
+          color="warning"
+          variant="contained"
+          label="Terminate"
+          disabled={record?.negotiation.state === "TERMINATED"}
+          fullWidth
+        />
+      )}
     </Show>
   );
 };

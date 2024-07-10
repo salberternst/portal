@@ -15,34 +15,42 @@ func getContractAgreements(ctx *gin.Context) {
 		return
 	}
 
-	querySpec, err := CreateQuerySpecFromContext(ctx)
+	querySpec, err := CreateQuerySpecWithoutFilterFromContext(ctx)
 	if err != nil {
 		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
 
-	assets, err := middleware.GetEdcAPI(ctx).GetAssets(querySpec)
-	if err != nil {
-		RespondWithInternalServerError(ctx)
-		return
-	}
+	if middleware.IsCustomer(ctx) {
+		querySpec, err := CreateQuerySpecFromContext(ctx)
+		if err != nil {
+			RespondWithBadRequest(ctx, "Bad Request")
+			return
+		}
 
-	if len(assets) == 0 {
-		ctx.JSON(http.StatusOK, []api.ContractAgreement{})
-		return
-	}
+		assets, err := middleware.GetEdcAPI(ctx).GetAssets(querySpec)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
 
-	assetIds := []string{}
-	for _, asset := range assets {
-		assetIds = append(assetIds, asset.Id)
-	}
+		if len(assets) == 0 {
+			ctx.JSON(http.StatusOK, []api.ContractAgreement{})
+			return
+		}
 
-	querySpec.FilterExpression = []api.Criterion{
-		{
-			OperandLeft:  "assetId",
-			Operator:     "in",
-			OperandRight: assetIds,
-		},
+		assetIds := []string{}
+		for _, asset := range assets {
+			assetIds = append(assetIds, asset.Id)
+		}
+
+		querySpec.FilterExpression = []api.Criterion{
+			{
+				OperandLeft:  "assetId",
+				Operator:     "in",
+				OperandRight: assetIds,
+			},
+		}
 	}
 
 	contractAgreements, err := middleware.GetEdcAPI(ctx).GetContractAgreements(querySpec)
