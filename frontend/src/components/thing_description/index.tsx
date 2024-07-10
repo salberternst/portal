@@ -23,7 +23,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { EditorState } from "@codemirror/state";
 import lzs from "lz-string";
-import SwaggerUI from "swagger-ui-react"
+import SwaggerUI from "swagger-ui-react";
 
 export const ThingDescriptionList = () => (
   <List

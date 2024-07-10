@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import {
   Labeled,
   List,
@@ -12,7 +13,63 @@ import {
   SimpleForm,
   BooleanInput,
   BooleanField,
+  SelectInput,
+  required,
 } from "react-admin";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
+import SearchIcon from "@mui/icons-material/Search";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
+
+const HistoryEndpointsQuery = `
+PREFIX iot: <http://iotschema.org/>
+PREFIX td: <https://www.w3.org/2019/wot/td#>
+
+SELECT ?thing ?title ?target ?name  WHERE {
+  GRAPH ?g {
+    ?affordance iot:recordedBy ?action .
+    ?action td:name ?name .
+    ?action td:hasForm ?form .
+    ?form <https://www.w3.org/2019/wot/hypermedia#hasTarget> ?target .
+    ?thing td:hasActionAffordance ?action .
+    ?thing td:title ?title .
+  }
+} 
+`;
+
+const SelectHistoryEndpoints = () => {
+  const [endpoints, setEndpoints] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch("/api/registry/sparql", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({ query: HistoryEndpointsQuery }),
+      });
+      const data = await response.json();
+      setEndpoints(data.results.bindings);
+    };
+    fetchData();
+  }, []);
+
+  return (
+    <SelectInput
+      validate={required()}
+      source="dataAddress.baseUrl"
+      label="History Endpoint"
+      choices={endpoints.map((e) => ({
+        id: e.target.value,
+        name: e.thing.value + " - " + e.title.value,
+      }))}
+    />
+  );
+};
 
 const AssetShowBar = () => {
   return (
@@ -81,35 +138,66 @@ export const AssetShow = () => {
 };
 
 export const AssetCreate = () => {
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
     <Create>
       <SimpleForm>
+        <Dialog open={open} onClose={handleClose} fullWidth>
+          <DialogTitle>Select Endpoint</DialogTitle>
+          <DialogContent>
+            <SelectHistoryEndpoints />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>OK</Button>
+          </DialogActions>
+        </Dialog>
         <TextInput
           source="properties.name"
           label="Asset Name"
           fullWidth
-          required
+          validate={required()}
         />
         <TextInput
           source="properties.contenttype"
           label="Content Type"
+          defaultValue="application/json"
           helperText="The content type of the asset."
           fullWidth
-          required
+          validate={required()}
         />
         <TextInput
           source="dataAddress.type"
           label="Data Address Type"
+          defaultValue="HttpData"
           helperText="The type of the data address e.g. HttpData"
           fullWidth
-          required
+          validate={required()}
+          readOnly
         />
         <TextInput
           source="dataAddress.baseUrl"
           label="Base URL"
           helperText="The base URL of the data address e.g. http://example.com/api/v1/"
           fullWidth
-          required
+          validate={required()}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton>
+                  <SearchIcon onClick={handleClickOpen} />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <BooleanInput
           source="dataAddress.proxyPath"

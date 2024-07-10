@@ -50,18 +50,28 @@ export const TransferProcessesShow = () => {
         <Labeled label="Data Destination">
           <SimpleShowLayout>
             <TextField source="dataDestination.type" label="Type" />
-            <TextField source="dataDestination.baseUrl" label="Base Url" emptyText="-" />
+            <TextField
+              source="dataDestination.baseUrl"
+              label="Base Url"
+              emptyText="-"
+            />
           </SimpleShowLayout>
         </Labeled>
-      {record?.transferType === "HttpData-PULL" && record?.type === "CONSUMER" && (
-        <ReferenceField source="id" reference="datarequests" link="show" label="Data Request">
-          <TextField source="id" />
-        </ReferenceField>
-      )}
+        {record?.transferType === "HttpData-PULL" &&
+          record?.type === "CONSUMER" && (
+            <ReferenceField
+              source="id"
+              reference="datarequests"
+              link="show"
+              label="Data Request"
+            >
+              <TextField source="id" />
+            </ReferenceField>
+          )}
       </SimpleShowLayout>
     </Show>
-  )
-}
+  );
+};
 
 export const TransferProcessesCreate = () => (
   <Create>
@@ -78,18 +88,19 @@ export const TransferProcessesCreate = () => (
         defaultValue="dataspace-protocol-http"
         fullWidth
       />
-      <SelectInput 
-        source="transferType" 
+      <SelectInput
+        source="transferType"
         label="Transfer Type"
-        validate={[required()]} 
+        validate={[required()]}
         choices={[
           { id: "HttpData-PULL", name: "HttpData-PULL" },
           { id: "HttpData-PUSH", name: "HttpData-PUSH" },
           { id: "AmazonS3-PUSH", name: "AmazonS3-PUSH" },
-        ]} 
-        />
-        <FormDataConsumer>
-          {({ formData, ...rest }) => formData.transferType === "HttpData-PULL" &&
+        ]}
+      />
+      <FormDataConsumer>
+        {({ formData, ...rest }) =>
+          formData.transferType === "HttpData-PULL" && (
             <>
               <TextInput
                 source="dataDestination.type"
@@ -98,10 +109,12 @@ export const TransferProcessesCreate = () => (
                 readOnly
               />
             </>
-          }
-        </FormDataConsumer>
-        <FormDataConsumer>
-          {({ formData, ...rest }) => formData.transferType === "HttpData-PUSH" &&
+          )
+        }
+      </FormDataConsumer>
+      <FormDataConsumer>
+        {({ formData, ...rest }) =>
+          formData.transferType === "HttpData-PUSH" && (
             <>
               <TextInput
                 source="dataDestination.type"
@@ -109,12 +122,18 @@ export const TransferProcessesCreate = () => (
                 fullWidth
                 readOnly
               />
-              <TextInput source="dataDestination.baseUrl" fullWidth validate={[required()]} />
+              <TextInput
+                source="dataDestination.baseUrl"
+                fullWidth
+                validate={[required()]}
+              />
             </>
-          }
-        </FormDataConsumer>
-        <FormDataConsumer>
-          {({ formData, ...rest }) => formData.transferType === "AmazonS3-PUSH" &&
+          )
+        }
+      </FormDataConsumer>
+      <FormDataConsumer>
+        {({ formData, ...rest }) =>
+          formData.transferType === "AmazonS3-PUSH" && (
             <>
               <TextInput
                 source="dataDestination.type"
@@ -122,26 +141,36 @@ export const TransferProcessesCreate = () => (
                 fullWidth
                 readOnly
               />
-              <TextInput source="dataDestination.region" fullWidth validate={[required()]} />
+              <TextInput
+                source="dataDestination.region"
+                fullWidth
+                validate={[required()]}
+              />
               <TextInput source="dataDestination.endpointOverride" fullWidth />
-              <TextInput source="dataDestination.bucketName" fullWidth validate={[required()]} />
-              <TextInput source="dataDestination.objectName" fullWidth validate={[required()]} />
-              <TextInput source="dataDestination.accessKeyId" fullWidth validate={[required()]} />
-              <TextInput source="dataDestination.secretAccessKey" fullWidth validate={[required()]} />
+              <TextInput
+                source="dataDestination.bucketName"
+                fullWidth
+                validate={[required()]}
+              />
+              <TextInput
+                source="dataDestination.objectName"
+                fullWidth
+                validate={[required()]}
+              />
+              <TextInput
+                source="dataDestination.accessKeyId"
+                fullWidth
+                validate={[required()]}
+              />
+              <TextInput
+                source="dataDestination.secretAccessKey"
+                fullWidth
+                validate={[required()]}
+              />
             </>
-          }
-        </FormDataConsumer>
+          )
+        }
+      </FormDataConsumer>
     </SimpleForm>
   </Create>
 );
-
-// type	Defines the Asset type ( AmazonS3 )	source, destination	true
-// region	Defines the region of the bucket (us-east-1, eu-west-1 ...)	source, destination	true
-// endpointOverride	Defines a custom endpoint URL	source, destination	false
-// bucketName	Defines the name of the S3 bucket	source, destination	true
-// objectName	Defines the name of the S3 object	source, destination	true (in source if objectPrefix is not present)
-// objectPrefix	Defines the prefix of the S3 objects to be fetched ( objectPrefix/ )	source	true (if objectName is not present)
-// folderName	Defines the folder name for S3 objects to be grouped ( folderName/ )	destination	false
-// keyName	Defines the vault entry containing the secret token/credentials	source, destination	false
-// accessKeyId	Defines the access key id to access S3 Bucket/Object	source, destination	false
-// secretAccessKey	Defines the secret access key id to access S3 Bucket/Object

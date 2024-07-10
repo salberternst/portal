@@ -249,7 +249,7 @@ export default {
     } else if (resource === "datarequests") {
       const dataRequest = await fetchTransferProcessDataRequest(params.id);
       return {
-        data: dataRequest
+        data: dataRequest,
       };
     }
   },
