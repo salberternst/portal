@@ -15,35 +15,43 @@ func getTransferProcesses(ctx *gin.Context) {
 		return
 	}
 
-	// this works on the provider side as we get all
-	querySpec, err := CreateQuerySpecFromContext(ctx)
+	querySpec, err := CreateQuerySpecWithoutFilterFromContext(ctx)
 	if err != nil {
 		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
 
-	assets, err := middleware.GetEdcAPI(ctx).GetAssets(querySpec)
-	if err != nil {
-		RespondWithInternalServerError(ctx)
-		return
-	}
+	if middleware.IsCustomer(ctx) {
+		// this works on the provider side as we get all
+		querySpec, err := CreateQuerySpecFromContext(ctx)
+		if err != nil {
+			RespondWithBadRequest(ctx, "Bad Request")
+			return
+		}
 
-	assetIds := make([]string, len(assets))
-	for i, asset := range assets {
-		assetIds[i] = asset.Id
-	}
+		assets, err := middleware.GetEdcAPI(ctx).GetAssets(querySpec)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
 
-	if len(assets) == 0 {
-		ctx.JSON(http.StatusOK, []api.TransferProcess{})
-		return
-	}
+		assetIds := make([]string, len(assets))
+		for i, asset := range assets {
+			assetIds[i] = asset.Id
+		}
 
-	querySpec.FilterExpression = []api.Criterion{
-		{
-			OperandLeft:  "assetId",
-			Operator:     "in",
-			OperandRight: assetIds,
-		},
+		if len(assets) == 0 {
+			ctx.JSON(http.StatusOK, []api.TransferProcess{})
+			return
+		}
+
+		querySpec.FilterExpression = []api.Criterion{
+			{
+				OperandLeft:  "assetId",
+				Operator:     "in",
+				OperandRight: assetIds,
+			},
+		}
 	}
 
 	transferProcesses, err := middleware.GetEdcAPI(ctx).GetTransferProcesses(querySpec)
