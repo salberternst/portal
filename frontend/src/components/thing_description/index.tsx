@@ -16,12 +16,14 @@ import {
   EditButton,
   Button,
   useInput,
+  useShowController,
 } from "react-admin";
 import { Divider, Typography } from "@mui/material";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { EditorState } from "@codemirror/state";
 import lzs from "lz-string";
+import SwaggerUI from "swagger-ui-react"
 
 export const ThingDescriptionList = () => (
   <List
@@ -244,6 +246,7 @@ export const ThingDescriptionShowActionBar = () => {
 };
 
 export const ThingDescriptionShow = () => {
+  const { record } = useShowController();
   return (
     <Show actions={<ThingDescriptionShowActionBar />}>
       <SimpleShowLayout>
@@ -268,6 +271,9 @@ export const ThingDescriptionShow = () => {
         </TabbedShowLayout.Tab>
         <TabbedShowLayout.Tab label="Thing Description">
           <ThingDescriptionShowDescription />
+        </TabbedShowLayout.Tab>
+        <TabbedShowLayout.Tab label="OpenAPI">
+          <SwaggerUI url={`/api/registry/things/${record?.id}/openapi`} />
         </TabbedShowLayout.Tab>
       </TabbedShowLayout>
     </Show>
