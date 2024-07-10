@@ -19,6 +19,7 @@ import {
 import {
   createContractNegotiation,
   fetchContractNegotiation,
+  terminateContractNegotiation,
 } from "./api/contract_negotiations";
 import {
   createCustomer,
@@ -383,6 +384,13 @@ export default {
       return {
         data: user,
       };
+    } else if (resource === "terminatecontractnegotiation") {
+      await terminateContractNegotiation(params.data.id, params.data.reason);
+      return {
+        data: {
+          id: params.data.id,
+        },
+      };
     }
   },
   delete: async (resource: any, params: any) => {
@@ -470,6 +478,31 @@ export default {
         data: assets.map((asset: any) => ({
           ...asset,
           id: asset["@id"],
+        })),
+      };
+    } else if (resource === "contractdefinitions") {
+      const contracts = await Promise.all(
+        params.ids.map((id: any) => fetchContractDefinition(id))
+      );
+      return {
+        data: contracts.map((contract: any) => ({
+          ...contract,
+          id: contract["@id"],
+        })),
+      };
+    } else if (resource === "contractagreements") {
+      const contracts = await Promise.all(
+        params.ids.map((id: any) => fetchContractAgreement(id))
+      );
+      return {
+        data: contracts.map((contract: any) => ({
+          contractAgreement: {
+            ...contract,
+            id: contract["@id"],
+          },
+          negotiation: {},
+          dataset: {},
+          id: contract["@id"],
         })),
       };
     }

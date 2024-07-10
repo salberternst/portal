@@ -39,3 +39,37 @@ export const fetchContractNegotiation = async (id: string): Promise<any> => {
 
   return json;
 };
+
+/**
+ * Terminates a contract negotiation.
+ *
+ * @param {string} id - The ID of the contract negotiation to terminate.
+ * @param {string} reason - The reason for terminating the contract negotiation.
+ * @returns {Promise<any>} - A promise that resolves to the JSON response from the server.
+ * @throws {HttpError} - If the server returns an error response.
+ */
+export const terminateContractNegotiation = async (
+  id: string,
+  reason: string
+): Promise<any> => {
+  const response = await fetch(
+    `/api/portal/contractnegotiations/${id}/terminate`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        "@context": {
+          "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+        },
+        "@type": "https://w3id.org/edc/v0.0.1/ns/TerminateNegotiation",
+        "@id": id,
+        reason: reason,
+      }),
+    }
+  );
+  const json = await response.json();
+  if (response.ok === false) {
+    throw new HttpError(json.message, response.status);
+  }
+
+  return json;
+};

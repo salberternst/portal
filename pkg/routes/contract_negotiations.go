@@ -36,8 +36,29 @@ func GetContractNegotiation(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, contractNegotiation)
 }
 
+func TerminateContractNegotiation(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	terminateNegotiation := api.TerminateNegotiation{}
+	if err := ctx.BindJSON(&terminateNegotiation); err != nil {
+		RespondWithBadRequest(ctx, "Bad Request")
+		return
+	}
+
+	err := middleware.GetEdcAPI(ctx).TerminateContractNegotiation(terminateNegotiation)
+	if err != nil {
+		RespondWithInternalServerError(ctx)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"id": id,
+	})
+}
+
 func addContractNegotationsRoutes(r *gin.RouterGroup) {
 	contractNegotiations := r.Group("/contractnegotiations")
 	contractNegotiations.POST("/", CreateContractNegotiation)
 	contractNegotiations.GET("/:id", GetContractNegotiation)
+	contractNegotiations.POST("/:id/terminate", TerminateContractNegotiation)
 }

@@ -45,16 +45,19 @@ export const TransferProcessesShow = () => {
         <TextField source="state" />
         <DateField source="stateTimestamp" showTime />
         <TextField source="correlationId" />
-        <TextField source="assetId" />
-        <TextField source="contractId" />
+        <ReferenceField source="assetId" reference="assets" link="show">
+          <TextField source="id" />
+        </ReferenceField>
+        <ReferenceField
+          source="contractId"
+          reference="contractagreements"
+          link="show"
+        >
+          <TextField source="id" />
+        </ReferenceField>
         <Labeled label="Data Destination">
           <SimpleShowLayout>
             <TextField source="dataDestination.type" label="Type" />
-            <TextField
-              source="dataDestination.baseUrl"
-              label="Base Url"
-              emptyText="-"
-            />
           </SimpleShowLayout>
         </Labeled>
         {record?.transferType === "HttpData-PULL" &&

@@ -9,7 +9,6 @@ import {
   useShowController,
   Button,
 } from "react-admin";
-import MuiButton from "@mui/material/Button";
 import { Link } from "react-router-dom";
 
 export const ContractAgreementShow = () => {
@@ -83,6 +82,16 @@ export const ContractAgreementShow = () => {
           </SimpleShowLayout>
         </Labeled>
       </SimpleShowLayout>
+      <Button
+        component={Link}
+        to={{
+          pathname: `/contractnegotiations/${record?.negotiation["@id"]}/terminate`,
+        }}
+        color="warning"
+        variant="contained"
+        label="Terminate"
+        fullWidth
+      />
     </Show>
   );
 };

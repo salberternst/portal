@@ -14,6 +14,7 @@ import {
   useShowController,
   LinearProgress,
   useCreatePath,
+  useRedirect,
 } from "react-admin";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
@@ -107,5 +108,21 @@ export const ContractNegotationShow = () => {
         )}
       </SimpleShowLayout>
     </Show>
+  );
+};
+
+export const ContractNegotiationTerminate = () => {
+  const { record } = useShowController();
+  const redirect = useRedirect();
+  const onRedirect = () => {
+    return redirect("list", "/contractagreements");
+  };
+  return (
+    <Create resource="terminatecontractnegotiation" redirect={onRedirect}>
+      <SimpleForm>
+        <TextInput source="id" defaultValue={record?.id} disabled />
+        <TextInput source="reason" multiline rows={4} />
+      </SimpleForm>
+    </Create>
   );
 };

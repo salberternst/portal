@@ -264,6 +264,13 @@ type TransferProcess struct {
 	TransferType        string                  `json:"transferType,omitempty"`
 }
 
+type TerminateNegotiation struct {
+	Context *interface{} `json:"@context"`
+	Type    string       `json:"@type"`
+	Id      string       `json:"@id"`
+	Reason  string       `json:"reason"`
+}
+
 type EdcAPI struct {
 	client *resty.Client
 	url    string
@@ -525,6 +532,23 @@ func (e *EdcAPI) GetContractNegotiation(id string) (*ContractNegotiation, error)
 	}
 
 	return &contractNegotiation, nil
+}
+
+func (e *EdcAPI) TerminateContractNegotiation(terminateNegotiation TerminateNegotiation) error {
+	resp, err := e.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetBody(terminateNegotiation).
+		Post(e.url + "/management/v2/contractnegotiations/" + terminateNegotiation.Id + "/terminate")
+
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode() != 204 {
+		return fmt.Errorf("unable to terminate contract negotiation: %s", resp.String())
+	}
+
+	return nil
 }
 
 func (e *EdcAPI) GetContractAgreements(querySpec QuerySpec) ([]ContractAgreement, error) {

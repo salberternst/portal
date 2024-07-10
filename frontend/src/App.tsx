@@ -53,6 +53,7 @@ import { Catalog } from "./components/catalog";
 import {
   ContractNegotationCreate,
   ContractNegotationShow,
+  ContractNegotiationTerminate,
 } from "./components/contract_negotiations";
 import {
   ContractAgreementShow,
@@ -237,7 +238,9 @@ export const App = () => (
       options={{ label: "Contract Negotiations" }}
       create={ContractNegotationCreate}
       show={ContractNegotationShow}
-    />
+    >
+      <Route path=":id/terminate" element={<ContractNegotiationTerminate />} />
+    </Resource>
     <Resource
       name="contractagreements"
       options={{ label: "Contract Agreements" }}
