@@ -7,6 +7,7 @@ import {
   SimpleShowLayout,
   DateField,
   useShowController,
+  Button,
 } from "react-admin";
 import MuiButton from "@mui/material/Button";
 import { Link } from "react-router-dom";
@@ -16,23 +17,6 @@ export const ContractAgreementShow = () => {
   return (
     <Show>
       <SimpleShowLayout>
-        <MuiButton
-          component={Link}
-          to={{
-            pathname: "/transferprocesses/create",
-          }}
-          state={{
-            record: {
-              counterPartyAddress: record?.negotiation.counterPartyAddress,
-              contractId: record?.id,
-              assetId: record?.dataset.id,
-            },
-          }}
-          variant="outlined"
-          fullWidth
-        >
-          Transfer
-        </MuiButton>
         <TextField label="Id" source="id" />
         <TextField label="Type" source="contractAgreement.@type" />
         <TextField label="Asset Id" source="contractAgreement.assetId" />
@@ -44,6 +28,24 @@ export const ContractAgreementShow = () => {
           transform={(v: number) => new Date(v * 1000)}
           showTime
         />
+      </SimpleShowLayout>
+      <Button
+        component={Link}
+        to={{
+          pathname: "/transferprocesses/create",
+        }}
+        state={{
+          record: {
+            counterPartyAddress: record?.negotiation.counterPartyAddress,
+            contractId: record?.id,
+            assetId: record?.dataset.id,
+          },
+        }}
+        variant="contained"
+        fullWidth
+        label="Transfer"
+      />
+      <SimpleShowLayout>
         <Labeled label="Asset">
           <SimpleShowLayout>
             <TextField label="Id" source="dataset.@id" />

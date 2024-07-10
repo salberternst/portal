@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -60,7 +61,9 @@ func getTransferProcess(ctx *gin.Context) {
 		return
 	}
 
-	transferProcess, err := middleware.GetEdcAPI(ctx).GetTransferProcess(ctx.Param("id"))
+	id := ctx.Param("id")
+
+	transferProcess, err := middleware.GetEdcAPI(ctx).GetTransferProcess(id)
 	if err != nil {
 		RespondWithInternalServerError(ctx)
 		return
@@ -83,9 +86,9 @@ func getTransferProcess(ctx *gin.Context) {
 		querySpec := CreateQuerySpec()
 		querySpec.FilterExpression = BuildFilterExpressionFromContext(ctx)
 		querySpec.FilterExpression = append(querySpec.FilterExpression, api.Criterion{
-			OperandLeft:  "assetId",
+			OperandLeft:  "id",
 			Operator:     "=",
-			OperandRight: transferProcess.AssetId,
+			OperandRight: id,
 		})
 
 		transferProcesses, err := middleware.GetEdcAPI(ctx).GetTransferProcesses(querySpec)
@@ -121,6 +124,7 @@ func createTransferProcess(ctx *gin.Context) {
 
 	transferProcess, err := middleware.GetEdcAPI(ctx).CreateTransferProcess(transferRequest)
 	if err != nil {
+		fmt.Println(err)
 		RespondWithInternalServerError(ctx)
 		return
 	}
@@ -128,9 +132,38 @@ func createTransferProcess(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, transferProcess)
 }
 
+func getTransferProcessDataRequest(ctx *gin.Context) {
+	if !middleware.IsCustomer(ctx) && !middleware.IsAdmin(ctx) {
+		RespondWithForbidden(ctx)
+		return
+	}
+
+	id := ctx.Param("id")
+
+	transferProcess, err := middleware.GetEdcAPI(ctx).GetTransferProcess(id)
+	if err != nil {
+		RespondWithInternalServerError(ctx)
+		return
+	}
+
+	if transferProcess.Type == "CONSUMER" {
+		dataRequest, err := middleware.GetEdcReceiverEndpointAPI(ctx).GetDataRequest(id)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+
+		ctx.JSON(http.StatusOK, dataRequest)
+		return
+	}
+
+	RespondWithBadRequest(ctx, "Bad Request")
+}
+
 func addTransferProcessesRoutes(r *gin.RouterGroup) {
 	transferProcesses := r.Group("/transferprocesses")
 	transferProcesses.GET("/", getTransferProcesses)
 	transferProcesses.GET("/:id", getTransferProcess)
+	transferProcesses.GET("/:id/datarequest", getTransferProcessDataRequest)
 	transferProcesses.POST("/", createTransferProcess)
 }

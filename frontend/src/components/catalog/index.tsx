@@ -94,7 +94,7 @@ const ExtendedDatasetPanel = () => {
         <Datagrid bulkActionButtons={false}>
           <TextField source="@type" label="Type" />
           <TextField source="dct:format.@id" label="Format" />
-          <TextField source="dcat:accessService" label="Access Service" />
+          {/* <TextField source="dcat:accessService" label="Access Service" /> */}
         </Datagrid>
       </ArrayField>
     </SimpleShowLayout>

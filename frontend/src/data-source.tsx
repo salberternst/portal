@@ -50,6 +50,7 @@ import {
 import {
   createTransferProcess,
   fetchTransferProcess,
+  fetchTransferProcessDataRequest,
   fetchTransferProcesses,
 } from "./api/transfer_processes";
 import { fetchUser, createUser, deleteUser } from "./api/users";
@@ -244,6 +245,11 @@ export default {
           ...device,
           id: device.id.id,
         },
+      };
+    } else if (resource === "datarequests") {
+      const dataRequest = await fetchTransferProcessDataRequest(params.id);
+      return {
+        data: dataRequest
       };
     }
   },
@@ -447,6 +453,23 @@ export default {
         data: policies.map((policy: any) => ({
           ...policy,
           id: policy["@id"],
+        })),
+      };
+    } else if (resource === "datarequests") {
+      const dataRequests = await Promise.all(
+        params.ids.map((id: any) => fetchTransferProcessDataRequest(id))
+      );
+      return {
+        data: dataRequests,
+      };
+    } else if (resource === "assets") {
+      const assets = await Promise.all(
+        params.ids.map((id: any) => fetchAsset(id))
+      );
+      return {
+        data: assets.map((asset: any) => ({
+          ...asset,
+          id: asset["@id"],
         })),
       };
     }

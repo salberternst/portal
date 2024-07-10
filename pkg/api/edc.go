@@ -238,7 +238,7 @@ type TransferRequest struct {
 	ConnectorId         string                  `json:"connectorId,omitempty"`
 	ContractId          string                  `json:"contractId"`
 	CounterPartyAddress string                  `json:"counterPartyAddress"`
-	DataDestination     *DataAddress            `json:"dataDestination,omitempty"`
+	DataDestination     *map[string]interface{} `json:"dataDestination,omitempty"`
 	PrivateProperties   map[string]string       `json:"privateProperties,omitempty"`
 	Protocol            string                  `json:"protocol"`
 	TransferType        string                  `json:"transferType"`
@@ -261,6 +261,7 @@ type TransferProcess struct {
 	CorrelationId       string                  `json:"correlationId,omitempty"`
 	AssetId             string                  `json:"assetId,omitempty"`
 	ContractId          string                  `json:"contractId,omitempty"`
+	TransferType        string                  `json:"transferType,omitempty"`
 }
 
 type EdcAPI struct {

@@ -70,6 +70,7 @@ import {
   DevicesList,
 } from "./components/devices";
 import Keycloak from "./components/keycloak";
+import { DataRequestShow } from "./components/datarequests";
 
 const CustomUserMenu = () => {
   const { isLoading, identity } = useGetIdentity();
@@ -250,6 +251,11 @@ export const App = () => (
       list={TransferProcessesList}
       show={TransferProcessesShow}
       create={TransferProcessesCreate}
+    />
+    <Resource
+      name="datarequests"
+      options={{ label: "Data Requests" }}
+      show={DataRequestShow}
     />
   </Admin>
 );

@@ -17,6 +17,7 @@ func AddRoutes(r *gin.Engine) {
 	api.Use(middleware.ThingsboardMiddleware())
 	api.Use(middleware.FusekiMiddleware())
 	api.Use(middleware.EdcMiddleware())
+	api.Use(middleware.EdcReceiverEndpointMiddleware())
 
 	addUserRoutes(api)
 	addCustomersRoutes(api)

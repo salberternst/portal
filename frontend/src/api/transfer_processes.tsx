@@ -70,3 +70,25 @@ export const createTransferProcess = async (data: any): Promise<any> => {
 
   return json;
 };
+
+/**
+ * Fetches transfer process data request from the server.
+ * 
+ * @param id - The ID of the transfer process.
+ * @returns A Promise that resolves to the JSON response from the server.
+ * @throws {HttpError} If the response status is not ok.
+ */
+export const fetchTransferProcessDataRequest = async (id: string) => {
+  const response = await fetch(`/api/portal/transferprocesses/${id}/datarequest`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const json = await response.json();
+  if (response.ok === false) {
+    throw new HttpError(json.message, response.status);
+  }
+
+  return json;
+}
