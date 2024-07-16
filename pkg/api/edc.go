@@ -225,9 +225,14 @@ type DatasetRequest struct {
 }
 
 type DataAddress struct {
-	Type    string `json:"@type,omitempty"`
-	Type_   string `json:"type,omitempty"`
-	BaseUrl string `json:"baseUrl,omitempty"`
+	Context       *interface{} `json:"@context"`
+	Type          string       `json:"@type,omitempty"`
+	Type_         string       `json:"type,omitempty"`
+	BaseUrl       string       `json:"baseUrl,omitempty"`
+	Endpoint      string       `json:"endpoint,omitempty"`
+	EndpointType  string       `json:"endpointType,omitempty"`
+	AuthType      string       `json:"authType,omitempty"`
+	Authorization string       `json:"authorization,omitempty"`
 }
 
 type TransferRequest struct {
@@ -272,15 +277,28 @@ type TerminateNegotiation struct {
 	Reason  string       `json:"reason"`
 }
 
+type EndpointDataReferenceEntry struct {
+	Context               *interface{} `json:"@context"`
+	Type_                 string       `json:"@type"`
+	ProviderId            string       `json:"providerId"`
+	AssetId               string       `json:"assetId"`
+	AgreementId           string       `json:"agreementId"`
+	TransferProcessId     string       `json:"transferProcessId"`
+	CreatedAt             int64        `json:"createdAt"`
+	ContractNegotiationId string       `json:"contractNegotiationId"`
+}
+
 type EdcAPI struct {
 	client *resty.Client
 	url    string
+	apiKey string
 }
 
 func NewEdcAPI() *EdcAPI {
 	return &EdcAPI{
 		client: resty.New(),
 		url:    os.Getenv("EDC_URL"),
+		apiKey: os.Getenv("EDC_API_KEY"),
 	}
 }
 
@@ -288,9 +306,10 @@ func (e *EdcAPI) GetPolicies(querySpec QuerySpec) ([]PolicyDefinition, error) {
 	var policies []PolicyDefinition
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(querySpec).
 		SetResult(&policies).
-		Post(e.url + "/management/v2/policydefinitions/request")
+		Post(e.url + "/api/management/v3/policydefinitions/request")
 
 	if err != nil {
 		return nil, err
@@ -307,8 +326,9 @@ func (e *EdcAPI) GetPolicy(id string) (*PolicyDefinition, error) {
 	policy := PolicyDefinition{}
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetResult(&policy).
-		Get(e.url + "/management/v2/policydefinitions/" + id)
+		Get(e.url + "/api/management/v3/policydefinitions/" + id)
 
 	if err != nil {
 		return nil, err
@@ -324,9 +344,10 @@ func (e *EdcAPI) GetPolicy(id string) (*PolicyDefinition, error) {
 func (e *EdcAPI) CreatePolicy(policy PolicyDefinition) (*PolicyDefinition, error) {
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(policy).
 		SetResult(&policy).
-		Post(e.url + "/management/v2/policydefinitions")
+		Post(e.url + "/api/management/v3/policydefinitions")
 
 	if err != nil {
 		return nil, err
@@ -342,7 +363,8 @@ func (e *EdcAPI) CreatePolicy(policy PolicyDefinition) (*PolicyDefinition, error
 func (e *EdcAPI) DeletePolicy(id string) error {
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
-		Delete(e.url + "/management/v2/policydefinitions/" + id)
+		SetHeader("x-api-key", e.apiKey).
+		Delete(e.url + "/api/management/v3/policydefinitions/" + id)
 
 	if err != nil {
 		return err
@@ -359,9 +381,10 @@ func (e *EdcAPI) GetAssets(querySpec QuerySpec) ([]Asset, error) {
 	var assets []Asset
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(querySpec).
 		SetResult(&assets).
-		Post(e.url + "/management/v3/assets/request")
+		Post(e.url + "/api/management/v3/assets/request")
 
 	if err != nil {
 		return nil, err
@@ -378,8 +401,9 @@ func (e *EdcAPI) GetAsset(id string) (*Asset, error) {
 	asset := Asset{}
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetResult(&asset).
-		Get(e.url + "/management/v3/assets/" + id)
+		Get(e.url + "/api/management/v3/assets/" + id)
 
 	if err != nil {
 		return nil, err
@@ -395,9 +419,10 @@ func (e *EdcAPI) GetAsset(id string) (*Asset, error) {
 func (e *EdcAPI) CreateAsset(asset Asset) (*Asset, error) {
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(asset).
 		SetResult(&asset).
-		Post(e.url + "/management/v3/assets")
+		Post(e.url + "/api/management/v3/assets")
 
 	if err != nil {
 		return nil, err
@@ -413,7 +438,8 @@ func (e *EdcAPI) CreateAsset(asset Asset) (*Asset, error) {
 func (e *EdcAPI) DeleteAsset(id string) error {
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
-		Delete(e.url + "/management/v3/assets/" + id)
+		SetHeader("x-api-key", e.apiKey).
+		Delete(e.url + "/api/management/v3/assets/" + id)
 
 	if err != nil {
 		return err
@@ -430,9 +456,10 @@ func (e *EdcAPI) GetContractDefinitions(querySpec QuerySpec) ([]ContractDefiniti
 	var contractsDefinitions []ContractDefinition
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(querySpec).
 		SetResult(&contractsDefinitions).
-		Post(e.url + "/management/v2/contractdefinitions/request")
+		Post(e.url + "/api/management/v3/contractdefinitions/request")
 
 	if err != nil {
 		return nil, err
@@ -449,8 +476,9 @@ func (e *EdcAPI) GetContractDefinition(id string) (*ContractDefinition, error) {
 	contractDefinition := ContractDefinition{}
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetResult(&contractDefinition).
-		Get(e.url + "/management/v2/contractdefinitions/" + id)
+		Get(e.url + "/api/management/v3/contractdefinitions/" + id)
 
 	if err != nil {
 		return nil, err
@@ -466,7 +494,8 @@ func (e *EdcAPI) GetContractDefinition(id string) (*ContractDefinition, error) {
 func (e *EdcAPI) DeleteContractDefinition(id string) error {
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
-		Delete(e.url + "/management/v2/contractdefinitions/" + id)
+		SetHeader("x-api-key", e.apiKey).
+		Delete(e.url + "/api/management/v3/contractdefinitions/" + id)
 
 	if err != nil {
 		return err
@@ -482,9 +511,10 @@ func (e *EdcAPI) DeleteContractDefinition(id string) error {
 func (e *EdcAPI) CreateContractDefinition(contractDefinition ContractDefinition) (*ContractDefinition, error) {
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(contractDefinition).
 		SetResult(&contractDefinition).
-		Post(e.url + "/management/v2/contractdefinitions")
+		Post(e.url + "/api/management/v3/contractdefinitions")
 
 	if err != nil {
 		return nil, err
@@ -502,9 +532,10 @@ func (e *EdcAPI) CreateContractNegotiation(contractNegotiation ContractRequest) 
 
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(contractNegotiation).
 		SetResult(&contractAgreement).
-		Post(e.url + "/management/v2/contractnegotiations")
+		Post(e.url + "/api/management/v3/contractnegotiations")
 
 	if err != nil {
 		return nil, err
@@ -521,8 +552,9 @@ func (e *EdcAPI) GetContractNegotiation(id string) (*ContractNegotiation, error)
 	contractNegotiation := ContractNegotiation{}
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetResult(&contractNegotiation).
-		Get(e.url + "/management/v2/contractnegotiations/" + id)
+		Get(e.url + "/api/management/v3/contractnegotiations/" + id)
 
 	if err != nil {
 		return nil, err
@@ -538,8 +570,9 @@ func (e *EdcAPI) GetContractNegotiation(id string) (*ContractNegotiation, error)
 func (e *EdcAPI) TerminateContractNegotiation(terminateNegotiation TerminateNegotiation) error {
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(terminateNegotiation).
-		Post(e.url + "/management/v2/contractnegotiations/" + terminateNegotiation.Id + "/terminate")
+		Post(e.url + "/api/management/v3/contractnegotiations/" + terminateNegotiation.Id + "/terminate")
 
 	if err != nil {
 		return err
@@ -556,9 +589,10 @@ func (e *EdcAPI) GetContractAgreements(querySpec QuerySpec) ([]ContractAgreement
 	var contractAgreements []ContractAgreement
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(querySpec).
 		SetResult(&contractAgreements).
-		Post(e.url + "/management/v2/contractagreements/request")
+		Post(e.url + "/api/management/v3/contractagreements/request")
 
 	if err != nil {
 		return nil, err
@@ -575,8 +609,9 @@ func (e *EdcAPI) GetContractAgreement(id string) (*ContractAgreement, error) {
 	contractAgreement := ContractAgreement{}
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetResult(&contractAgreement).
-		Get(e.url + "/management/v2/contractagreements/" + id)
+		Get(e.url + "/api/management/v3/contractagreements/" + id)
 
 	if err != nil {
 		return nil, err
@@ -593,8 +628,9 @@ func (e *EdcAPI) GetContractAgreementNegotiation(id string) (*ContractNegotiatio
 	contractNegotiation := ContractNegotiation{}
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetResult(&contractNegotiation).
-		Get(e.url + "/management/v2/contractagreements/" + id + "/negotiation")
+		Get(e.url + "/api/management/v3/contractagreements/" + id + "/negotiation")
 
 	if err != nil {
 		return nil, err
@@ -611,9 +647,13 @@ func (e *EdcAPI) GetCatalog(catalogRequest CatalogRequest) (map[string]interface
 	var catalog map[string]interface{}
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(catalogRequest).
 		SetResult(&catalog).
-		Post(e.url + "/management/v2/catalog/request")
+		Post(e.url + "/api/management/v3/catalog/request")
+
+	fmt.Println(resp)
+	fmt.Println(err)
 
 	if err != nil {
 		return nil, err
@@ -630,9 +670,10 @@ func (e *EdcAPI) GetCatalogDataset(datasetRequest DatasetRequest) (map[string]in
 	var dataset map[string]interface{}
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(datasetRequest).
 		SetResult(&dataset).
-		Post(e.url + "/management/v2/catalog/dataset/request")
+		Post(e.url + "/api/management/v3/catalog/dataset/request")
 
 	if err != nil {
 		return nil, err
@@ -649,9 +690,10 @@ func (e *EdcAPI) GetTransferProcesses(querySpec QuerySpec) ([]TransferProcess, e
 	var transferProcesses []TransferProcess
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(querySpec).
 		SetResult(&transferProcesses).
-		Post(e.url + "/management/v2/transferprocesses/request")
+		Post(e.url + "/api/management/v3/transferprocesses/request")
 
 	if err != nil {
 		return nil, err
@@ -668,14 +710,13 @@ func (e *EdcAPI) GetTransferProcess(id string) (*TransferProcess, error) {
 	transferProcess := TransferProcess{}
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetResult(&transferProcess).
-		Get(e.url + "/management/v2/transferprocesses/" + id)
+		Get(e.url + "/api/management/v3/transferprocesses/" + id)
 
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(resp)
 
 	if resp.StatusCode() != 200 {
 		return nil, fmt.Errorf("unable to get transfer process: %s", resp.String())
@@ -689,9 +730,10 @@ func (e *EdcAPI) CreateTransferProcess(transferRequest TransferRequest) (*Transf
 
 	resp, err := e.client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
 		SetBody(transferRequest).
 		SetResult(&transferProcess).
-		Post(e.url + "/management/v2/transferprocesses")
+		Post(e.url + "/api/management/v3/transferprocesses")
 
 	if err != nil {
 		return nil, err
@@ -702,4 +744,23 @@ func (e *EdcAPI) CreateTransferProcess(transferRequest TransferRequest) (*Transf
 	}
 
 	return &transferProcess, nil
+}
+
+func (e *EdcAPI) GetEdrDataAddress(id string) (*DataAddress, error) {
+	dataAddress := DataAddress{}
+	resp, err := e.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
+		SetResult(&dataAddress).
+		Get(e.url + "/api/management/v3/edrs/" + id + "/dataaddress")
+
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode() != 200 {
+		return nil, fmt.Errorf("unable to get edr data address: %s", resp.String())
+	}
+
+	return &dataAddress, nil
 }

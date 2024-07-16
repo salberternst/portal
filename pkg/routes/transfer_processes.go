@@ -155,7 +155,7 @@ func getTransferProcessDataRequest(ctx *gin.Context) {
 	}
 
 	if transferProcess.Type == "CONSUMER" {
-		dataRequest, err := middleware.GetEdcReceiverEndpointAPI(ctx).GetDataRequest(id)
+		dataRequest, err := middleware.GetEdcAPI(ctx).GetEdrDataAddress(id)
 		if err != nil {
 			RespondWithInternalServerError(ctx)
 			return

@@ -16,6 +16,7 @@ func getAssets(ctx *gin.Context) {
 		return
 	}
 
+	// only return assets that return to the customer
 	assets, err := middleware.GetEdcAPI(ctx).GetAssets(querySpec)
 	if err != nil {
 		RespondWithInternalServerError(ctx)
@@ -34,6 +35,7 @@ func getAsset(ctx *gin.Context) {
 		return
 	}
 
+	// check if current user has access to the asset
 	if asset.PrivateProperties == nil || !CheckPrivateProperties(ctx, asset.PrivateProperties) {
 		RespondWithResourceNotFound(ctx, id)
 		return
@@ -51,7 +53,9 @@ func deleteAsset(ctx *gin.Context) {
 		return
 	}
 
+	// check if current user has access to the asset
 	if asset.PrivateProperties == nil || !CheckPrivateProperties(ctx, asset.PrivateProperties) {
+		// fixme: return 403 or 404
 		RespondWithInternalServerError(ctx)
 		return
 	}

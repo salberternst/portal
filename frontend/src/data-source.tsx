@@ -260,7 +260,10 @@ export default {
     } else if (resource === "datarequests") {
       const dataRequest = await fetchTransferProcessDataRequest(params.id);
       return {
-        data: dataRequest,
+        data: {
+          ...dataRequest,
+          id: params.id,
+        }
       };
     }
   },
@@ -475,7 +478,10 @@ export default {
       };
     } else if (resource === "datarequests") {
       const dataRequests = await Promise.all(
-        params.ids.map((id: any) => fetchTransferProcessDataRequest(id))
+        params.ids.map((id: any) => fetchTransferProcessDataRequest(id).then((dataRequest: any) => ({
+          ...dataRequest,
+          id,
+        })))
       );
       return {
         data: dataRequests,

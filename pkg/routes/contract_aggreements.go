@@ -22,12 +22,14 @@ func getContractAgreements(ctx *gin.Context) {
 	}
 
 	if middleware.IsCustomer(ctx) {
+		// create QuerySpec to filter assets that belong to the customer
 		querySpec, err := CreateQuerySpecFromContext(ctx)
 		if err != nil {
 			RespondWithBadRequest(ctx, "Bad Request")
 			return
 		}
 
+		// only return assets that belong to the customer
 		assets, err := middleware.GetEdcAPI(ctx).GetAssets(querySpec)
 		if err != nil {
 			RespondWithInternalServerError(ctx)

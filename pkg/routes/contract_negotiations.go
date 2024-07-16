@@ -15,6 +15,12 @@ func CreateContractNegotiation(ctx *gin.Context) {
 		return
 	}
 
+	// currently no filter is applied
+	// all users can create contract negotiations
+	// todo: admins can create the negotiations but there is
+	// currently no way to assign a user to a negotiation
+	// we could potentially use a callback to assign the user to the agreement
+
 	createdContractDefinition, err := middleware.GetEdcAPI(ctx).CreateContractNegotiation(contractNegotiation)
 	if err != nil {
 		RespondWithInternalServerError(ctx)
@@ -26,6 +32,9 @@ func CreateContractNegotiation(ctx *gin.Context) {
 
 func GetContractNegotiation(ctx *gin.Context) {
 	id := ctx.Param("id")
+
+	// currently no filter is applied
+	// all users can see all contract negotiations
 
 	contractNegotiation, err := middleware.GetEdcAPI(ctx).GetContractNegotiation(id)
 	if err != nil {
@@ -44,6 +53,9 @@ func TerminateContractNegotiation(ctx *gin.Context) {
 		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
+
+	// currently no filter is applied
+	// all users can terminate all contract negotiations
 
 	err := middleware.GetEdcAPI(ctx).TerminateContractNegotiation(terminateNegotiation)
 	if err != nil {
