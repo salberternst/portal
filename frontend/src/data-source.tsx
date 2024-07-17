@@ -53,7 +53,7 @@ import {
   fetchTransferProcess,
   fetchTransferProcessDataRequest,
   fetchTransferProcesses,
-  terminateTransferProcess,
+  terminateTransferProcess
 } from "./api/transfer_processes";
 import { fetchUser, createUser, deleteUser } from "./api/users";
 
@@ -229,7 +229,7 @@ export default {
       } else {
         const asset = await fetchAsset(contractAgreement.assetId);
         dataset = {
-          "@id": asset["@id"],
+          '@id': asset["@id"],
           name: asset.properties.name,
           contenttype: asset.properties.contenttype,
         };
@@ -264,7 +264,7 @@ export default {
         data: {
           ...dataRequest,
           id: params.id,
-        },
+        }
       };
     }
   },
@@ -486,12 +486,10 @@ export default {
       };
     } else if (resource === "datarequests") {
       const dataRequests = await Promise.all(
-        params.ids.map((id: any) =>
-          fetchTransferProcessDataRequest(id).then((dataRequest: any) => ({
-            ...dataRequest,
-            id,
-          }))
-        )
+        params.ids.map((id: any) => fetchTransferProcessDataRequest(id).then((dataRequest: any) => ({
+          ...dataRequest,
+          id,
+        })))
       );
       return {
         data: dataRequests,
