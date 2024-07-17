@@ -151,9 +151,7 @@ const CatalogConnect = () => {
   const [counterPartyAddress, setCounterPartyAddress] = useStore(
     "counterPartyAddress"
   );
-  const [inputValue, setInputValue] = useState(
-    "http://192-168-178-60.nip.io/protocol"
-  );
+  const [inputValue, setInputValue] = useState("/api/dsp");
   const connect = () => {
     setCounterPartyAddress(inputValue);
   };

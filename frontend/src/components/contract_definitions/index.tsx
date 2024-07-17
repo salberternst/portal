@@ -18,12 +18,6 @@ import {
   ReferenceField,
 } from "react-admin";
 
-const ContractDefinitionShowBar = () => (
-  <TopToolbar>
-    <DeleteButton mutationMode="pessimistic" />
-  </TopToolbar>
-);
-
 export const ContractDefinitionsList = () => (
   <List empty={false} hasCreate={true} exporter={false}>
     <Datagrid bulkActionButtons={false} rowClick="show">
@@ -40,6 +34,12 @@ export const ContractDefinitionsList = () => (
       />
     </Datagrid>
   </List>
+);
+
+const ContractDefinitionShowBar = () => (
+  <TopToolbar>
+    <DeleteButton mutationMode="pessimistic" />
+  </TopToolbar>
 );
 
 export const ContractDefinitionShow = () => (
@@ -62,7 +62,7 @@ export const ContractDefinitionShow = () => (
           <TextField source="operandLeft" />
           <TextField source="operator" />
           <ReferenceField source="operandRight" reference="assets" link="show">
-            <TextField source="id" />
+            <TextField source="properties.name" />
           </ReferenceField>
         </Datagrid>
       </ArrayField>
@@ -100,7 +100,12 @@ export const ContractDefinitionCreate = (props: any) => (
           validate={[required()]}
         />
       </ReferenceInput>
-      <ArrayInput source="assetsSelector" label="Asset Selector" fullWidth>
+      <ArrayInput
+        source="assetsSelector"
+        label="Asset Selector"
+        fullWidth
+        validate={[required()]}
+      >
         <SimpleFormIterator inline fullWidth>
           <TextInput
             source="operandLeft"
@@ -110,7 +115,7 @@ export const ContractDefinitionCreate = (props: any) => (
           <TextInput source="operator" defaultValue="=" fullWidth />
           <ReferenceInput source="operandRight" reference="assets">
             <AutocompleteInput
-              optionText="@id"
+              optionText="properties.name"
               validate={[required()]}
               fullWidth
             />

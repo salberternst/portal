@@ -63,6 +63,7 @@ import {
   TransferProcessesCreate,
   TransferProcessesList,
   TransferProcessesShow,
+  TransferProcessTerminate,
 } from "./components/transfer_processes";
 import {
   DeviceCreate,
@@ -254,7 +255,9 @@ export const App = () => (
       list={TransferProcessesList}
       show={TransferProcessesShow}
       create={TransferProcessesCreate}
-    />
+    >
+      <Route path=":id/terminate" element={<TransferProcessTerminate />} />
+    </Resource>
     <Resource
       name="datarequests"
       options={{ label: "Data Requests" }}

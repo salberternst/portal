@@ -33,6 +33,7 @@ type Action struct {
 	Constraint *Constraint `json:"constraint,omitempty"`
 	IncludedIn string      `json:"includedIn,omitempty"`
 	Type_      string      `json:"type,omitempty"`
+	Id         string      `json:"@id,omitempty"`
 }
 
 type Prohibition struct {
@@ -56,7 +57,7 @@ type Duty struct {
 }
 
 type Permission struct {
-	Action      *Action      `json:"action,omitempty"`
+	Action      *Action      `json:"odrl:action,omitempty"`
 	Assignee    string       `json:"assignee,omitempty"`
 	Assigner    string       `json:"assigner,omitempty"`
 	Constraints []Constraint `json:"constraints,omitempty"`
@@ -66,16 +67,70 @@ type Permission struct {
 }
 
 type Policy struct {
-	Context              any                    `json:"@context,omitempty"`
+	Context              *interface{}           `json:"@context,omitempty"`
 	Type                 string                 `json:"@type,omitempty"`
 	Assignee             string                 `json:"odrl:assignee,omitempty"`
 	Assigner             string                 `json:"odrl:assigner,omitempty"`
 	ExtensibleProperties map[string]interface{} `json:"odrl:extensibleProperties,omitempty"`
 	InheritsFrom         string                 `json:"odrl:inheritsFrom,omitempty"`
-	Obligations          []Duty                 `json:"odrl:obligations,omitempty"`
-	Permissions          []Permission           `json:"odrl:permissions,omitempty"`
-	Prohibitions         []Prohibition          `json:"odrl:prohibitions,omitempty"`
+	Obligations          Duties                 `json:"odrl:obligation,omitempty"`
+	Permissions          Permissions            `json:"odrl:permission,omitempty"`
+	Prohibitions         Prohibitions           `json:"odrl:prohibition,omitempty"`
 	Target               interface{}            `json:"odrl:target,omitempty"`
+}
+
+type Permissions []Permission
+
+func (a *Permissions) UnmarshalJSON(data []byte) error {
+	var single Permission
+	if err := json.Unmarshal(data, &single); err == nil {
+		*a = Permissions{single}
+		return nil
+	}
+
+	var multiple []Permission
+	if err := json.Unmarshal(data, &multiple); err == nil {
+		*a = multiple
+		return nil
+	}
+
+	return fmt.Errorf("failed to unmarshal Permissions")
+}
+
+type Duties []Duty
+
+func (a *Duties) UnmarshalJSON(data []byte) error {
+	var single Duty
+	if err := json.Unmarshal(data, &single); err == nil {
+		*a = Duties{single}
+		return nil
+	}
+
+	var multiple []Duty
+	if err := json.Unmarshal(data, &multiple); err == nil {
+		*a = multiple
+		return nil
+	}
+
+	return fmt.Errorf("failed to unmarshal Duties")
+}
+
+type Prohibitions []Prohibition
+
+func (a *Prohibitions) UnmarshalJSON(data []byte) error {
+	var single Prohibition
+	if err := json.Unmarshal(data, &single); err == nil {
+		*a = Prohibitions{single}
+		return nil
+	}
+
+	var multiple []Prohibition
+	if err := json.Unmarshal(data, &multiple); err == nil {
+		*a = multiple
+		return nil
+	}
+
+	return fmt.Errorf("failed to unmarshal Prohibitions")
 }
 
 type PolicyDefinition struct {
@@ -277,6 +332,13 @@ type TerminateNegotiation struct {
 	Reason  string       `json:"reason"`
 }
 
+type TerminateTransferProcess struct {
+	Context *interface{} `json:"@context"`
+	Type    string       `json:"@type"`
+	Id      string       `json:"@id"`
+	Reason  string       `json:"reason"`
+}
+
 type EndpointDataReferenceEntry struct {
 	Context               *interface{} `json:"@context"`
 	Type_                 string       `json:"@type"`
@@ -311,6 +373,7 @@ func (e *EdcAPI) GetPolicies(querySpec QuerySpec) ([]PolicyDefinition, error) {
 		SetResult(&policies).
 		Post(e.url + "/api/management/v3/policydefinitions/request")
 
+	fmt.Println(resp)
 	if err != nil {
 		return nil, err
 	}
@@ -348,7 +411,8 @@ func (e *EdcAPI) CreatePolicy(policy PolicyDefinition) (*PolicyDefinition, error
 		SetBody(policy).
 		SetResult(&policy).
 		Post(e.url + "/api/management/v3/policydefinitions")
-
+	fmt.Println(resp)
+	fmt.Println(err)
 	if err != nil {
 		return nil, err
 	}
@@ -441,6 +505,8 @@ func (e *EdcAPI) DeleteAsset(id string) error {
 		SetHeader("x-api-key", e.apiKey).
 		Delete(e.url + "/api/management/v3/assets/" + id)
 
+	fmt.Println(resp)
+	fmt.Println(err)
 	if err != nil {
 		return err
 	}
@@ -744,6 +810,24 @@ func (e *EdcAPI) CreateTransferProcess(transferRequest TransferRequest) (*Transf
 	}
 
 	return &transferProcess, nil
+}
+
+func (e *EdcAPI) TerminateTransferProcess(terminateTransferProcess TerminateTransferProcess) error {
+	resp, err := e.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
+		SetBody(terminateTransferProcess).
+		Post(e.url + "/api/management/v3/transferprocesses/" + terminateTransferProcess.Id + "/terminate")
+
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode() != 204 {
+		return fmt.Errorf("unable to terminate transfer process: %s", resp.String())
+	}
+
+	return nil
 }
 
 func (e *EdcAPI) GetEdrDataAddress(id string) (*DataAddress, error) {

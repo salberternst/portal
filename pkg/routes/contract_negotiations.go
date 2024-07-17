@@ -9,16 +9,18 @@ import (
 )
 
 func CreateContractNegotiation(ctx *gin.Context) {
+	if !middleware.IsAdmin(ctx) {
+		RespondWithForbidden(ctx)
+		return
+	}
+
 	contractNegotiation := api.ContractRequest{}
 	if err := ctx.BindJSON(&contractNegotiation); err != nil {
 		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
 
-	// currently no filter is applied
-	// all users can create contract negotiations
-	// todo: admins can create the negotiations but there is
-	// currently no way to assign a user to a negotiation
+	// currently no way to direclty assign a user to a negotiation
 	// we could potentially use a callback to assign the user to the agreement
 
 	createdContractDefinition, err := middleware.GetEdcAPI(ctx).CreateContractNegotiation(contractNegotiation)
@@ -33,13 +35,36 @@ func CreateContractNegotiation(ctx *gin.Context) {
 func GetContractNegotiation(ctx *gin.Context) {
 	id := ctx.Param("id")
 
-	// currently no filter is applied
-	// all users can see all contract negotiations
-
 	contractNegotiation, err := middleware.GetEdcAPI(ctx).GetContractNegotiation(id)
 	if err != nil {
 		RespondWithInternalServerError(ctx)
 		return
+	}
+
+	// consumer contracts can only be viewed by admins
+	if contractNegotiation.Type == "CONSUMER" {
+		if !middleware.IsAdmin(ctx) {
+			RespondWithForbidden(ctx)
+			return
+		}
+	} else {
+		// provider contracts can only be viewed by the owner of the asset
+		contractAggreement, err := middleware.GetEdcAPI(ctx).GetContractAgreement(contractNegotiation.ContractAgreementId)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+
+		asset, err := middleware.GetEdcAPI(ctx).GetAsset(contractAggreement.AssetId)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+
+		if !CheckPrivateProperties(ctx, asset.PrivateProperties) {
+			RespondWithForbidden(ctx)
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusOK, contractNegotiation)
@@ -54,10 +79,38 @@ func TerminateContractNegotiation(ctx *gin.Context) {
 		return
 	}
 
-	// currently no filter is applied
-	// all users can terminate all contract negotiations
+	contractNegotiation, err := middleware.GetEdcAPI(ctx).GetContractNegotiation(id)
+	if err != nil {
+		RespondWithInternalServerError(ctx)
+		return
+	}
 
-	err := middleware.GetEdcAPI(ctx).TerminateContractNegotiation(terminateNegotiation)
+	if contractNegotiation.Type == "CONSUMER" {
+		if !middleware.IsAdmin(ctx) {
+			RespondWithForbidden(ctx)
+			return
+		}
+	} else {
+		// provider contracts can only be terminated by the owner of the asset
+		contractAggreement, err := middleware.GetEdcAPI(ctx).GetContractAgreement(contractNegotiation.ContractAgreementId)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+
+		asset, err := middleware.GetEdcAPI(ctx).GetAsset(contractAggreement.AssetId)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+
+		if !CheckPrivateProperties(ctx, asset.PrivateProperties) {
+			RespondWithForbidden(ctx)
+			return
+		}
+	}
+
+	err = middleware.GetEdcAPI(ctx).TerminateContractNegotiation(terminateNegotiation)
 	if err != nil {
 		RespondWithInternalServerError(ctx)
 		return

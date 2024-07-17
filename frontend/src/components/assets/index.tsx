@@ -71,14 +71,6 @@ const SelectHistoryEndpoints = () => {
   );
 };
 
-const AssetShowBar = () => {
-  return (
-    <TopToolbar>
-      <DeleteButton />
-    </TopToolbar>
-  );
-};
-
 export const AssetsList = () => (
   <List empty={false} hasCreate={true} exporter={false}>
     <Datagrid bulkActionButtons={false} rowClick="show">
@@ -92,6 +84,14 @@ export const AssetsList = () => (
     </Datagrid>
   </List>
 );
+
+const AssetShowBar = () => {
+  return (
+    <TopToolbar>
+      <DeleteButton mutationMode="pessimistic" />
+    </TopToolbar>
+  );
+};
 
 export const AssetShow = () => {
   return (

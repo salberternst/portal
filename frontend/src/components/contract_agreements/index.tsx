@@ -8,13 +8,18 @@ import {
   DateField,
   useShowController,
   Button,
+  ReferenceField,
 } from "react-admin";
 import { Link } from "react-router-dom";
 
 export const ContractAgreementShow = () => {
-  const { record } = useShowController();
+  const { record, isPending } = useShowController();
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <Show>
+    <Show emptyWhileLoading={false}>
       <SimpleShowLayout>
         <TextField label="Id" source="id" />
         <TextField label="Type" source="contractAgreement.@type" />
@@ -27,33 +32,6 @@ export const ContractAgreementShow = () => {
           transform={(v: number) => new Date(v * 1000)}
           showTime
         />
-      </SimpleShowLayout>
-      {record?.negotiation.state !== "TERMINATED" && (
-        <Button
-          component={Link}
-          to={{
-            pathname: "/transferprocesses/create",
-          }}
-          state={{
-            record: {
-              counterPartyAddress: record?.negotiation.counterPartyAddress,
-              contractId: record?.id,
-              assetId: record?.dataset.id,
-            },
-          }}
-          variant="contained"
-          label="Transfer"
-          fullWidth
-        />
-      )}
-      <SimpleShowLayout>
-        <Labeled label="Asset">
-          <SimpleShowLayout>
-            <TextField label="Id" source="dataset.@id" />
-            <TextField label="Name" source="dataset.name" />
-            <TextField label="Content Type" source="dataset.contenttype" />
-          </SimpleShowLayout>
-        </Labeled>
         <Labeled label="Policy">
           <SimpleShowLayout>
             <TextField label="Type" source="contractAgreement.policy.@type" />
@@ -61,6 +39,21 @@ export const ContractAgreementShow = () => {
               label="Target"
               source="contractAgreement.policy.odrl:target.@id"
             />
+            <TextField
+              label="Assignee"
+              source="contractAgreement.policy.odrl:assignee"
+            />
+            <TextField
+              label="Assigner"
+              source="contractAgreement.policy.odrl:assigner"
+            />
+          </SimpleShowLayout>
+        </Labeled>
+        <Labeled label="Asset">
+          <SimpleShowLayout>
+            <TextField label="Id" source="dataset.@id" />
+            <TextField label="Name" source="dataset.name" />
+            <TextField label="Content Type" source="dataset.contenttype" />
           </SimpleShowLayout>
         </Labeled>
         <Labeled label="Negotiation">
@@ -83,17 +76,40 @@ export const ContractAgreementShow = () => {
             <TextField label="State" source="negotiation.state" />
           </SimpleShowLayout>
         </Labeled>
+        {record?.negotiation.type === "PROVIDER" && (
+          <ReferenceField
+            source="contractAgreement.assetId"
+            reference="assets"
+            link="show"
+          >
+            <TextField source="id" />
+          </ReferenceField>
+        )}
+
+        <ReferenceField
+          label="Contract Negotiation"
+          source="negotiation.@id"
+          reference="contractnegotiations"
+          link="show"
+        >
+          <TextField source="id" />
+        </ReferenceField>
       </SimpleShowLayout>
       {record?.negotiation.state !== "TERMINATED" && (
         <Button
           component={Link}
           to={{
-            pathname: `/contractnegotiations/${record?.negotiation["@id"]}/terminate`,
+            pathname: "/transferprocesses/create",
           }}
-          color="warning"
+          state={{
+            record: {
+              counterPartyAddress: record?.negotiation.counterPartyAddress,
+              contractId: record?.id,
+              assetId: record?.contractAgreement.assetId,
+            },
+          }}
           variant="contained"
-          label="Terminate"
-          disabled={record?.negotiation.state === "TERMINATED"}
+          label="Transfer"
           fullWidth
         />
       )}

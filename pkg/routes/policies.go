@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"maps"
 	"net/http"
 
@@ -19,6 +20,7 @@ func getPolicies(ctx *gin.Context) {
 
 	policies, err := middleware.GetEdcAPI(ctx).GetPolicies(querySpec)
 	if err != nil {
+		fmt.Println(err)
 		RespondWithInternalServerError(ctx)
 		return
 	}

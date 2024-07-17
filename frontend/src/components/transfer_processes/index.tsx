@@ -14,7 +14,11 @@ import {
   SelectInput,
   required,
   FormDataConsumer,
+  Button,
+  useRedirect,
 } from "react-admin";
+import Alert from "@mui/material/Alert";
+import { Link } from "react-router-dom";
 
 export const TransferProcessesList = () => (
   <List empty={false} hasCreate={true} exporter={false}>
@@ -39,29 +43,34 @@ export const TransferProcessesShow = () => {
     <Show>
       <SimpleShowLayout>
         <TextField source="id" />
-        <TextField source="@type" label="Type" />
         <TextField source="type" />
         <TextField source="transferType" label="Transfer Type" />
+        <DateField source="stateTimestamp" showTime label="State Timestamp" />
         <TextField source="state" />
-        <DateField source="stateTimestamp" showTime />
+        {record?.errorDetail && (
+          <Labeled label="Error Detail" fullWidth>
+            <Alert severity="error">{record?.errorDetail}</Alert>
+          </Labeled>
+        )}
+        {record?.dataDestination && (
+          <Labeled label="Data Destination">
+            <SimpleShowLayout>
+              <TextField source="dataDestination.type" label="Type" />
+            </SimpleShowLayout>
+          </Labeled>
+        )}
         <TextField source="correlationId" />
-        <ReferenceField source="assetId" reference="assets" link="show">
-          <TextField source="id" />
-        </ReferenceField>
         <ReferenceField
+          label="Contract Agreement"
           source="contractId"
           reference="contractagreements"
           link="show"
         >
           <TextField source="id" />
         </ReferenceField>
-        <Labeled label="Data Destination">
-          <SimpleShowLayout>
-            <TextField source="dataDestination.type" label="Type" />
-          </SimpleShowLayout>
-        </Labeled>
         {record?.transferType === "HttpData-PULL" &&
-          record?.type === "CONSUMER" && (
+          record?.type === "CONSUMER" &&
+          record?.state !== "TERMINATED" && (
             <ReferenceField
               source="id"
               reference="datarequests"
@@ -72,6 +81,17 @@ export const TransferProcessesShow = () => {
             </ReferenceField>
           )}
       </SimpleShowLayout>
+      <Button
+        component={Link}
+        to={{
+          pathname: `/transferprocesses/${record?.["@id"]}/terminate`,
+        }}
+        color="error"
+        variant="contained"
+        label="Terminate"
+        disabled={record?.state !== "STARTED"}
+        fullWidth
+      />
     </Show>
   );
 };
@@ -177,3 +197,19 @@ export const TransferProcessesCreate = () => (
     </SimpleForm>
   </Create>
 );
+
+export const TransferProcessTerminate = () => {
+  const { record } = useShowController();
+  const redirect = useRedirect();
+  const onRedirect = () => {
+    return redirect("show", "/transferprocesses", record?.id);
+  };
+  return (
+    <Create resource="terminatetransferprocess" redirect={onRedirect}>
+      <SimpleForm>
+        <TextInput source="id" defaultValue={record?.id} readOnly />
+        <TextInput source="reason" multiline rows={4} />
+      </SimpleForm>
+    </Create>
+  );
+};

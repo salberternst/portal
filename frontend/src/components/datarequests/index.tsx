@@ -1,8 +1,4 @@
-import {
-  TextField,
-  Show,
-  SimpleShowLayout
-} from "react-admin";
+import { TextField, Show, SimpleShowLayout } from "react-admin";
 
 export const DataRequestShow = () => {
   return (

@@ -85,7 +85,6 @@ export const createAsset = async (data: any): Promise<any> => {
 
   const json = await response.json();
   if (response.ok === false) {
-    console.log(json);
     throw new HttpError("message", response.status, json);
   }
 

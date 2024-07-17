@@ -95,3 +95,37 @@ export const fetchTransferProcessDataRequest = async (id: string) => {
 
   return json;
 };
+
+/**
+ * Terminates a transfer process.
+ *
+ * @param {string} id - The ID of the transfer process to terminate.
+ * @param {string} reason - The reason for terminating the transfer process.
+ * @returns {Promise<any>} - A promise that resolves to the JSON response from the server.
+ * @throws {HttpError} - If the server returns an error response.
+ */
+export const terminateTransferProcess = async (
+  id: string,
+  reason: string
+): Promise<any> => {
+  const response = await fetch(
+    `/api/portal/transferprocesses/${id}/terminate`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        "@context": {
+          "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+        },
+        "@type": "https://w3id.org/edc/v0.0.1/ns/TerminateTransfer",
+        "@id": id,
+        reason: reason,
+      }),
+    }
+  );
+  const json = await response.json();
+  if (response.ok === false) {
+    throw new HttpError(json.message, response.status);
+  }
+
+  return json;
+};

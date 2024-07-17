@@ -9,12 +9,11 @@ import {
   Create,
   TextInput,
   SimpleForm,
-  ArrayInput,
-  SimpleFormIterator,
   SelectInput,
   DateField,
+  ArrayField,
+  required,
 } from "react-admin";
-import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 
 const PolicyShowBar = () => {
@@ -59,6 +58,24 @@ export const PolicyShow = () => (
         <TextField label="Policy Type" source="policy.@type" />
         <TextField label="Name" source="privateProperties.name" />
         <TextField label="Description" source="privateProperties.description" />
+        <ArrayField source="policy.odrl:permission">
+          <Datagrid>
+            <TextField source="subject" label="Subject" />
+            <TextField source="permission" label="Permission" />
+          </Datagrid>
+        </ArrayField>
+        <ArrayField source="policy.odrl:prohibition">
+          <Datagrid>
+            <TextField source="subject" label="Subject" />
+            <TextField source="prohibition" label="Prohibition" />
+          </Datagrid>
+        </ArrayField>
+        <ArrayField source="policy.odrl:obligation">
+          <Datagrid>
+            <TextField source="subject" label="Subject" />
+            <TextField source="obligation" label="Obligation" />
+          </Datagrid>
+        </ArrayField>
       </SimpleShowLayout>
     </SimpleShowLayout>
   </Show>
@@ -74,8 +91,9 @@ export const PolicyCreate = (props: any) => (
             label="Type"
             choices={[{ id: "odrl:Set", name: "Set" }]}
             fullWidth
-            helperText="lorem ipsum"
-            required
+            defaultValue={"odrl:Set"}
+            validate={[required()]}
+            readOnly
           />
         </Grid>
         <Grid item xs={9}>
@@ -94,27 +112,6 @@ export const PolicyCreate = (props: any) => (
         multiline
         rows={3}
       />
-      <Divider>Permissions</Divider>
-      <ArrayInput source="policy.odrl:permissions">
-        <SimpleFormIterator inline>
-          <TextInput source="subject" label="Subject" />
-          <TextInput source="permission" label="Permission" />
-        </SimpleFormIterator>
-      </ArrayInput>
-      <Divider>Prohibitions</Divider>
-      <ArrayInput source="policy.odrl:prohibitions">
-        <SimpleFormIterator inline>
-          <TextInput source="subject" label="Subject" />
-          <TextInput source="prohibition" label="Prohibition" />
-        </SimpleFormIterator>
-      </ArrayInput>
-      <Divider>Obligations</Divider>
-      <ArrayInput source="policy.odrl:obligations">
-        <SimpleFormIterator inline>
-          <TextInput source="subject" label="Subject" />
-          <TextInput source="obligation" label="Obligation" />
-        </SimpleFormIterator>
-      </ArrayInput>
     </SimpleForm>
   </Create>
 );

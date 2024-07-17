@@ -168,10 +168,56 @@ func getTransferProcessDataRequest(ctx *gin.Context) {
 	RespondWithBadRequest(ctx, "Bad Request")
 }
 
+func terminateTransferProcess(ctx *gin.Context) {
+	terminateTransferProcess := api.TerminateTransferProcess{}
+	if err := ctx.BindJSON(&terminateTransferProcess); err != nil {
+		RespondWithBadRequest(ctx, "Bad Request")
+		return
+	}
+
+	id := ctx.Param("id")
+
+	transferProcess, err := middleware.GetEdcAPI(ctx).GetTransferProcess(id)
+	if err != nil {
+		RespondWithInternalServerError(ctx)
+		return
+	}
+
+	if transferProcess.Type == "CONSUMER" {
+		if !middleware.IsAdmin(ctx) {
+			RespondWithForbidden(ctx)
+			return
+		}
+	} else {
+		// provider contracts can only be terminated by the owner of the asset
+		asset, err := middleware.GetEdcAPI(ctx).GetAsset(transferProcess.AssetId)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+
+		if !CheckPrivateProperties(ctx, asset.PrivateProperties) {
+			RespondWithForbidden(ctx)
+			return
+		}
+	}
+
+	err = middleware.GetEdcAPI(ctx).TerminateTransferProcess(terminateTransferProcess)
+	if err != nil {
+		RespondWithInternalServerError(ctx)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"id": id,
+	})
+}
+
 func addTransferProcessesRoutes(r *gin.RouterGroup) {
 	transferProcesses := r.Group("/transferprocesses")
 	transferProcesses.GET("/", getTransferProcesses)
 	transferProcesses.GET("/:id", getTransferProcess)
 	transferProcesses.GET("/:id/datarequest", getTransferProcessDataRequest)
+	transferProcesses.POST("/:id/terminate", terminateTransferProcess)
 	transferProcesses.POST("/", createTransferProcess)
 }

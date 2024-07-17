@@ -53,6 +53,7 @@ import {
   fetchTransferProcess,
   fetchTransferProcessDataRequest,
   fetchTransferProcesses,
+  terminateTransferProcess,
 } from "./api/transfer_processes";
 import { fetchUser, createUser, deleteUser } from "./api/users";
 
@@ -116,13 +117,13 @@ export default {
       const contracts = await fetchContractAgreements(params.pagination);
       return {
         data: contracts.map((contract: any) => ({
+          id: contract["@id"],
           contractAgreement: {
             ...contract,
             id: contract["@id"],
           },
           negotiation: {},
           dataset: {},
-          id: contract["@id"],
         })),
         pageInfo: {
           hasNextPage: contracts.length === params.pagination.perPage,
@@ -228,7 +229,7 @@ export default {
       } else {
         const asset = await fetchAsset(contractAgreement.assetId);
         dataset = {
-          id: asset["@id"],
+          "@id": asset["@id"],
           name: asset.properties.name,
           contenttype: asset.properties.contenttype,
         };
@@ -263,7 +264,7 @@ export default {
         data: {
           ...dataRequest,
           id: params.id,
-        }
+        },
       };
     }
   },
@@ -404,6 +405,13 @@ export default {
           id: params.data.id,
         },
       };
+    } else if (resource === "terminatetransferprocess") {
+      await terminateTransferProcess(params.data.id, params.data.reason);
+      return {
+        data: {
+          id: params.data.id,
+        },
+      };
     }
   },
   delete: async (resource: any, params: any) => {
@@ -478,10 +486,12 @@ export default {
       };
     } else if (resource === "datarequests") {
       const dataRequests = await Promise.all(
-        params.ids.map((id: any) => fetchTransferProcessDataRequest(id).then((dataRequest: any) => ({
-          ...dataRequest,
-          id,
-        })))
+        params.ids.map((id: any) =>
+          fetchTransferProcessDataRequest(id).then((dataRequest: any) => ({
+            ...dataRequest,
+            id,
+          }))
+        )
       );
       return {
         data: dataRequests,
@@ -519,6 +529,16 @@ export default {
           negotiation: {},
           dataset: {},
           id: contract["@id"],
+        })),
+      };
+    } else if (resource === "contractnegotiations") {
+      const contractnegotiations = await Promise.all(
+        params.ids.map((id: any) => fetchContractNegotiation(id))
+      );
+      return {
+        data: contractnegotiations.map((contractnegotiation: any) => ({
+          ...contractnegotiation,
+          id: contractnegotiation["@id"],
         })),
       };
     }
