@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +22,7 @@ func getTransferProcesses(ctx *gin.Context) {
 
 	if middleware.IsCustomer(ctx) {
 		// this works on the provider side as we get all
-		querySpec, err := CreateQuerySpecFromContext(ctx)
+		querySpec, err = CreateQuerySpecFromContext(ctx)
 		if err != nil {
 			RespondWithBadRequest(ctx, "Bad Request")
 			return
@@ -50,6 +49,11 @@ func getTransferProcesses(ctx *gin.Context) {
 				OperandLeft:  "assetId",
 				Operator:     "in",
 				OperandRight: assetIds,
+			},
+			{
+				OperandLeft:  "type",
+				Operator:     "=",
+				OperandRight: "PROVIDER",
 			},
 		}
 	}
@@ -132,7 +136,6 @@ func createTransferProcess(ctx *gin.Context) {
 
 	transferProcess, err := middleware.GetEdcAPI(ctx).CreateTransferProcess(transferRequest)
 	if err != nil {
-		fmt.Println(err)
 		RespondWithInternalServerError(ctx)
 		return
 	}

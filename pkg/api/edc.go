@@ -373,7 +373,6 @@ func (e *EdcAPI) GetPolicies(querySpec QuerySpec) ([]PolicyDefinition, error) {
 		SetResult(&policies).
 		Post(e.url + "/api/management/v3/policydefinitions/request")
 
-	fmt.Println(resp)
 	if err != nil {
 		return nil, err
 	}
@@ -411,8 +410,7 @@ func (e *EdcAPI) CreatePolicy(policy PolicyDefinition) (*PolicyDefinition, error
 		SetBody(policy).
 		SetResult(&policy).
 		Post(e.url + "/api/management/v3/policydefinitions")
-	fmt.Println(resp)
-	fmt.Println(err)
+
 	if err != nil {
 		return nil, err
 	}
@@ -505,8 +503,6 @@ func (e *EdcAPI) DeleteAsset(id string) error {
 		SetHeader("x-api-key", e.apiKey).
 		Delete(e.url + "/api/management/v3/assets/" + id)
 
-	fmt.Println(resp)
-	fmt.Println(err)
 	if err != nil {
 		return err
 	}
@@ -717,9 +713,6 @@ func (e *EdcAPI) GetCatalog(catalogRequest CatalogRequest) (map[string]interface
 		SetBody(catalogRequest).
 		SetResult(&catalog).
 		Post(e.url + "/api/management/v3/catalog/request")
-
-	fmt.Println(resp)
-	fmt.Println(err)
 
 	if err != nil {
 		return nil, err
