@@ -76,6 +76,7 @@ export const AssetsList = () => (
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" sortable={false} />
       <TextField source="properties.name" label="Name" sortable={false} />
+      <TextField source="properties.type" label="Type" sortable={false} defaultValue="-"/>
       <TextField
         source="dataAddress.type"
         label="Data Address Type"
@@ -104,6 +105,12 @@ export const AssetShow = () => {
           <SimpleShowLayout>
             <Labeled fullWidth label="Name">
               <TextField source="properties.name" />
+            </Labeled>
+            <Labeled fullWidth label="Description">
+              <TextField source="properties.description" defaultValue="-"/>
+            </Labeled>
+            <Labeled fullWidth label="Type">
+              <TextField source="properties.type" defaultValue="-"/>
             </Labeled>
             <Labeled fullWidth label="Content Type">
               <TextField source="properties.contenttype" />
@@ -167,6 +174,18 @@ export const AssetCreate = () => {
           validate={required()}
         />
         <TextInput
+          source="properties.description"
+          label="Description"
+          fullWidth
+          multiline
+          rows={4}
+        />
+        <TextInput
+          source="properties.type"
+          label="Asset Type"
+          fullWidth
+        />
+        <TextInput
           source="properties.contenttype"
           label="Content Type"
           defaultValue="application/json"
@@ -198,6 +217,12 @@ export const AssetCreate = () => {
               </InputAdornment>
             ),
           }}
+        />
+        <TextInput
+          source="dataAddress.header:Accept"
+          label="Accept Header"
+          helperText="The accept header of the data address e.g. application/json"
+          fullWidth
         />
         <BooleanInput
           source="dataAddress.proxyPath"

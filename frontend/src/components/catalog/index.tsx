@@ -149,7 +149,8 @@ const CatalogShow = ({ counterPartyAddress }) => {
 
 const CatalogConnect = () => {
   const [counterPartyAddress, setCounterPartyAddress] = useStore(
-    "counterPartyAddress"
+    "counterPartyAddress",
+    null
   );
   const [inputValue, setInputValue] = useState("/api/dsp");
   const connect = () => {
