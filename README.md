@@ -4,7 +4,7 @@ The Landing Page for Dataspace serves as the primary entrance for users to a ran
 
 ## How to run this image
 ```shell
-docker run -it --rm --name landing-page registry.fsn.iotx.materna.work/registry/public/landing-page:latest
+docker run -it --rm --name landing-page registry.int.smartlivingnext.de/registry/public/landing-page:latest
 ```
 
 ## Authors
