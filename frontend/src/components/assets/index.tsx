@@ -76,7 +76,12 @@ export const AssetsList = () => (
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" sortable={false} />
       <TextField source="properties.name" label="Name" sortable={false} />
-      <TextField source="properties.type" label="Type" sortable={false} defaultValue="-"/>
+      <TextField
+        source="properties.type"
+        label="Type"
+        sortable={false}
+        defaultValue="-"
+      />
       <TextField
         source="dataAddress.type"
         label="Data Address Type"
@@ -107,10 +112,10 @@ export const AssetShow = () => {
               <TextField source="properties.name" />
             </Labeled>
             <Labeled fullWidth label="Description">
-              <TextField source="properties.description" defaultValue="-"/>
+              <TextField source="properties.description" defaultValue="-" />
             </Labeled>
             <Labeled fullWidth label="Type">
-              <TextField source="properties.type" defaultValue="-"/>
+              <TextField source="properties.type" defaultValue="-" />
             </Labeled>
             <Labeled fullWidth label="Content Type">
               <TextField source="properties.contenttype" />
@@ -180,11 +185,7 @@ export const AssetCreate = () => {
           multiline
           rows={4}
         />
-        <TextInput
-          source="properties.type"
-          label="Asset Type"
-          fullWidth
-        />
+        <TextInput source="properties.type" label="Asset Type" fullWidth />
         <TextInput
           source="properties.contenttype"
           label="Content Type"
