@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -50,4 +51,30 @@ func GetKeycloakToken(ctx *gin.Context) string {
 
 func GetKeycloakRealm(ctx *gin.Context) string {
 	return ctx.MustGet("keycloak-realm").(string)
+}
+
+func GetCustomerIdByThingsboardCustomerId(ctx *gin.Context, thingsboardCustomerId string) (string, error) {
+	Q := fmt.Sprintf("customer-id:%s tenant-id:%s",
+		thingsboardCustomerId,
+		GetAccessTokenClaims(ctx).TenantId,
+	)
+
+	groups, err := GetKeycloakClient(ctx).GetGroups(ctx,
+		GetKeycloakToken(ctx),
+		GetKeycloakRealm(ctx),
+		gocloak.GetGroupsParams{
+			Q:   &Q,
+			Max: gocloak.IntP(1),
+		},
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	if len(groups) > 0 {
+		return *groups[0].ID, nil
+	} else {
+		return "", fmt.Errorf("customer not found")
+	}
 }

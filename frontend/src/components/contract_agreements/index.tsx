@@ -42,10 +42,12 @@ export const ContractAgreementShow = () => {
             <TextField
               label="Assignee"
               source="contractAgreement.policy.odrl:assignee"
+              emptyText="-"
             />
             <TextField
               label="Assigner"
               source="contractAgreement.policy.odrl:assigner"
+              emptyText="-"
             />
           </SimpleShowLayout>
         </Labeled>

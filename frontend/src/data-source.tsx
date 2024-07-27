@@ -253,10 +253,7 @@ export default {
     } else if (resource === "devices") {
       const device = await fetchDevice(params.id);
       return {
-        data: {
-          ...device,
-          id: device.id.id,
-        },
+        data: device,
       };
     } else if (resource === "datarequests") {
       const dataRequest = await fetchTransferProcessDataRequest(params.id);
@@ -288,10 +285,7 @@ export default {
     } else if (resource === "devices") {
       const updatedDevice = await updateDevice(params.id, params.data);
       return {
-        data: {
-          ...updatedDevice,
-          id: updatedDevice.id.id,
-        },
+        data: updatedDevice,
       };
     }
   },
@@ -388,10 +382,7 @@ export default {
     } else if (resource === "devices") {
       const device = await createDevice(params.data);
       return {
-        data: {
-          ...device,
-          id: device.id.id,
-        },
+        data: device,
       };
     } else if (resource === "users") {
       const user = await createUser(params.data);
@@ -540,6 +531,13 @@ export default {
           ...contractnegotiation,
           id: contractnegotiation["@id"],
         })),
+      };
+    } else if (resource === "customers") {
+      const customers = await Promise.all(
+        params.ids.map((id: any) => fetchCustomer(id))
+      );
+      return {
+        data: customers,
       };
     }
   },

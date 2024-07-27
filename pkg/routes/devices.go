@@ -8,19 +8,58 @@ import (
 	"github.com/salberternst/portal/pkg/middleware"
 )
 
+type SyncStatus struct {
+	Message   string  `json:"message"`
+	Status    string  `json:"status"`
+	Timestamp float64 `json:"ts"`
+}
+
+type DeviceCredentials struct {
+	Id          string `json:"id"`
+	Credentials string `json:"credentials"`
+	Type        string `json:"type"`
+}
+
+type Device struct {
+	Id         string      `json:"id"`
+	Name       string      `json:"name"`
+	Gateway    bool        `json:"gateway"`
+	CustomerId string      `json:"customerId"`
+	SyncStatus *SyncStatus `json:"syncStatus"`
+	CreatedAt  int64       `json:"createdAt"`
+	// Attributes              []map[string]interface{} `json:"attributes"`
+	Credentials *DeviceCredentials `json:"credentials"`
+	// Thing Model
+	ThingModel string `json:"thingModel"`
+	// Thing Metadata
+	Title        string `json:"title"`
+	Description  string `json:"description"`
+	Category     string `json:"category"`
+	Manufacturer string `json:"manufacturer"`
+	Model        string `json:"model"`
+}
+
 type CreateDevice struct {
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	Gateway     bool   `json:"gateway,omitempty"`
-	ThingModel  string `json:"thingModel,omitempty"`
-	CustomerId  string `json:"customerId,omitempty"`
+	Name         string `json:"name"`
+	Gateway      bool   `json:"gateway,omitempty"`
+	CustomerId   string `json:"customerId,omitempty"`
+	ThingModel   string `json:"thingModel,omitempty"`
+	Title        string `json:"title,omitempty"`
+	Description  string `json:"description,omitempty"`
+	Category     string `json:"category,omitempty"`
+	Manufacturer string `json:"manufacturer,omitempty"`
+	Model        string `json:"model,omitempty"`
 }
 
 type UpdateDevice struct {
-	Description *string `json:"description,omitempty"`
-	Gateway     *bool   `json:"gateway,omitempty"`
-	ThingModel  *string `json:"thingModel,omitempty"`
-	Customer    *string `json:"customer,omitempty"`
+	Gateway      *bool   `json:"gateway,omitempty"`
+	ThingModel   *string `json:"thingModel,omitempty"`
+	Customer     *string `json:"customer,omitempty"`
+	Title        *string `json:"title,omitempty"`
+	Description  *string `json:"description,omitempty"`
+	Category     *string `json:"category,omitempty"`
+	Manufacturer *string `json:"manufacturer,omitempty"`
+	Model        *string `json:"model,omitempty"`
 }
 
 func getDevices(ctx *gin.Context) {
@@ -49,26 +88,87 @@ func getDevices(ctx *gin.Context) {
 func getDevice(ctx *gin.Context) {
 	deviceId := ctx.Param("id")
 
-	device, err := middleware.GetThingsboardAPI(ctx).GetDevice(middleware.GetAccessToken(ctx), deviceId)
+	thingsboardDevice, err := middleware.GetThingsboardAPI(ctx).GetDevice(middleware.GetAccessToken(ctx), deviceId)
 	if err != nil {
 		RespondWithInternalServerError(ctx)
 		return
 	}
 
-	deviceAttributes, err := middleware.GetThingsboardAPI(ctx).GetDeviceAttributes(middleware.GetAccessToken(ctx), deviceId)
+	thingsboardDeviceAttributes, err := middleware.GetThingsboardAPI(ctx).GetDeviceAttributes(middleware.GetAccessToken(ctx), deviceId)
 	if err != nil {
 		RespondWithInternalServerError(ctx)
 		return
 	}
 
-	deviceCredentials, err := middleware.GetThingsboardAPI(ctx).GetDeviceCredentials(middleware.GetAccessToken(ctx), deviceId)
+	thingsboardDeviceCredentials, err := middleware.GetThingsboardAPI(ctx).GetDeviceCredentials(middleware.GetAccessToken(ctx), deviceId)
 	if err != nil {
 		RespondWithInternalServerError(ctx)
 		return
 	}
 
-	device["attributes"] = deviceAttributes
-	device["credentials"] = deviceCredentials
+	device := &Device{
+		Id:   thingsboardDevice["id"].(map[string]interface{})["id"].(string),
+		Name: thingsboardDevice["name"].(string),
+		// Gateway:    thingsboardDevice["additionalInfo"].(map[string]interface{})["gateway"].(bool),
+		// CustomerId: customerId,
+		CreatedAt: int64(thingsboardDevice["createdTime"].(float64)),
+		Credentials: &DeviceCredentials{
+			Credentials: thingsboardDeviceCredentials["credentialsId"].(string),
+			Type:        thingsboardDeviceCredentials["credentialsType"].(string),
+		},
+	}
+
+	thingsboardCustomerId := thingsboardDevice["customerId"].(map[string]interface{})["id"].(string)
+	if thingsboardCustomerId != "" && thingsboardCustomerId != "13814000-1dd2-11b2-8080-808080808080" {
+		device.CustomerId, err = middleware.GetCustomerIdByThingsboardCustomerId(ctx, thingsboardCustomerId)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+	}
+
+	additionalInfo := thingsboardDevice["additionalInfo"].(map[string]interface{})
+	if additionalInfo != nil {
+		if additionalInfo["gateway"] != nil {
+			device.Gateway = additionalInfo["gateway"].(bool)
+		}
+	}
+
+	for _, deviceAttribute := range thingsboardDeviceAttributes {
+		if deviceAttribute["key"] == "thing-metadata" {
+			thingMetadata := deviceAttribute["value"].(map[string]interface{})
+			if thingMetadata != nil {
+				if thingMetadata["title"] != nil {
+					device.Title = thingMetadata["title"].(string)
+				}
+				if thingMetadata["description"] != nil {
+					device.Description = thingMetadata["description"].(string)
+				}
+				if thingMetadata["category"] != nil {
+					device.Category = thingMetadata["category"].(string)
+				}
+				if thingMetadata["manufacturer"] != nil {
+					device.Manufacturer = thingMetadata["manufacturer"].(string)
+				}
+				if thingMetadata["model"] != nil {
+					device.Model = thingMetadata["model"].(string)
+				}
+			}
+		} else if deviceAttribute["key"] == "thing-model" {
+			if deviceAttribute["value"] != nil {
+				device.ThingModel = deviceAttribute["value"].(string)
+			}
+		} else if deviceAttribute["key"] == "thing-registry-sync-status" {
+			if deviceAttribute["value"] != nil {
+				thingRegistrySyncStatus := deviceAttribute["value"].(map[string]interface{})
+				device.SyncStatus = &SyncStatus{
+					Message:   thingRegistrySyncStatus["message"].(string),
+					Status:    thingRegistrySyncStatus["status"].(string),
+					Timestamp: thingRegistrySyncStatus["ts"].(float64),
+				}
+			}
+		}
+	}
 
 	ctx.JSON(http.StatusOK, device)
 }
@@ -100,6 +200,13 @@ func createDevice(ctx *gin.Context) {
 
 	attributes := make(map[string]interface{})
 	attributes["thing-model"] = createDevice.ThingModel
+	attributes["thing-metadata"] = map[string]interface{}{
+		"title":        createDevice.Title,
+		"category":     createDevice.Category,
+		"manufacturer": createDevice.Manufacturer,
+		"model":        createDevice.Model,
+		"description":  createDevice.Description,
+	}
 
 	deviceId := createdDevice["id"].(map[string]interface{})["id"].(string)
 
@@ -162,6 +269,13 @@ func updateDevice(ctx *gin.Context) {
 	if updateDevice.ThingModel != nil {
 		attributes := make(map[string]interface{})
 		attributes["thing-model"] = updateDevice.ThingModel
+		attributes["thing-metadata"] = map[string]interface{}{
+			"title":        updateDevice.Title,
+			"category":     updateDevice.Category,
+			"manufacturer": updateDevice.Manufacturer,
+			"model":        updateDevice.Model,
+			"description":  updateDevice.Description,
+		}
 
 		if err := middleware.GetThingsboardAPI(ctx).CreateDeviceAttributes(middleware.GetAccessToken(ctx), deviceId, attributes); err != nil {
 			RespondWithInternalServerError(ctx)

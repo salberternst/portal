@@ -12,16 +12,16 @@ import {
   DateField,
   BooleanInput,
   BooleanField,
-  ArrayField,
   Labeled,
   AutocompleteInput,
-  FunctionField,
   Edit,
   EditButton,
   useEditController,
   useGetList,
   required,
   useGetIdentity,
+  ReferenceField,
+  useEditContext,
 } from "react-admin";
 
 const ThingModelSelector = ({ defaultValue = "" }) => {
@@ -148,55 +148,90 @@ const CustomerSelector = ({ defaultValue }) => {
 };
 
 export const DeviceEdit = () => {
-  const transform = (data: any) => {
-    return {
-      id: data.id,
-      name: data.name,
-      description: data.description,
-      gateway: data.gateway,
-      thingModel: data.thingModel,
-      customer: data.customer,
-    };
-  };
   const { record } = useEditController();
 
   return (
-    <Edit transform={transform}>
+    <Edit mutationMode="pessimistic">
       <SimpleForm>
         <TextInput source="id" fullWidth disabled />
         <TextInput source="name" fullWidth disabled />
         <TextInput
-          multiline
-          source="description"
+          source="title"
           fullWidth
-          defaultValue={record?.additionalInfo.description}
+          helperText="Enter a title for the device"
+        />
+        <TextInput
+          source="description"
+          multiline
+          fullWidth
+          rows={3}
+          helperText="Enter a description for the device"
+        />
+        <TextInput
+          source="category"
+          fullWidth
+          helperText="Enter a category for the device e.g. dishwasher, fridge, etc."
+        />
+        <TextInput
+          source="manufacturer"
+          fullWidth
+          helperText="Enter the manufacturer of the device e.g. Samsung, LG, etc."
+        />
+        <TextInput
+          source="model"
+          fullWidth
+          helperText="Enter the model of the device e.g. 1234, 1234X, etc."
         />
         <BooleanInput
           source="gateway"
           label="Gateway"
-          defaultValue={record?.additionalInfo.gateway}
+          defaultValue={record?.gateway}
         />
-        <ThingModelSelector
-          defaultValue={
-            record?.attributes.find((v) => v.key === "thing-model")?.value
-          }
-        />
-        <CustomerSelector defaultValue={record?.customerId.id} />
+        <ThingModelSelector defaultValue={record?.thingModel} />
+        <CustomerSelector defaultValue={record?.customerId} />
       </SimpleForm>
     </Edit>
   );
 };
 
-export const DeviceCreate = () => (
-  <Create redirect="show">
-    <SimpleForm>
-      <TextInput source="name" fullWidth validate={[required()]} />
-      <TextInput multiline source="description" fullWidth />
-      <BooleanInput source="gateway" label="Gateway" />
-      <ThingModelSelector />
-    </SimpleForm>
-  </Create>
-);
+export const DeviceCreate = () => {
+  return (
+    <Create redirect="show">
+      <SimpleForm>
+        <TextInput source="name" fullWidth validate={[required()]} />
+        <BooleanInput source="gateway" label="Gateway" />
+        <ThingModelSelector />
+        <TextInput
+          source="title"
+          fullWidth
+          helperText="Enter a title for the device"
+        />
+        <TextInput
+          source="description"
+          multiline
+          fullWidth
+          rows={3}
+          helperText="Enter a description for the device"
+        />
+        <TextInput
+          source="category"
+          fullWidth
+          helperText="Enter a category for the device e.g. dishwasher, fridge, etc."
+        />
+        <TextInput
+          source="manufacturer"
+          fullWidth
+          helperText="Enter the manufacturer of the device e.g. Samsung, LG, etc."
+        />
+        <TextInput
+          source="model"
+          fullWidth
+          helperText="Enter the model of the device e.g. 1234, 1234X, etc."
+        />
+      </SimpleForm>
+    </Create>
+  );
+};
 
 const DeviceShowBar = () => {
   const { isLoading, identity } = useGetIdentity();
@@ -213,58 +248,43 @@ const DeviceShowBar = () => {
   );
 };
 
-export const DeviceShow = () => (
-  <Show actions={<DeviceShowBar />}>
-    <SimpleShowLayout>
-      <TextField source="id" />
-      <TextField source="type" />
-      <TextField source="name" />
-      <TextField
-        source="additionalInfo.description"
-        label="Description"
-        emptyText="-"
-      />
-      <BooleanField source="additionalInfo.gateway" label="Gateway" />
-      <DateField source="createdTime" label="Created Time" showTime />
-      <TextField source="customerId.id" label="Customer Id" />
-      <TextField source="label" emptyText="-" />
-      <ArrayField source="attributes">
-        <Datagrid bulkActionButtons={false}>
-          <TextField source="key" />
-          <FunctionField
-            source="value"
-            render={(record) => {
-              if (typeof record.value === "object") {
-                return JSON.stringify(record.value, null, 4);
-              } else if (typeof record.value === "boolean") {
-                return record.value ? "true" : "false";
-              }
-              return record.value;
-            }}
-          />
-        </Datagrid>
-      </ArrayField>
-      <Labeled label="Credentials">
-        <SimpleShowLayout>
-          <TextField source="credentials.id.id" label="Id" />
-          <TextField
-            source="credentials.credentialsId"
-            label="Credentials Id"
-          />
-          <TextField
-            source="credentials.credentialsType"
-            label="Credentials Type"
-          />
-          <TextField
-            source="credentials.credentialsValue"
-            label="Credentials Value"
-            emptyText="-"
-          />
-        </SimpleShowLayout>
-      </Labeled>
-    </SimpleShowLayout>
-  </Show>
-);
+export const DeviceShow = () => {
+  const { record } = useEditController();
+  return (
+    <Show actions={<DeviceShowBar />}>
+      <SimpleShowLayout>
+        <TextField source="id" />
+        <TextField source="name" />
+        <DateField source="createdAt" label="Created At" showTime />
+        <TextField source="title" label="Title" emptyText="-" />
+        <TextField source="description" label="Description" emptyText="-" />
+        <TextField source="category" label="Category" emptyText="-" />
+        <TextField source="manufacturer" label="Manufacturer" emptyText="-" />
+        <TextField source="model" label="Model" emptyText="-" />
+        <TextField source="thingModel" label="Thing Model" emptyText="-" />
+        <BooleanField source="gateway" label="Gateway" />
+        <Labeled label="Sync Status">
+          <SimpleShowLayout>
+            <TextField source="syncStatus.message" label="Message" />
+            <TextField source="syncStatus.status" label="Status" />
+            <DateField source="syncStatus.ts" label="Timestamp" showTime />
+          </SimpleShowLayout>
+        </Labeled>
+        <Labeled label="Credentials">
+          <SimpleShowLayout>
+            <TextField source="credentials.type" label="Type" />
+            <TextField source="credentials.credentials" label="Token" />
+          </SimpleShowLayout>
+        </Labeled>
+        {record?.customerId && (
+          <ReferenceField source="customerId" reference="customers" link="show">
+            <TextField source="name" label="Name" />
+          </ReferenceField>
+        )}
+      </SimpleShowLayout>
+    </Show>
+  );
+};
 
 export const DevicesList = () => {
   const { isLoading, identity } = useGetIdentity();
