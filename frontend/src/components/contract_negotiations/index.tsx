@@ -13,7 +13,6 @@ import {
   DateField,
   useShowController,
   LinearProgress,
-  useCreatePath,
   useRedirect,
   ReferenceField,
   Button,
@@ -67,7 +66,6 @@ export const ContractNegotationCreate = () => {
 export const ContractNegotationShow = () => {
   const refresh = useRefresh();
   const { error, isLoading, record } = useShowController();
-  const createPath = useCreatePath();
 
   useEffect(() => {
     const interval = setInterval(refresh, 5000);

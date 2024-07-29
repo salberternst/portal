@@ -19,7 +19,6 @@ import {
   useRedirect,
   useRecordContext,
 } from "react-admin";
-import Divider from "@mui/material/Divider";
 import Alert from "@mui/material/Alert";
 import AddIcon from "@mui/icons-material/Add";
 

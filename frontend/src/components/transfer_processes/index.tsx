@@ -122,7 +122,7 @@ export const TransferProcessesCreate = () => (
         ]}
       />
       <FormDataConsumer>
-        {({ formData, ...rest }) =>
+        {({ formData }) =>
           formData.transferType === "HttpData-PULL" && (
             <>
               <TextInput
@@ -136,7 +136,7 @@ export const TransferProcessesCreate = () => (
         }
       </FormDataConsumer>
       <FormDataConsumer>
-        {({ formData, ...rest }) =>
+        {({ formData }) =>
           formData.transferType === "HttpData-PUSH" && (
             <>
               <TextInput
@@ -155,7 +155,7 @@ export const TransferProcessesCreate = () => (
         }
       </FormDataConsumer>
       <FormDataConsumer>
-        {({ formData, ...rest }) =>
+        {({ formData }) =>
           formData.transferType === "AmazonS3-PUSH" && (
             <>
               <TextInput
