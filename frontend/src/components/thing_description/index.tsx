@@ -17,6 +17,7 @@ import {
   Button,
   useInput,
   useShowController,
+  DeleteWithConfirmButton,
 } from "react-admin";
 import { Divider, Typography } from "@mui/material";
 import CodeMirror from "@uiw/react-codemirror";
@@ -24,6 +25,7 @@ import { json } from "@codemirror/lang-json";
 import { EditorState } from "@codemirror/state";
 import lzs from "lz-string";
 import SwaggerUI from "swagger-ui-react";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 export const ThingDescriptionList = () => (
   <List
@@ -240,7 +242,13 @@ export const ThingDescriptionShowActionBar = () => {
   return (
     <TopToolbar>
       <EditButton />
-      <Button color="primary" onClick={onClick} label="Open in Editor" />
+      <Button
+        color="primary"
+        onClick={onClick}
+        label="TD Playground"
+        startIcon={<OpenInNewIcon />}
+      />
+      <DeleteWithConfirmButton />
     </TopToolbar>
   );
 };

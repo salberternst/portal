@@ -90,57 +90,75 @@ export const CustomerShow = () => {
             </Datagrid>
           </ArrayField>
         </Labeled>
+        {window.config.devicesEnabled && (
+          <>
+            {record.thingsboard?.error !== undefined && (
+              <Labeled label="Thingsboard">
+                <SimpleShowLayout>
+                  <Alert severity="error">{record.thingsboard.error}</Alert>
+                </SimpleShowLayout>
+              </Labeled>
+            )}
+            {record.thingsboard?.error === undefined && (
+              <Labeled label="Thingsboard">
+                <SimpleShowLayout>
+                  <TextField source="thingsboard.id" label="ID" />
+                  <TextField source="thingsboard.title" label="Title" />
+                  <TextField
+                    source="thingsboard.country"
+                    label="Country"
+                    emptyText="-"
+                  />
+                  <TextField
+                    source="thingsboard.city"
+                    label="City"
+                    emptyText="-"
+                  />
+                  <TextField
+                    source="thingsboard.address"
+                    label="Address"
+                    emptyText="-"
+                  />
+                  <TextField
+                    source="thingsboard.phone"
+                    label="Phone"
+                    emptyText="-"
+                  />
+                  <TextField
+                    source="thingsboard.email"
+                    label="Email"
+                    emptyText="-"
+                  />
+                  <TextField
+                    source="thingsboard.zip"
+                    label="ZIP"
+                    emptyText="-"
+                  />
+                </SimpleShowLayout>
+              </Labeled>
+            )}
+          </>
+        )}
+        {window.config.sparqlEnabled && (
+          <>
+            {record.fuseki?.error !== undefined && (
+              <Labeled label="Fuseki">
+                <SimpleShowLayout>
+                  <Alert severity="error">{record.fuseki.error}</Alert>
+                </SimpleShowLayout>
+              </Labeled>
+            )}
+            {record.fuseki?.error === undefined && (
+              <Labeled label="Fuseki">
+                <SimpleShowLayout>
+                  <TextField source="fuseki.name" label="Name" />
+                  <TextField source="fuseki.state" label="State" />
+                </SimpleShowLayout>
+              </Labeled>
+            )}
+          </>
+        )}
       </SimpleShowLayout>
-      {window.config.devicesEnabled && (
-        <>
-          <Divider>Thingsboard</Divider>
-          {record.thingsboard?.error !== undefined && (
-            <Alert severity="error">{record.thingsboard.error}</Alert>
-          )}
-          {record.thingsboard?.error === undefined && (
-            <SimpleShowLayout>
-              <TextField source="thingsboard.id" label="ID" />
-              <TextField source="thingsboard.title" label="Title" />
-              <TextField
-                source="thingsboard.country"
-                label="Country"
-                emptyText="-"
-              />
-              <TextField source="thingsboard.city" label="City" emptyText="-" />
-              <TextField
-                source="thingsboard.address"
-                label="Address"
-                emptyText="-"
-              />
-              <TextField
-                source="thingsboard.phone"
-                label="Phone"
-                emptyText="-"
-              />
-              <TextField
-                source="thingsboard.email"
-                label="Email"
-                emptyText="-"
-              />
-              <TextField source="thingsboard.zip" label="ZIP" emptyText="-" />
-            </SimpleShowLayout>
-          )}
-        </>
-      )}
-      {window.config.sparqlEnabled && (
-        <>
-          <Divider>Fuseki</Divider>
-          {record.fuseki?.error !== undefined && (
-            <Alert severity="error">{record.fuseki.error}</Alert>
-          )}
-          {record.fuseki?.error === undefined && (
-            <SimpleShowLayout>
-              <TextField source="fuseki.name" label="Name" />
-              <TextField source="fuseki.state" label="State" />
-            </SimpleShowLayout>
-          )}
-        </>
-      )}
     </Show>
   );
 };

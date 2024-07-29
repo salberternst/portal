@@ -5,7 +5,6 @@ import {
   Show,
   SimpleShowLayout,
   TopToolbar,
-  DeleteButton,
   Create,
   TextInput,
   SimpleForm,
@@ -21,7 +20,8 @@ import {
   required,
   useGetIdentity,
   ReferenceField,
-  useEditContext,
+  ListActions,
+  DeleteWithConfirmButton,
 } from "react-admin";
 
 const ThingModelSelector = ({ defaultValue = "" }) => {
@@ -149,7 +149,6 @@ const CustomerSelector = ({ defaultValue }) => {
 
 export const DeviceEdit = () => {
   const { record } = useEditController();
-
   return (
     <Edit mutationMode="pessimistic">
       <SimpleForm>
@@ -243,13 +242,19 @@ const DeviceShowBar = () => {
   return (
     <TopToolbar>
       <EditButton />
-      <DeleteButton disabled={!isAdmin} />
+      {isAdmin && <DeleteWithConfirmButton />}
     </TopToolbar>
   );
 };
 
 export const DeviceShow = () => {
   const { record } = useEditController();
+  const { isLoading, identity } = useGetIdentity();
+  if (isLoading) {
+    return null;
+  }
+  const isAdmin = identity?.groups.includes("role:admin");
+
   return (
     <Show actions={<DeviceShowBar />}>
       <SimpleShowLayout>
@@ -263,20 +268,22 @@ export const DeviceShow = () => {
         <TextField source="model" label="Model" emptyText="-" />
         <TextField source="thingModel" label="Thing Model" emptyText="-" />
         <BooleanField source="gateway" label="Gateway" />
-        <Labeled label="Sync Status">
-          <SimpleShowLayout>
-            <TextField source="syncStatus.message" label="Message" />
-            <TextField source="syncStatus.status" label="Status" />
-            <DateField source="syncStatus.ts" label="Timestamp" showTime />
-          </SimpleShowLayout>
-        </Labeled>
+        {record?.syncStatus && (
+          <Labeled label="Sync Status">
+            <SimpleShowLayout>
+              <TextField source="syncStatus.message" label="Message" />
+              <TextField source="syncStatus.status" label="Status" />
+              <DateField source="syncStatus.ts" label="Timestamp" showTime />
+            </SimpleShowLayout>
+          </Labeled>
+        )}
         <Labeled label="Credentials">
           <SimpleShowLayout>
             <TextField source="credentials.type" label="Type" />
             <TextField source="credentials.credentials" label="Token" />
           </SimpleShowLayout>
         </Labeled>
-        {record?.customerId && (
+        {record?.customerId && isAdmin && (
           <ReferenceField source="customerId" reference="customers" link="show">
             <TextField source="name" label="Name" />
           </ReferenceField>
@@ -294,7 +301,11 @@ export const DevicesList = () => {
   const isAdmin = identity?.groups.includes("role:admin");
 
   return (
-    <List empty={false} hasCreate={isAdmin} exporter={false}>
+    <List
+      empty={false}
+      actions={<ListActions hasCreate={isAdmin} />}
+      exporter={false}
+    >
       <Datagrid bulkActionButtons={false} rowClick="show">
         <TextField source="id" sortable={false} />
         <TextField source="name" label="Name" sortable={false} />
