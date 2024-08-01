@@ -15,6 +15,7 @@ import {
   BooleanField,
   SelectInput,
   required,
+  FunctionField,
 } from "react-admin";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
@@ -131,16 +132,52 @@ export const AssetShow = () => {
               <TextField source="dataAddress.baseUrl" />
             </Labeled>
             <Labeled fullWidth label="Proxy Path">
-              <BooleanField source="dataAddress.proxyPath" looseValue />
+              <FunctionField
+                source="dataAddress.proxyPath"
+                render={(record) => (
+                  <BooleanField
+                    record={{ value: record.dataAddress.proxyPath === "true" }}
+                    source="value"
+                  />
+                )}
+              />
             </Labeled>
             <Labeled fullWidth label="Proxy Query Params">
-              <BooleanField source="dataAddress.proxyQueryParams" looseValue />
+              <FunctionField
+                source="dataAddress.proxyQueryParams"
+                render={(record) => (
+                  <BooleanField
+                    record={{
+                      value: record.dataAddress.proxyQueryParams === "true",
+                    }}
+                    source="value"
+                  />
+                )}
+              />
             </Labeled>
             <Labeled fullWidth label="Proxy Body">
-              <BooleanField source="dataAddress.proxyBody" looseValue />
+              <FunctionField
+                source="dataAddress.proxyBody"
+                render={(record) => (
+                  <BooleanField
+                    record={{ value: record.dataAddress.proxyBody === "true" }}
+                    source="value"
+                  />
+                )}
+              />
             </Labeled>
             <Labeled fullWidth label="Proxy Method">
-              <BooleanField source="dataAddress.proxyMethod" looseValue />
+              <FunctionField
+                source="dataAddress.proxyMethod"
+                render={(record) => (
+                  <BooleanField
+                    record={{
+                      value: record.dataAddress.proxyMethod === "true",
+                    }}
+                    source="value"
+                  />
+                )}
+              />
             </Labeled>
           </SimpleShowLayout>
         </Labeled>
