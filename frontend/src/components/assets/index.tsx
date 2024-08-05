@@ -26,23 +26,23 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 
-const HistoryEndpointsQuery = `
+const ThingEndpointsQuery = `
 PREFIX iot: <http://iotschema.org/>
 PREFIX td: <https://www.w3.org/2019/wot/td#>
 
-SELECT ?thing ?title ?target ?name  WHERE {
+SELECT ?thing ?title ?target ?name ?type WHERE {
   GRAPH ?g {
-    ?affordance iot:recordedBy ?action .
-    ?action td:name ?name .
-    ?action td:hasForm ?form .
+    ?thing ?type ?affordance .
+    ?affordance td:name ?name .
+    ?affordance td:hasForm ?form .
     ?form <https://www.w3.org/2019/wot/hypermedia#hasTarget> ?target .
-    ?thing td:hasActionAffordance ?action .
+    ?thing td:hasActionAffordance ?affordance .
     ?thing td:title ?title .
   }
 } 
 `;
 
-const SelectHistoryEndpoints = () => {
+const SelectThingEndpoints = () => {
   const [endpoints, setEndpoints] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +51,7 @@ const SelectHistoryEndpoints = () => {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: new URLSearchParams({ query: HistoryEndpointsQuery }),
+        body: new URLSearchParams({ query: ThingEndpointsQuery }),
       });
       const data = await response.json();
       setEndpoints(data.results.bindings);
@@ -63,10 +63,10 @@ const SelectHistoryEndpoints = () => {
     <SelectInput
       validate={required()}
       source="dataAddress.baseUrl"
-      label="History Endpoint"
+      label="Thing Endpoint"
       choices={endpoints.map((e) => ({
         id: e.target.value,
-        name: e.thing.value + " - " + e.title.value,
+        name: e.target.value + " - " + e.title.value,
       }))}
     />
   );
@@ -203,7 +203,7 @@ export const AssetCreate = () => {
         <Dialog open={open} onClose={handleClose} fullWidth>
           <DialogTitle>Select Endpoint</DialogTitle>
           <DialogContent>
-            <SelectHistoryEndpoints />
+            <SelectThingEndpoints />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>OK</Button>
