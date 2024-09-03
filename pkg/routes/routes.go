@@ -18,7 +18,6 @@ func AddRoutes(r *gin.Engine) {
 	api.Use(middleware.FusekiMiddleware())
 	api.Use(middleware.EdcMiddleware())
 
-	addUserRoutes(api)
 	addCustomersRoutes(api)
 	if utils.GetConfig().EnableUsers {
 		addUsersRoute(api)
