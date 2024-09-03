@@ -20,7 +20,9 @@ func AddRoutes(r *gin.Engine) {
 
 	addUserRoutes(api)
 	addCustomersRoutes(api)
-	addUsersRoute(api)
+	if utils.GetConfig().EnableUsers {
+		addUsersRoute(api)
+	}
 	addAssetsRoutes(api)
 	addPoliciesRoutes(api)
 	addContractDefinitionsRoutes(api)

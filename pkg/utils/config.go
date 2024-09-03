@@ -9,6 +9,7 @@ import (
 type Config struct {
 	EnableThingsboard bool
 	EnableFuseki      bool
+	EnableUsers       bool
 }
 
 var (
@@ -21,6 +22,7 @@ func GetConfig() *Config {
 		config = &Config{
 			EnableThingsboard: ReadBoolEnvVariable("ENABLE_THINGSBOARD"),
 			EnableFuseki:      ReadBoolEnvVariable("ENABLE_FUSEKI"),
+			EnableUsers:       ReadBoolEnvVariable("ENABLE_USERS"),
 		}
 	})
 	return config
