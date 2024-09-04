@@ -24,6 +24,7 @@ import AutoStoriesIcon from "@mui/icons-material/AutoStories";
 import AutoModeIcon from "@mui/icons-material/AutoMode";
 import ShieldIcon from "@mui/icons-material/Shield";
 import DescriptionIcon from "@mui/icons-material/Description";
+import WebStoriesIcon from "@mui/icons-material/WebStories";
 import { useLocation } from "react-router-dom";
 import dataSource from "./data-source";
 import authProvider from "./auth-provider";
@@ -50,6 +51,7 @@ import {
   ContractDefinitionsList,
 } from "./components/contract_definitions";
 import { Catalog } from "./components/catalog";
+import { FederatedCatalogList } from "./components/federated_catalog";
 import {
   ContractNegotationCreate,
   ContractNegotationShow,
@@ -100,8 +102,8 @@ const CustomMenu = () => {
   return (
     <Menu>
       {window.config.devicesEnabled && <Menu.ResourceItem name="devices" />}
-      <Menu.ResourceItem name="thingDescriptions" />
-      {isAdmin && <Menu.ResourceItem name="customers" />}
+      {window.config.thingRegisterEnabled && <Menu.ResourceItem name="thingDescriptions" />}
+      {isAdmin && window.usersEnabled && <Menu.ResourceItem name="customers" />}
       {window.config.sparqlEnabled && (
         <Menu.Item
           to="/sparql"
@@ -118,6 +120,13 @@ const CustomMenu = () => {
           to="/catalog"
           primaryText="Catalog"
           leftIcon={<AutoStoriesIcon />}
+        />
+      )}
+      {isAdmin && (
+        <Menu.ResourceItem
+          name="federatedcatalog"
+          primaryText="Federated Catalog"
+          leftIcon={<WebStoriesIcon />}
         />
       )}
       <Menu.ResourceItem name="contractagreements" />
@@ -262,6 +271,12 @@ export const App = () => (
       name="datarequests"
       options={{ label: "Data Requests" }}
       show={DataRequestShow}
+    />
+     <Resource
+      name="federatedcatalog"
+      icon={WebStoriesIcon}
+      options={{ label: "Federated Catalog" }}
+      list={FederatedCatalogList}
     />
   </Admin>
 );

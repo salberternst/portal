@@ -35,6 +35,7 @@ import {
   fetchDevices,
   updateDevice,
 } from "./api/devices";
+import { fetchFederatedCatalog } from "./api/federated_catalog";
 import {
   createPolicy,
   deletePolicy,
@@ -152,6 +153,12 @@ export default {
           id: device.id.id,
         })),
         total: devices.totalElements,
+      };
+    } else if (resource === "federatedcatalog") {
+      const federatedCatalog = await fetchFederatedCatalog();
+      return {
+        data: federatedCatalog,
+        total: federatedCatalog.length,
       };
     }
   },

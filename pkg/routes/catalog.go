@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -33,6 +34,7 @@ func getCatalogDataset(ctx *gin.Context) {
 
 	catalogDataset, err := middleware.GetEdcAPI(ctx).GetCatalogDataset(datasetRequest)
 	if err != nil {
+		fmt.Println(err)
 		RespondWithInternalServerError(ctx)
 		return
 	}
