@@ -6,13 +6,13 @@ import {
   ArrayField,
   useRecordContext,
   ImageField,
-  FunctionField
+  FunctionField,
 } from "react-admin";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MuiButton from "@mui/material/Button";
 import { Link } from "react-router-dom";
 
@@ -21,6 +21,7 @@ const CreateContractNegotiationButton = () => {
   return (
     <MuiButton
       component={Link}
+      size="large"
       fullWidth
       variant="contained"
       to={{
@@ -29,15 +30,15 @@ const CreateContractNegotiationButton = () => {
       state={{
         record: {
           policy: {
-            "@type": 'http://www.w3.org/ns/odrl/2/Offer',
-            "@id": record['odrl:hasPolicy']["@id"],
+            "@type": "http://www.w3.org/ns/odrl/2/Offer",
+            "@id": record["odrl:hasPolicy"]["@id"],
             assigner: record.participantId,
             obligation: record["odrl:obligation"],
             permission: record["odrl:permission"],
             prohibition: record["odrl:prohibition"],
             target: record.id,
           },
-          counterPartyAddress: record['dcat:service']['dcat:endpointUrl'],
+          counterPartyAddress: record["dcat:service"]["dcat:endpointUrl"],
         },
       }}
     >
@@ -45,7 +46,6 @@ const CreateContractNegotiationButton = () => {
     </MuiButton>
   );
 };
-
 
 const PoliciesInformation = () => {
   return (
@@ -88,28 +88,41 @@ const ServiceInformation = () => {
       <TextField source="dcat:service.@type" label="Type" />
       <TextField source="dcat:service.dcat:endpointUrl" label="Endpoint URL" />
       <TextField source="dcat:service.dct:terms" label="Terms" />
-      <TextField source="dcat:service.dcat:endpointDescription" label="Endpoint Description" />
+      <TextField
+        source="dcat:service.dcat:endpointDescription"
+        label="Endpoint Description"
+      />
     </SimpleShowLayout>
-  )
-}
+  );
+};
 
 export const FederatedCatalogList = () => {
+  const accordionSummaryStyle = {
+    "&.MuiAccordionSummary-root": {
+      minHeight: 30,
+    },
+  };
+
   return (
-    <List
-      empty={false}
-      exporter={false}
-    >
+    <List empty={false} exporter={false}>
       <Datagrid bulkActionButtons={false} hover={false} header={<></>}>
         <SimpleShowLayout>
-          <ImageField source="image" label={<></>} sx={{
-            "& .RaImageField-image": {
-              right: 16,
-              position: 'absolute'
-            }
-          }}/>
-          <FunctionField source="name" render={(record) => (
-            <Typography variant="h6">{record.name}</Typography>
-          )} />
+          <ImageField
+            source="image"
+            label={<></>}
+            sx={{
+              "& .RaImageField-image": {
+                right: 16,
+                position: "absolute",
+              },
+            }}
+          />
+          <FunctionField
+            source="name"
+            render={(record) => (
+              <Typography variant="h6">{record.name}</Typography>
+            )}
+          />
           <TextField source="participantId" sortable={false} emptyText="-" />
           <TextField source="type" emptyText="-" sortable={false} />
           <TextField source="description" sortable={false} emptyText="-" />
@@ -119,16 +132,22 @@ export const FederatedCatalogList = () => {
             sortable={false}
             emptyText="-"
           />
-          <Accordion square elevation={4}>
-            <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+          <Accordion square elevation={4} disableGutters>
+            <AccordionSummary
+              expandIcon={<ArrowDropDownIcon />}
+              sx={accordionSummaryStyle}
+            >
               <Typography>Service</Typography>
             </AccordionSummary>
             <AccordionDetails>
               <ServiceInformation />
             </AccordionDetails>
           </Accordion>
-          <Accordion square elevation={4}>
-            <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+          <Accordion square elevation={4} disableGutters>
+            <AccordionSummary
+              expandIcon={<ArrowDropDownIcon />}
+              sx={accordionSummaryStyle}
+            >
               <Typography>Policies</Typography>
             </AccordionSummary>
             <AccordionDetails>
@@ -139,5 +158,5 @@ export const FederatedCatalogList = () => {
         </SimpleShowLayout>
       </Datagrid>
     </List>
-  )
-}
+  );
+};

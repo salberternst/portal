@@ -16,6 +16,7 @@ import {
   SelectInput,
   required,
   FunctionField,
+  useShowController,
 } from "react-admin";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
@@ -25,6 +26,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
 const ThingEndpointsQuery = `
 PREFIX iot: <http://iotschema.org/>
@@ -74,7 +76,11 @@ const SelectThingEndpoints = () => {
 
 export const AssetsList = () => (
   <List empty={false} hasCreate={true} exporter={false}>
-    <Datagrid bulkActionButtons={false} rowClick="show">
+    <Datagrid
+      style={{ tableLayout: "fixed" }}
+      bulkActionButtons={false}
+      rowClick="show"
+    >
       <TextField source="id" sortable={false} />
       <TextField source="properties.name" label="Name" sortable={false} />
       <TextField
@@ -101,85 +107,84 @@ const AssetShowBar = () => {
 };
 
 export const AssetShow = () => {
+  const { record } = useShowController();
   return (
     <Show actions={<AssetShowBar />}>
       <SimpleShowLayout>
-        <Labeled fullWidth label="ID">
-          <TextField source="@id" />
+        <FunctionField
+          source="name"
+          render={(record) => (
+            <>
+              <Typography variant="h6">{record.properties.name}</Typography>
+              <Typography variant="caption">{record.id}</Typography>
+            </>
+          )}
+        />
+        <Labeled fullWidth label="Description">
+          <TextField source="properties.description" defaultValue="-" />
         </Labeled>
-        <Labeled label="Properties">
-          <SimpleShowLayout>
-            <Labeled fullWidth label="Name">
-              <TextField source="properties.name" />
-            </Labeled>
-            <Labeled fullWidth label="Description">
-              <TextField source="properties.description" defaultValue="-" />
-            </Labeled>
-            <Labeled fullWidth label="Type">
-              <TextField source="properties.type" defaultValue="-" />
-            </Labeled>
-            <Labeled fullWidth label="Content Type">
-              <TextField source="properties.contenttype" />
-            </Labeled>
-          </SimpleShowLayout>
+        <Labeled fullWidth label="Type">
+          <TextField source="properties.type" defaultValue="-" />
         </Labeled>
-        <Labeled label="Data Address">
-          <SimpleShowLayout>
-            <Labeled fullWidth label="Type">
-              <TextField source="dataAddress.type" />
-            </Labeled>
-            <Labeled fullWidth label="Base URL">
-              <TextField source="dataAddress.baseUrl" />
-            </Labeled>
-            <Labeled fullWidth label="Proxy Path">
-              <FunctionField
-                source="dataAddress.proxyPath"
-                render={(record) => (
-                  <BooleanField
-                    record={{ value: record.dataAddress.proxyPath === "true" }}
-                    source="value"
-                  />
-                )}
+        <Labeled fullWidth label="Content Type">
+          <TextField source="properties.contenttype" />
+        </Labeled>
+        <Labeled fullWidth label="Type">
+          <TextField source="dataAddress.type" />
+        </Labeled>
+        <Labeled fullWidth label="Base URL">
+          <TextField source="dataAddress.baseUrl" />
+        </Labeled>
+        <Labeled fullWidth label="Accept Header">
+          <TextField source="dataAddress.header:Accept" emptyText="-" />
+        </Labeled>
+        <Labeled fullWidth label="Proxy Path">
+          <FunctionField
+            source="dataAddress.proxyPath"
+            render={(record) => (
+              <BooleanField
+                record={{ value: record.dataAddress.proxyPath === "true" }}
+                source="value"
               />
-            </Labeled>
-            <Labeled fullWidth label="Proxy Query Params">
-              <FunctionField
-                source="dataAddress.proxyQueryParams"
-                render={(record) => (
-                  <BooleanField
-                    record={{
-                      value: record.dataAddress.proxyQueryParams === "true",
-                    }}
-                    source="value"
-                  />
-                )}
+            )}
+          />
+        </Labeled>
+        <Labeled fullWidth label="Proxy Query Params">
+          <FunctionField
+            source="dataAddress.proxyQueryParams"
+            render={(record) => (
+              <BooleanField
+                record={{
+                  value: record.dataAddress.proxyQueryParams === "true",
+                }}
+                source="value"
               />
-            </Labeled>
-            <Labeled fullWidth label="Proxy Body">
-              <FunctionField
-                source="dataAddress.proxyBody"
-                render={(record) => (
-                  <BooleanField
-                    record={{ value: record.dataAddress.proxyBody === "true" }}
-                    source="value"
-                  />
-                )}
+            )}
+          />
+        </Labeled>
+        <Labeled fullWidth label="Proxy Body">
+          <FunctionField
+            source="dataAddress.proxyBody"
+            render={(record) => (
+              <BooleanField
+                record={{ value: record.dataAddress.proxyBody === "true" }}
+                source="value"
               />
-            </Labeled>
-            <Labeled fullWidth label="Proxy Method">
-              <FunctionField
-                source="dataAddress.proxyMethod"
-                render={(record) => (
-                  <BooleanField
-                    record={{
-                      value: record.dataAddress.proxyMethod === "true",
-                    }}
-                    source="value"
-                  />
-                )}
+            )}
+          />
+        </Labeled>
+        <Labeled fullWidth label="Proxy Method">
+          <FunctionField
+            source="dataAddress.proxyMethod"
+            render={(record) => (
+              <BooleanField
+                record={{
+                  value: record.dataAddress.proxyMethod === "true",
+                }}
+                source="value"
               />
-            </Labeled>
-          </SimpleShowLayout>
+            )}
+          />
         </Labeled>
       </SimpleShowLayout>
     </Show>
@@ -214,6 +219,12 @@ export const AssetCreate = () => {
           label="Asset Name"
           fullWidth
           validate={required()}
+        />
+        <TextInput
+          source="properties.image"
+          label="Image URL"
+          fullWidth
+          helperText="The URL of the image to be displayed."
         />
         <TextInput
           source="properties.description"

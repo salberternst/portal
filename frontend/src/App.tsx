@@ -6,7 +6,7 @@ import {
   Menu,
   AppBar,
   useGetIdentity,
-  nanoLightTheme,
+  nanoDarkTheme as nanoLightTheme,
 } from "react-admin";
 import { Route } from "react-router-dom";
 import Divider from "@mui/material/Divider";
@@ -15,7 +15,6 @@ import Container from "@mui/material/Container";
 import DeviceHub from "@mui/icons-material/DeviceHub";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import PolicyIcon from "@mui/icons-material/Policy";
 import GroupsIcon from "@mui/icons-material/Groups";
@@ -25,6 +24,7 @@ import AutoModeIcon from "@mui/icons-material/AutoMode";
 import ShieldIcon from "@mui/icons-material/Shield";
 import DescriptionIcon from "@mui/icons-material/Description";
 import WebStoriesIcon from "@mui/icons-material/WebStories";
+import InventoryIcon from "@mui/icons-material/Inventory";
 import { useLocation } from "react-router-dom";
 import dataSource from "./data-source";
 import authProvider from "./auth-provider";
@@ -102,7 +102,9 @@ const CustomMenu = () => {
   return (
     <Menu>
       {window.config.devicesEnabled && <Menu.ResourceItem name="devices" />}
-      {window.config.thingRegisterEnabled && <Menu.ResourceItem name="thingDescriptions" />}
+      {window.config.thingRegisterEnabled && (
+        <Menu.ResourceItem name="thingDescriptions" />
+      )}
       {isAdmin && window.usersEnabled && <Menu.ResourceItem name="customers" />}
       {window.config.sparqlEnabled && (
         <Menu.Item
@@ -206,7 +208,7 @@ export const App = () => (
     <Resource
       name="assets"
       options={{ label: "Assets" }}
-      icon={AccountBalanceIcon}
+      icon={InventoryIcon}
       list={AssetsList}
       show={AssetShow}
       create={AssetCreate}
@@ -272,7 +274,7 @@ export const App = () => (
       options={{ label: "Data Requests" }}
       show={DataRequestShow}
     />
-     <Resource
+    <Resource
       name="federatedcatalog"
       icon={WebStoriesIcon}
       options={{ label: "Federated Catalog" }}

@@ -725,19 +725,6 @@ func (e *EdcAPI) GetCatalog(catalogRequest CatalogRequest) (map[string]interface
 	return catalog, nil
 }
 
-//  const response = await fetch(`http://dione:8181/api/catalog/v1alpha/catalog/query`, {
-// headers: {
-// 	"Content-Type": "application/json",
-//   },
-//   method: "POST",
-//   body: JSON.stringify({
-// 	"@context": {
-// 		"edc": "https://w3id.org/edc/v0.0.1/ns/"
-// 	},
-// 	"@type": "QuerySpec"
-// }),
-// });
-
 func (e *EdcAPI) GetCatalogDataset(datasetRequest DatasetRequest) (map[string]interface{}, error) {
 	var dataset map[string]interface{}
 	resp, err := e.client.R().

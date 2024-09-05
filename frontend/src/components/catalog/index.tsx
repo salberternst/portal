@@ -23,6 +23,9 @@ const CreateContractNegotiationButton = ({
   return (
     <MuiButton
       component={Link}
+      variant="contained"
+      color="secondary"
+      fullWidth
       to={{
         pathname: "/contractnegotiations/create",
       }}
