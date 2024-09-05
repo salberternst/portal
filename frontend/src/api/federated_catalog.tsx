@@ -28,8 +28,8 @@ export const fetchFederatedCatalog = async () => {
   const datasets = [];
   for (const catalog of catalogs) {
     const { "dcat:dataset": catalogAssets, ...rest } = catalog;
-    if (!Array.isArray(catalog["dcat:dataset"])) {
-      catalog["dcat:dataset"] = [catalog["dcat:dataset"]];
+    if (!Array.isArray(catalogAssets)) {
+      catalog["dcat:dataset"] = [catalogAssets];
     }
 
     for (const dataset of catalog["dcat:dataset"]) {

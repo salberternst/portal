@@ -6,7 +6,6 @@ import {
   Menu,
   AppBar,
   useGetIdentity,
-  nanoDarkTheme as nanoLightTheme,
 } from "react-admin";
 import { Route } from "react-router-dom";
 import Divider from "@mui/material/Divider";
@@ -25,6 +24,7 @@ import ShieldIcon from "@mui/icons-material/Shield";
 import DescriptionIcon from "@mui/icons-material/Description";
 import WebStoriesIcon from "@mui/icons-material/WebStories";
 import InventoryIcon from "@mui/icons-material/Inventory";
+import Toolbar from "@mui/material/Toolbar";
 import { useLocation } from "react-router-dom";
 import dataSource from "./data-source";
 import authProvider from "./auth-provider";
@@ -75,6 +75,7 @@ import {
 } from "./components/devices";
 import Keycloak from "./components/keycloak";
 import { DataRequestShow } from "./components/datarequests";
+import { darkTheme, theme } from "./theme";
 
 const CustomUserMenu = () => {
   const { isLoading, identity } = useGetIdentity();
@@ -89,7 +90,29 @@ const CustomUserMenu = () => {
   );
 };
 
-const CustomAppBar = () => <AppBar userMenu={<CustomUserMenu />} />;
+const CustomAppBar = () => (
+  <AppBar userMenu={<CustomUserMenu />}>
+    <Toolbar>
+      <img
+        src="https://smartlivingnext.de/wp-content/plugins/borlabs-cookie/assets/images/borlabs-cookie-icon-dynamic.svg#main"
+        width={30}
+        style={{
+          marginRight: 10,
+          animation: "spin 20s linear infinite",
+        }}
+      />
+      <img
+        src="https://smartlivingnext.de/wp-content/uploads/2023/12/SmartLivingNEXT-bw-1.svg"
+        style={{
+          // filter: "invert(100%)",
+          width: "200px",
+        }}
+      />
+    </Toolbar>
+    <span style={{ flex: 1 }} />
+    {/* <ToggleThemeButton /> */}
+  </AppBar>
+);
 
 const CustomMenu = () => {
   const { isLoading, identity } = useGetIdentity();
@@ -179,7 +202,8 @@ export const App = () => (
     layout={CustomLayout}
     dataProvider={dataSource}
     authProvider={authProvider}
-    theme={nanoLightTheme}
+    theme={theme}
+    darkTheme={darkTheme}
   >
     <CustomRoutes>
       <Route path="/sparql" element={<SparqlPage />} />

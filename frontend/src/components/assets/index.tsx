@@ -15,8 +15,7 @@ import {
   BooleanField,
   SelectInput,
   required,
-  FunctionField,
-  useShowController,
+  FunctionField
 } from "react-admin";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
@@ -27,6 +26,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import { MarkdownField, MarkdownInput } from "../markdown";
 
 const ThingEndpointsQuery = `
 PREFIX iot: <http://iotschema.org/>
@@ -107,7 +107,6 @@ const AssetShowBar = () => {
 };
 
 export const AssetShow = () => {
-  const { record } = useShowController();
   return (
     <Show actions={<AssetShowBar />}>
       <SimpleShowLayout>
@@ -121,7 +120,7 @@ export const AssetShow = () => {
           )}
         />
         <Labeled fullWidth label="Description">
-          <TextField source="properties.description" defaultValue="-" />
+          <MarkdownField source="properties.description" />
         </Labeled>
         <Labeled fullWidth label="Type">
           <TextField source="properties.type" defaultValue="-" />
@@ -220,19 +219,9 @@ export const AssetCreate = () => {
           fullWidth
           validate={required()}
         />
-        <TextInput
-          source="properties.image"
-          label="Image URL"
-          fullWidth
-          helperText="The URL of the image to be displayed."
-        />
-        <TextInput
-          source="properties.description"
-          label="Description"
-          fullWidth
-          multiline
-          rows={4}
-        />
+        <Labeled fullWidth label="Description">
+          <MarkdownInput source="properties.description" label="Description" />
+        </Labeled>
         <TextInput source="properties.type" label="Asset Type" fullWidth />
         <TextInput
           source="properties.contenttype"

@@ -26,16 +26,15 @@ const PolicyShowBar = () => {
 
 export const PoliciesList = () => (
   <List empty={false} hasCreate={true} exporter={false}>
-    <Datagrid bulkActionButtons={false} rowClick="show">
+    <Datagrid
+      style={{ tableLayout: "fixed" }}
+      bulkActionButtons={false}
+      rowClick="show"
+    >
       <TextField source="id" sortable={false} />
       <TextField
         source="privateProperties.name"
         label="Name"
-        sortable={false}
-      />
-      <TextField
-        source="privateProperties.description"
-        label="Description"
         sortable={false}
       />
       <DateField

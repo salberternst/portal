@@ -5,3 +5,11 @@
 .yasgui .yasqe_buttons .yasqe_share {
   display: none;
 }
+
+.wmde-markdown-var {
+  background-color: transparent;
+}
+
+.wmde-markdown {
+  background-color: transparent;
+}

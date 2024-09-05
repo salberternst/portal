@@ -15,6 +15,7 @@
     "@fontsource/roboto": "^5.0.8",
     "@triply/yasgui": "^4.2.28",
     "@uiw/react-codemirror": "^4.21.18",
+    "@uiw/react-md-editor": "^4.0.4",
     "ajv-formats-draft2019": "^1.6.1",
     "install": "^0.13.0",
     "jsonld": "^8.3.2",
