@@ -20,6 +20,8 @@ import {
   useInput,
   AutocompleteArrayInput,
   BooleanInput,
+  useFieldValue,
+  FunctionField,
 } from "react-admin";
 import { countries, getEmojiFlag } from "countries-list";
 import Grid from "@mui/material/Grid";
@@ -144,8 +146,8 @@ const TimeBasedPermission = () => {
         <SelectInput
           source="permissions.time.operator"
           choices={[
-            { id: "after", name: "After" },
-            { id: "lifestyle", name: "Before" },
+            { id: "odrl:gt", name: "After" },
+            { id: "odrl:lt", name: "Before" },
           ]}
           helperText="Select the operator"
           validate={[required()]}
@@ -287,7 +289,7 @@ export const PolicyShow = () => (
         <TextField label="Type" source="@type" />
         <TextField label="Policy Type" source="policy.@type" />
         <ArrayField source="policy.odrl:permission" label="Permissions">
-          <Datagrid bulkActionButtons={false} rowClick={false}>
+          <Datagrid bulkActionButtons={false} rowClick={false} hover={false}>
             <TextField
               source="odrl:action.@id"
               label="Action"
@@ -298,7 +300,7 @@ export const PolicyShow = () => (
               label="Constraint"
               sortable={false}
             >
-              <Datagrid bulkActionButtons={false} rowClick={false}>
+              <Datagrid bulkActionButtons={false} rowClick={false} style={{ tableLayout: "fixed" }} hover={false}>
                 <TextField
                   source="odrl:leftOperand.@id"
                   label="Left Operand"
@@ -318,18 +320,6 @@ export const PolicyShow = () => (
             </ArrayField>
           </Datagrid>
         </ArrayField>
-        {/* <ArrayField source="policy.odrl:prohibition">
-          <Datagrid>
-            <TextField source="subject" label="Subject" />
-            <TextField source="prohibition" label="Prohibition" />
-          </Datagrid>
-        </ArrayField>
-        <ArrayField source="policy.odrl:obligation">
-          <Datagrid>
-            <TextField source="subject" label="Subject" />
-            <TextField source="obligation" label="Obligation" />
-          </Datagrid>
-        </ArrayField> */}
       </SimpleShowLayout>
     </SimpleShowLayout>
   </Show>
