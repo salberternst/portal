@@ -1,3 +1,4 @@
+import React from "react";
 import {
   List,
   Datagrid,
@@ -19,157 +20,154 @@ import {
   DateTimeInput,
   useInput,
   AutocompleteArrayInput,
-  BooleanInput,
-  useFieldValue,
-  FunctionField,
+  FormDataConsumer,
+  useArrayInput,
 } from "react-admin";
 import { countries, getEmojiFlag } from "countries-list";
 import Grid from "@mui/material/Grid";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import Typography from "@mui/material/Typography";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import { useState } from "react";
+import Menu from "@mui/material/Menu";
+import {
+  IconButton,
+  ListItemIcon,
+  MenuItem,
+  MenuList,
+  Typography,
+} from "@mui/material";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import PermIdentityIcon from "@mui/icons-material/PermIdentity";
+import LocationOnIcon from "@mui/icons-material/LocationOn";
 
 const countriesList = Object.keys(countries).map((key) => ({
   id: key,
   name: `${getEmojiFlag(key)} ${countries[key].name}`,
 }));
 
-const IdentityBasedPermission = () => {
-  const [identityBasedPermission, setIdentityBasedPermission] = useState(false);
-  const onClick = () => {
-    setIdentityBasedPermission(!identityBasedPermission);
+const CustomAddButton = () => {
+  const context = useArrayInput();
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
   };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const handleAdd = (event) => {
+    context.append({ type: event.target.getAttribute("value") });
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <IconButton color="primary" onClick={handleClick}>
+        <AddCircleOutlineIcon />
+      </IconButton>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        <MenuItem value="time" onClick={handleAdd} disableRipple>
+          <ListItemIcon>
+            <AccessTimeIcon />
+          </ListItemIcon>
+          Time Based
+        </MenuItem>
+        <MenuItem value="identity" onClick={handleAdd} disableRipple>
+          <ListItemIcon>
+            <PermIdentityIcon />
+          </ListItemIcon>
+          Identity Based
+        </MenuItem>
+        <MenuItem value="location" onClick={handleAdd} disableRipple>
+          <ListItemIcon>
+            <LocationOnIcon />
+          </ListItemIcon>
+          Location Based
+        </MenuItem>
+      </Menu>
+    </>
+  );
+};
+
+const IdentityBasedPermission = () => {
   const {
     field: { value: operatorValue },
-  } = useInput({ source: "permissions.identity.operator" });
+  } = useInput({ source: "operator" });
   const selectMultiple =
     operatorValue === "odrl:isAnyOf" ||
     operatorValue === "odrl:isAllOf" ||
     operatorValue === "odrl:isNoneOf";
+
   const renderInput = () => {
     if (selectMultiple) {
       return (
-        <ArrayInput source="permissions.identity.rightOperand">
+        <ArrayInput source="rightOperand" label="Identities">
           <SimpleFormIterator inline>
-            <TextInput />
+            <TextInput label="Identity" />
           </SimpleFormIterator>
         </ArrayInput>
       );
     }
-    return <TextInput source="permissions.identity.rightOperand" />;
+    return <TextInput source="rightOperand" label="Identity" />;
   };
 
   return (
-    <Accordion
-      expanded={identityBasedPermission}
-      slotProps={{ transition: { unmountOnExit: true } }}
-    >
-      <AccordionSummary>
-        <span>
-          <Typography gutterBottom={false}>
-            Enable Identity Based Permission
-          </Typography>
-          <Typography variant="caption">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          </Typography>
-        </span>
-        <span style={{ flex: 1 }} />
-        <BooleanInput
-          source="permissions.identity.enable"
-          onClick={onClick}
-          sx={{ alignSelf: "flex-end" }}
-          label={false}
-        />
-      </AccordionSummary>
-      <AccordionDetails>
-        <TextInput
-          source="permissions.identity.leftOperand"
-          defaultValue="edc:edc_identity"
-          label={false}
-          sx={{ display: "none" }}
-        />
-        <SelectInput
-          source="permissions.identity.operator"
-          choices={[
-            { id: "odrl:eq", name: "Equals" },
-            { id: "odrl:neq", name: "Not Equals" },
-            { id: "odrl:isAnyOf", name: "Is Any Of" },
-            { id: "odrl:isAllOf", name: "Is All Of" },
-            { id: "odrl:isNoneOf", name: "Is None Of" },
-          ]}
-          helperText="Select the operator"
-          validate={[required()]}
-        />
-        {renderInput()}
-      </AccordionDetails>
-    </Accordion>
+    <>
+      <Typography sx={{ mt: 2 }}>Identity Based Permission</Typography>
+      <TextInput
+        source="leftOperand"
+        defaultValue="edc:edc_identity"
+        label={false}
+        sx={{ display: "none" }}
+      />
+      <SelectInput
+        source="operator"
+        label="Operator"
+        choices={[
+          { id: "odrl:eq", name: "Equals" },
+          { id: "odrl:neq", name: "Not Equals" },
+          { id: "odrl:isAnyOf", name: "Is Any Of" },
+          { id: "odrl:isAllOf", name: "Is All Of" },
+          { id: "odrl:isNoneOf", name: "Is None Of" },
+        ]}
+        helperText="Select the operator"
+        validate={[required()]}
+      />
+      {renderInput()}
+    </>
   );
 };
 
 const TimeBasedPermission = () => {
-  const [timeBasedPermission, setTimeBasedPermission] = useState(false);
-  const onClick = () => {
-    setTimeBasedPermission(!timeBasedPermission);
-  };
-
   return (
-    <Accordion
-      expanded={timeBasedPermission}
-      slotProps={{ transition: { unmountOnExit: true } }}
-    >
-      <AccordionSummary>
-        <span>
-          <Typography gutterBottom={false}>
-            Enable Time Based Permission
-          </Typography>
-          <Typography variant="caption">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          </Typography>
-        </span>
-        <span style={{ flex: 1 }} />
-        <BooleanInput
-          source="permissions.time.enable"
-          onClick={onClick}
-          sx={{ alignSelf: "flex-end" }}
-          label={false}
-        />
-      </AccordionSummary>
-      <AccordionDetails>
-        <TextInput
-          source="permissions.time.leftOperand"
-          defaultValue="edc:POLICY_EVALUATION_TIME"
-          label={false}
-          sx={{ display: "none" }}
-        />
-        <SelectInput
-          source="permissions.time.operator"
-          choices={[
-            { id: "odrl:gt", name: "After" },
-            { id: "odrl:lt", name: "Before" },
-          ]}
-          helperText="Select the operator"
-          validate={[required()]}
-        />
-        <DateTimeInput
-          source="permissions.time.rightOperand"
-          helperText="Select the date"
-          validate={[required()]}
-        />
-      </AccordionDetails>
-    </Accordion>
+    <>
+      <Typography sx={{ mt: 2 }}>Time Based Permission</Typography>
+      <TextInput
+        source="leftOperand"
+        defaultValue="edc:POLICY_EVALUATION_TIME"
+        label={false}
+        sx={{ display: "none" }}
+      />
+      <SelectInput
+        source="operator"
+        choices={[
+          { id: "odrl:gt", name: "After" },
+          { id: "odrl:lt", name: "Before" },
+        ]}
+        helperText="Select the operator"
+        validate={[required()]}
+      />
+      <DateTimeInput
+        source="rightOperand"
+        helperText="Select the date"
+        validate={[required()]}
+      />
+    </>
   );
 };
 
 const LocationBasedPermission = () => {
-  const [locationBasedPermission, setLocationBasedPermission] = useState(false);
-  const onClick = () => {
-    setLocationBasedPermission(!locationBasedPermission);
-  };
   const {
     field: { value: operatorValue },
-  } = useInput({ source: "permissions.location.operator" });
+  } = useInput({ source: "operator" });
   const selectMultiple =
     operatorValue === "odrl:isAnyOf" ||
     operatorValue === "odrl:isAllOf" ||
@@ -179,67 +177,43 @@ const LocationBasedPermission = () => {
     if (selectMultiple) {
       return (
         <AutocompleteArrayInput
-          source="permissions.location.rightOperand"
+          source="rightOperand"
           choices={countriesList}
           label="Select the countries"
-          helperText="Select the countries"
         />
       );
     }
     return (
       <AutocompleteInput
-        source="permissions.location.rightOperand"
+        source="rightOperand"
         choices={countriesList}
         label="Select the country"
-        helperText="Select the country"
       />
     );
   };
 
   return (
-    <Accordion
-      expanded={locationBasedPermission}
-      slotProps={{ transition: { unmountOnExit: true } }}
-    >
-      <AccordionSummary>
-        <span>
-          <Typography gutterBottom={false}>
-            Enable Location Based Permission
-          </Typography>
-          <Typography variant="caption">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          </Typography>
-        </span>
-        <span style={{ flex: 1 }} />
-        <BooleanInput
-          source="permissions.location.enable"
-          onClick={onClick}
-          sx={{ alignSelf: "flex-end" }}
-          label={false}
-        />
-      </AccordionSummary>
-      <AccordionDetails>
-        <TextInput
-          source="permissions.location.leftOperand"
-          defaultValue="edc:location"
-          label={false}
-          sx={{ display: "none" }}
-        />
-        <SelectInput
-          source="permissions.location.operator"
-          choices={[
-            { id: "odrl:eq", name: "Equals" },
-            { id: "odrl:neq", name: "Not Equals" },
-            { id: "odrl:isAnyOf", name: "Is Any Of" },
-            { id: "odrl:isAllOf", name: "Is All Of" },
-            { id: "odrl:isNoneOf", name: "Is None Of" },
-          ]}
-          helperText="Select the operator"
-          validate={[required()]}
-        />
-        {renderInput()}
-      </AccordionDetails>
-    </Accordion>
+    <>
+      <Typography sx={{ mt: 2 }}>Location Based Permission</Typography>
+      <TextInput
+        source="leftOperand"
+        defaultValue="edc:location"
+        label={false}
+        sx={{ display: "none" }}
+      />
+      <SelectInput
+        source="operator"
+        choices={[
+          { id: "odrl:eq", name: "Equals" },
+          { id: "odrl:neq", name: "Not Equals" },
+          { id: "odrl:isAnyOf", name: "Is Any Of" },
+          { id: "odrl:isAllOf", name: "Is All Of" },
+          { id: "odrl:isNoneOf", name: "Is None Of" },
+        ]}
+        validate={[required()]}
+      />
+      {renderInput()}
+    </>
   );
 };
 
@@ -252,7 +226,7 @@ const PolicyShowBar = () => {
 };
 
 export const PoliciesList = () => (
-  <List empty={false} hasCreate={true} exporter={false}>
+  <List empty={false} exporter={false}>
     <Datagrid
       style={{ tableLayout: "fixed" }}
       bulkActionButtons={false}
@@ -300,7 +274,12 @@ export const PolicyShow = () => (
               label="Constraint"
               sortable={false}
             >
-              <Datagrid bulkActionButtons={false} rowClick={false} style={{ tableLayout: "fixed" }} hover={false}>
+              <Datagrid
+                bulkActionButtons={false}
+                rowClick={false}
+                style={{ tableLayout: "fixed" }}
+                hover={false}
+              >
                 <TextField
                   source="odrl:leftOperand.@id"
                   label="Left Operand"
@@ -325,22 +304,36 @@ export const PolicyShow = () => (
   </Show>
 );
 
+const PermissionCreate = (props: any) => {
+  const renderPermission = ({ type }) => {
+    if (type === "time") {
+      return <TimeBasedPermission />;
+    }
+    if (type === "identity") {
+      return <IdentityBasedPermission />;
+    }
+    if (type === "location") {
+      return <LocationBasedPermission />;
+    }
+    return null;
+  };
+
+  return (
+    <SimpleFormIterator addButton={<CustomAddButton />}>
+      <FormDataConsumer>
+        {({ scopedFormData }) => {
+          return renderPermission({ type: scopedFormData.type });
+        }}
+      </FormDataConsumer>
+    </SimpleFormIterator>
+  );
+};
+
 export const PolicyCreate = (props: any) => (
   <Create {...props}>
     <SimpleForm>
       <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <SelectInput
-            source="policy.@type"
-            label="Type"
-            choices={[{ id: "odrl:Set", name: "Set" }]}
-            fullWidth
-            defaultValue={"odrl:Set"}
-            validate={[required()]}
-            readOnly
-          />
-        </Grid>
-        <Grid item xs={9}>
+        <Grid item xs={12}>
           <TextInput
             source="privateProperties.name"
             label="Name"
@@ -358,13 +351,9 @@ export const PolicyCreate = (props: any) => (
           />
         </Grid>
         <Grid item xs={12}>
-          <IdentityBasedPermission />
-        </Grid>
-        <Grid item xs={12}>
-          <TimeBasedPermission />
-        </Grid>
-        <Grid item xs={12}>
-          <LocationBasedPermission />
+          <ArrayInput source="permissions">
+            <PermissionCreate />
+          </ArrayInput>
         </Grid>
       </Grid>
     </SimpleForm>

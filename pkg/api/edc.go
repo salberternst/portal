@@ -76,8 +76,6 @@ func (a *Permissions) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 
-	fmt.Println(err)
-
 	return fmt.Errorf("failed to unmarshal Permissions")
 }
 

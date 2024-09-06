@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"maps"
 	"net/http"
 
@@ -50,7 +49,6 @@ func createPolicy(ctx *gin.Context) {
 	}
 
 	if err := ctx.BindJSON(&policyDefinition); err != nil {
-		fmt.Println(err)
 		RespondWithBadRequest(ctx, "Bad Request")
 		return
 	}
@@ -65,7 +63,6 @@ func createPolicy(ctx *gin.Context) {
 
 	createdPolicy, err := middleware.GetEdcAPI(ctx).CreatePolicy(policyDefinition)
 	if err != nil {
-		fmt.Println(err)
 		RespondWithInternalServerError(ctx)
 		return
 	}

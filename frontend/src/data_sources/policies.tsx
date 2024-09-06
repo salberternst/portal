@@ -82,25 +82,24 @@ export async function create(params) {
     ...data,
     policy: {
       ...params.data.policy,
-      "odrl:permission": Object.keys(permissions)
-        .filter((key) => permissions[key].enable)
-        .map((key) => ({
-          "odrl:action": {
-            "@id": "odrl:use",
-          },
-          "odrl:constraint": [
-            {
-              "@type": "AtomicConstraint",
-              "odrl:leftOperand": {
-                "@id": permissions[key].leftOperand,
-              },
-              "odrl:operator": {
-                "@id": permissions[key].operator,
-              },
-              "odrl:rightOperand": permissions[key].rightOperand,
+      "@type": "odrl:Set",
+      "odrl:permission": permissions.map((permission) => ({
+        "odrl:action": {
+          "@id": "odrl:use",
+        },
+        "odrl:constraint": [
+          {
+            "@type": "AtomicConstraint",
+            "odrl:leftOperand": {
+              "@id": permission.leftOperand,
             },
-          ],
-        })),
+            "odrl:operator": {
+              "@id": permission.operator,
+            },
+            "odrl:rightOperand": permission.rightOperand,
+          },
+        ],
+      })),
     },
     "@context": {
       "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
