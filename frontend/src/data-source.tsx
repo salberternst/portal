@@ -13,6 +13,7 @@ import {
   usersDatasource,
   terminateContractNegotiationDatasource,
   terminateTransferProcessDatasource,
+  dataRequestDatasource,
 } from "./data_sources";
 
 const datasourceMapping = {
@@ -28,7 +29,7 @@ const datasourceMapping = {
   users: usersDatasource,
   federatedcatalog: federatedCatalogDatasource,
   catalog: catalogDatasource,
-  datarequests: transferProcessesDatasource,
+  datarequests: dataRequestDatasource,
   terminatecontractnegotiation: terminateContractNegotiationDatasource,
   terminatetransferprocess: terminateTransferProcessDatasource,
 };

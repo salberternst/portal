@@ -81,6 +81,7 @@ export const ContractAgreementShow = () => {
         {record?.negotiation.type === "PROVIDER" && (
           <ReferenceField
             source="contractAgreement.assetId"
+            label="Asset"
             reference="assets"
             link="show"
           >

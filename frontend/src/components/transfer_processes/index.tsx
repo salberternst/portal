@@ -32,7 +32,12 @@ export const TransferProcessesList = () => (
         source="dataDestination.type"
         sortable={false}
       />
-      <DateField source="stateTimestamp" sortable={false} showTime />
+      <DateField
+        label="State Timestamp"
+        source="stateTimestamp"
+        sortable={false}
+        showTime
+      />
     </Datagrid>
   </List>
 );

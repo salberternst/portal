@@ -7,6 +7,7 @@ import {
   useRecordContext,
   ImageField,
   FunctionField,
+  Labeled,
 } from "react-admin";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -15,69 +16,40 @@ import Typography from "@mui/material/Typography";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MuiButton from "@mui/material/Button";
 import { Link } from "react-router-dom";
+import { MarkdownField } from "../markdown";
 
-const CreateContractNegotiationButton = () => {
+const CreateContractNegotiationButton = ({
+  datasetId,
+  counterPartyAddress,
+  participantId,
+}) => {
   const record = useRecordContext();
   return (
     <MuiButton
       component={Link}
-      size="large"
-      fullWidth
       variant="contained"
+      color="secondary"
+      fullWidth
       to={{
         pathname: "/contractnegotiations/create",
       }}
       state={{
         record: {
           policy: {
-            "@type": "http://www.w3.org/ns/odrl/2/Offer",
-            "@id": record["odrl:hasPolicy"]["@id"],
-            assigner: record.participantId,
+            "@type": record["@type"].replace("odrl:", ""),
+            "@id": record["@id"],
+            assigner: participantId,
             obligation: record["odrl:obligation"],
             permission: record["odrl:permission"],
             prohibition: record["odrl:prohibition"],
-            target: record.id,
+            target: datasetId,
           },
-          counterPartyAddress: record["dcat:service"]["dcat:endpointUrl"],
+          counterPartyAddress,
         },
       }}
     >
       Negotiate
     </MuiButton>
-  );
-};
-
-const PoliciesInformation = () => {
-  return (
-    <SimpleShowLayout>
-      <ArrayField source="odrl:permission" label="Permissions">
-        <Datagrid bulkActionButtons={false}>
-          <TextField source="@type" label="Type" />
-          <TextField source="odrl:action" label="Action" />
-          <TextField source="odrl:target" label="Target" />
-          <TextField source="odrl:leftOperand" label="Left Operand" />
-          <TextField source="odrl:rightOperand" label="Right Operand" />
-        </Datagrid>
-      </ArrayField>
-      <ArrayField source="odrl:prohibition" label="Prohibitions">
-        <Datagrid bulkActionButtons={false}>
-          <TextField source="@type" />
-          <TextField source="odrl:action" label="Action" />
-          <TextField source="odrl:target" label="Target" />
-          <TextField source="odrl:leftOperand" label="Left Operand" />
-          <TextField source="odrl:rightOperand" label="Right Operand" />
-        </Datagrid>
-      </ArrayField>
-      <ArrayField source="odrl:obligation" label="Obligations">
-        <Datagrid bulkActionButtons={false}>
-          <TextField source="@type" />
-          <TextField source="odrl:action" label="Action" />
-          <TextField source="odrl:target" label="Target" />
-          <TextField source="odrl:leftOperand" label="Left Operand" />
-          <TextField source="odrl:rightOperand" label="Right Operand" />
-        </Datagrid>
-      </ArrayField>
-    </SimpleShowLayout>
   );
 };
 
@@ -96,20 +68,65 @@ const ServiceInformation = () => {
   );
 };
 
+const PoliciesShow = () => {
+  const record = useRecordContext();
+  const EmptyHeader = () => null;
+  return (
+    <ArrayField source="odrl:hasPolicy" label="Policies">
+      <Datagrid
+        bulkActionButtons={false}
+        rowClick={false}
+        hover={false}
+        header={EmptyHeader}
+      >
+        <div>
+          <ArrayField
+            source="odrl:permission"
+            label="Permissions"
+            emptyText="No Permissions"
+          >
+            <Datagrid bulkActionButtons={false} rowClick={false} hover={false}>
+              <ArrayField source="odrl:constraint" label="Constraints">
+                <Datagrid
+                  bulkActionButtons={false}
+                  style={{ tableLayout: "fixed" }}
+                >
+                  <TextField
+                    source="odrl:leftOperand.@id"
+                    label="Left Operand"
+                  />
+                  <TextField source="odrl:operator.@id" label="Operator" />
+                  <TextField source="odrl:rightOperand" label="Right Operand" />
+                </Datagrid>
+              </ArrayField>
+            </Datagrid>
+          </ArrayField>
+          <CreateContractNegotiationButton
+            datasetId={record["@id"]}
+            counterPartyAddress={record["dcat:service"]["dcat:endpointUrl"]}
+            participantId={record["participantId"]}
+          />
+        </div>
+      </Datagrid>
+    </ArrayField>
+  );
+};
+
 export const FederatedCatalogList = () => {
   const accordionSummaryStyle = {
     "&.MuiAccordionSummary-root": {
       minHeight: 30,
     },
   };
+  const EmptyHeader = () => null;
 
   return (
     <List empty={false} exporter={false}>
-      <Datagrid bulkActionButtons={false} hover={false} header={<></>}>
+      <Datagrid bulkActionButtons={false} hover={false} header={EmptyHeader}>
         <SimpleShowLayout>
           <ImageField
             source="image"
-            label={<></>}
+            label={false}
             sx={{
               "& .RaImageField-image": {
                 right: 16,
@@ -125,7 +142,9 @@ export const FederatedCatalogList = () => {
           />
           <TextField source="participantId" sortable={false} emptyText="-" />
           <TextField source="type" emptyText="-" sortable={false} />
-          <TextField source="description" sortable={false} emptyText="-" />
+          <Labeled fullWidth label="Description">
+            <MarkdownField source="description" />
+          </Labeled>
           <TextField
             label="Content Type"
             source="contenttype"
@@ -143,7 +162,7 @@ export const FederatedCatalogList = () => {
               <ServiceInformation />
             </AccordionDetails>
           </Accordion>
-          <Accordion square elevation={4} disableGutters>
+          <Accordion square elevation={4} disableGutters defaultExpanded>
             <AccordionSummary
               expandIcon={<ArrowDropDownIcon />}
               sx={accordionSummaryStyle}
@@ -151,10 +170,9 @@ export const FederatedCatalogList = () => {
               <Typography>Policies</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <PoliciesInformation />
+              <PoliciesShow />
             </AccordionDetails>
           </Accordion>
-          <CreateContractNegotiationButton />
         </SimpleShowLayout>
       </Datagrid>
     </List>

@@ -20,16 +20,15 @@ import {
 
 export const ContractDefinitionsList = () => (
   <List empty={false} hasCreate={true} exporter={false}>
-    <Datagrid bulkActionButtons={false} rowClick="show">
+    <Datagrid
+      bulkActionButtons={false}
+      rowClick="show"
+      style={{ tableLayout: "fixed" }}
+    >
       <TextField source="id" sortable={false} />
       <TextField
         label="Name"
         source="privateProperties.name"
-        sortable={false}
-      />
-      <TextField
-        label="Description"
-        source="privateProperties.description"
         sortable={false}
       />
     </Datagrid>
@@ -45,23 +44,40 @@ const ContractDefinitionShowBar = () => (
 export const ContractDefinitionShow = () => (
   <Show actions={<ContractDefinitionShowBar />}>
     <SimpleShowLayout>
+      <TextField label="Name" source="privateProperties.name" />
       <TextField source="id" />
+      <TextField
+        label="Description"
+        source="privateProperties.description"
+        emptyText="-"
+      />
       <TextField label="Type" source="@type" />
-      <ReferenceField source="accessPolicyId" reference="policies" link="show">
+      <ReferenceField
+        source="accessPolicyId"
+        reference="policies"
+        link="show"
+        label="Access Policy"
+      >
         <TextField source="id" />
       </ReferenceField>
       <ReferenceField
         source="contractPolicyId"
         reference="policies"
+        label="Contract Policy"
         link="show"
       >
         <TextField source="id" />
       </ReferenceField>
       <ArrayField label="Asset Selector" source="assetsSelector">
-        <Datagrid bulkActionButtons={false}>
-          <TextField source="operandLeft" />
-          <TextField source="operator" />
-          <ReferenceField source="operandRight" reference="assets" link="show">
+        <Datagrid bulkActionButtons={false} rowClick={false} hover={false}>
+          <TextField source="operandLeft" label="Operand Left" />
+          <TextField source="operator" label="Operator" />
+          <ReferenceField
+            source="operandRight"
+            label="Operand Right"
+            reference="assets"
+            link="show"
+          >
             <TextField source="properties.name" />
           </ReferenceField>
         </Datagrid>
@@ -88,6 +104,7 @@ export const ContractDefinitionCreate = (props: any) => (
       />
       <ReferenceInput source="accessPolicyId" reference="policies">
         <AutocompleteInput
+          label="Access Policy"
           optionText="privateProperties.name"
           fullWidth
           validate={[required()]}
@@ -95,6 +112,7 @@ export const ContractDefinitionCreate = (props: any) => (
       </ReferenceInput>
       <ReferenceInput source="contractPolicyId" reference="policies">
         <AutocompleteInput
+          label="Contract Policy"
           optionText="privateProperties.name"
           fullWidth
           validate={[required()]}

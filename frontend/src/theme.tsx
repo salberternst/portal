@@ -9,7 +9,8 @@ nanoLightTheme.palette.primary.dark = "#ff";
 nanoLightTheme.palette.secondary.main = "#ff";
 nanoLightTheme.palette.secondary.light = "#ff";
 nanoLightTheme.palette.secondary.dark = "#ff";
-nanoLightTheme.palette.text.primary = "#ff";
+nanoLightTheme.palette.text.primary = "#33";
+nanoLightTheme.palette.text.secondary = "#33";
 
 export const theme = nanoLightTheme;
 export const darkTheme = nanoDarkTheme;

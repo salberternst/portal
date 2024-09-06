@@ -1,4 +1,5 @@
 import { TextField, Show, SimpleShowLayout } from "react-admin";
+import { PasswordField } from "../password_field";
 
 export const DataRequestShow = () => {
   return (
@@ -7,7 +8,7 @@ export const DataRequestShow = () => {
         <TextField source="id" />
         <TextField source="endpoint" />
         <TextField source="authType" label="Authentication Type" />
-        <TextField source="authorization" label="Authentication" />
+        <PasswordField source="authorization" label="Authentication" />
       </SimpleShowLayout>
     </Show>
   );

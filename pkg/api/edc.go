@@ -218,17 +218,7 @@ type Offer struct {
 	Target   string       `json:"target"`
 }
 
-type ContractRequest struct {
-	Context             *interface{}              `json:"@context"`
-	Type                string                    `json:"@type,omitempty"`
-	CallbackAddresses   CallbackAddressSelector   `json:"callbackAddresses,omitempty"`
-	ConnectorAddress    string                    `json:"connectorAddress,omitempty"`
-	CounterPartyAddress string                    `json:"counterPartyAddress"`
-	Offer               *ContractOfferDescription `json:"offer,omitempty"`
-	Policy              *Offer                    `json:"policy"`
-	Protocol            string                    `json:"protocol"`
-	ProviderId          string                    `json:"providerId,omitempty"`
-}
+type ContractRequest map[string]interface{}
 
 type ContractAgreement struct {
 	Id                  string                  `json:"@id,omitempty"`

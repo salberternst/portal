@@ -12,3 +12,4 @@ export * as transferProcessesDatasource from "./transfer_processes";
 export * as usersDatasource from "./users";
 export * as terminateContractNegotiationDatasource from "./terminate_contract_negotiation";
 export * as terminateTransferProcessDatasource from "./terminate_transfer_process";
+export * as dataRequestDatasource from "./data_requests";

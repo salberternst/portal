@@ -1,4 +1,5 @@
 import { HttpError } from "react-admin";
+import { castArray } from "lodash";
 
 /**
  * Fetches the federated catalog from the specified API endpoint.
@@ -20,26 +21,10 @@ export const fetchFederatedCatalog = async () => {
     }),
   });
 
-  const catalogs = await response.json();
+  const json = await response.json();
   if (response.ok === false) {
-    throw new HttpError(catalogs.message, response.status);
+    throw new HttpError(json.message, response.status);
   }
 
-  const datasets = [];
-  for (const catalog of catalogs) {
-    const { "dcat:dataset": catalogAssets, ...rest } = catalog;
-    if (!Array.isArray(catalogAssets)) {
-      catalog["dcat:dataset"] = [catalogAssets];
-    }
-
-    for (const dataset of catalog["dcat:dataset"]) {
-      datasets.push({
-        ...dataset,
-        ...rest,
-        // image: 'https://picsum.photos/536/354'
-      });
-    }
-  }
-
-  return datasets;
+  return json;
 };
