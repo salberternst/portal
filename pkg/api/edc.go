@@ -37,7 +37,7 @@ type Action struct {
 }
 
 type Prohibition struct {
-	Action      *Action      `json:"action,omitempty"`
+	Action      *string      `json:"action,omitempty"`
 	Assignee    string       `json:"assignee,omitempty"`
 	Assigner    string       `json:"assigner,omitempty"`
 	Constraints []Constraint `json:"constraints,omitempty"`
@@ -46,7 +46,7 @@ type Prohibition struct {
 }
 
 type Duty struct {
-	Action           *Action      `json:"action,omitempty"`
+	Action           *string      `json:"action,omitempty"`
 	Assignee         string       `json:"assignee,omitempty"`
 	Assigner         string       `json:"assigner,omitempty"`
 	Consequence      *Duty        `json:"consequence,omitempty"`
@@ -56,43 +56,27 @@ type Duty struct {
 	Uid              string       `json:"uid,omitempty"`
 }
 
-type Permission struct {
-	Action      *Action      `json:"odrl:action,omitempty"`
-	Assignee    string       `json:"assignee,omitempty"`
-	Assigner    string       `json:"assigner,omitempty"`
-	Constraints []Constraint `json:"constraints,omitempty"`
-	Duties      []Duty       `json:"duties,omitempty"`
-	Target      string       `json:"target,omitempty"`
-	Uid         string       `json:"uid,omitempty"`
-}
+type Permission map[string]interface{}
 
-type Policy struct {
-	Context              *interface{}           `json:"@context,omitempty"`
-	Type                 string                 `json:"@type,omitempty"`
-	Assignee             string                 `json:"odrl:assignee,omitempty"`
-	Assigner             string                 `json:"odrl:assigner,omitempty"`
-	ExtensibleProperties map[string]interface{} `json:"odrl:extensibleProperties,omitempty"`
-	InheritsFrom         string                 `json:"odrl:inheritsFrom,omitempty"`
-	Obligations          Duties                 `json:"odrl:obligation,omitempty"`
-	Permissions          Permissions            `json:"odrl:permission,omitempty"`
-	Prohibitions         Prohibitions           `json:"odrl:prohibition,omitempty"`
-	Target               interface{}            `json:"odrl:target,omitempty"`
-}
+type Policy map[string]interface{}
 
 type Permissions []Permission
 
 func (a *Permissions) UnmarshalJSON(data []byte) error {
 	var single Permission
-	if err := json.Unmarshal(data, &single); err == nil {
+	var err error
+	if err = json.Unmarshal(data, &single); err == nil {
 		*a = Permissions{single}
 		return nil
 	}
 
 	var multiple []Permission
-	if err := json.Unmarshal(data, &multiple); err == nil {
+	if err = json.Unmarshal(data, &multiple); err == nil {
 		*a = multiple
 		return nil
 	}
+
+	fmt.Println(err)
 
 	return fmt.Errorf("failed to unmarshal Permissions")
 }

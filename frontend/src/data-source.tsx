@@ -191,6 +191,18 @@ export default {
       };
     } else if (resource === "policies") {
       const policy = await fetchPolicy(params.id);
+      // normalize data
+      if (!Array.isArray(policy.policy["odrl:permission"])) {
+        policy.policy["odrl:permission"] = [policy.policy["odrl:permission"]];
+      }
+      policy.policy["odrl:permission"] = policy.policy["odrl:permission"].map(
+        (permission) => {
+          if (!Array.isArray(permission["odrl:constraint"])) {
+            permission["odrl:constraint"] = [permission["odrl:constraint"]];
+          }
+          return permission;
+        }
+      );
       return {
         data: {
           ...policy,
@@ -325,16 +337,38 @@ export default {
         data: customer,
       };
     } else if (resource === "policies") {
+      const { permissions, ...data } = params.data;
       const policy = await createPolicy({
-        ...params.data,
+        ...data,
         policy: {
           ...params.data.policy,
+          "odrl:permission": Object.keys(permissions)
+            .filter((key) => permissions[key].enable)
+            .map((key) => ({
+              "odrl:action": {
+                "@id": "odrl:use",
+              },
+              "odrl:constraint": [
+                {
+                  "@type": "AtomicConstraint",
+                  "odrl:leftOperand": {
+                    "@id": permissions[key].leftOperand,
+                  },
+                  "odrl:operator": {
+                    "@id": permissions[key].operator,
+                  },
+                  "odrl:rightOperand": permissions[key].rightOperand,
+                },
+              ],
+            })),
         },
         "@context": {
           "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
+          edc: "https://w3id.org/edc/v0.0.1/ns/",
           odrl: "http://www.w3.org/ns/odrl/2/",
         },
       });
+      console.log(policy);
       return {
         data: {
           ...policy,

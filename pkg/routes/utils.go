@@ -93,9 +93,8 @@ func BuildFilterExpressionFromContext(ctx *gin.Context) []api.Criterion {
 }
 
 func BuildPrivatePropertiesFromContext(ctx *gin.Context) map[string]string {
-	privateProperties := map[string]string{
-		"https://w3id.org/edc/v0.0.1/ns/tenantId": middleware.GetAccessTokenClaims(ctx).TenantId,
-	}
+	privateProperties := make(map[string]string)
+	privateProperties["https://w3id.org/edc/v0.0.1/ns/tenantId"] = middleware.GetAccessTokenClaims(ctx).TenantId
 
 	if middleware.IsCustomer(ctx) {
 		privateProperties["https://w3id.org/edc/v0.0.1/ns/customerId"] = middleware.GetAccessTokenClaims(ctx).CustomerId
