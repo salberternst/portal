@@ -13,6 +13,10 @@ export const MarkdownInput = ({ source, label }) => {
 
 export const MarkdownField = ({ source }) => {
   const value = useFieldValue({ source });
+  if (!value) {
+    return <span>-</span>;
+  }
+
   return (
     <div data-color-mode="light" style={{ width: "100%" }}>
       <MDEditor.Markdown source={value} />

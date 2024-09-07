@@ -11,6 +11,26 @@ nanoLightTheme.palette.secondary.light = "#ff";
 nanoLightTheme.palette.secondary.dark = "#ff";
 nanoLightTheme.palette.text.primary = "#33";
 nanoLightTheme.palette.text.secondary = "#33";
+// nanoLightTheme.components = {
+//     ...nanoLightTheme.components,
+//     ...{
+//         "RaMenuItemLink": {
+//             "styleOverrides": {
+//                 "root": {
+//                     "paddingLeft": "8px",
+//                     "paddingRight": "8px",
+//                     "&.RaMenuItemLink-active": {
+//                         "color": "rgb(27, 67, 206)",
+//                         "fontWeight": 700,
+//                         "& .MuiSvgIcon-root": {
+//                             "fill": "rgb(27, 67, 206)"
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
 
 export const theme = nanoLightTheme;
 export const darkTheme = nanoDarkTheme;

@@ -99,18 +99,17 @@ const CustomAppBar = () => (
         style={{
           marginRight: 10,
           animation: "spin 20s linear infinite",
+          color: "red",
         }}
       />
       <img
         src="https://smartlivingnext.de/wp-content/uploads/2023/12/SmartLivingNEXT-bw-1.svg"
         style={{
-          // filter: "invert(100%)",
           width: "200px",
         }}
       />
     </Toolbar>
     <span style={{ flex: 1 }} />
-    {/* <ToggleThemeButton /> */}
   </AppBar>
 );
 
@@ -123,7 +122,7 @@ const CustomMenu = () => {
   const isAdmin = identity?.groups.includes("role:admin");
 
   return (
-    <Menu>
+    <Menu dense={false}>
       {window.config.devicesEnabled && <Menu.ResourceItem name="devices" />}
       {window.config.thingRegisterEnabled && (
         <Menu.ResourceItem name="thingDescriptions" />

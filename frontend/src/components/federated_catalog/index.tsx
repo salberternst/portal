@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   List,
   Datagrid,
@@ -8,6 +9,7 @@ import {
   ImageField,
   FunctionField,
   Labeled,
+  useListController,
 } from "react-admin";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -17,13 +19,24 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MuiButton from "@mui/material/Button";
 import { Link } from "react-router-dom";
 import { MarkdownField } from "../markdown";
+import Box from "@mui/material/Box";
+import MenuItem from "@mui/material/MenuItem";
+import MuiTextField from "@mui/material/TextField";
+import Paper from "@mui/material/Paper";
+
+interface CreateContractNegotiationButtonProps {
+  selectedPolicy: number;
+}
 
 const CreateContractNegotiationButton = ({
-  datasetId,
-  counterPartyAddress,
-  participantId,
-}) => {
+  selectedPolicy,
+}: CreateContractNegotiationButtonProps) => {
   const record = useRecordContext();
+  const policy = record?.["odrl:hasPolicy"][selectedPolicy];
+  const datasetId = record?.["@id"];
+  const counterPartyAddress = record?.["dcat:service"]?.["dcat:endpointUrl"];
+  const participantId = record?.["participantId"];
+
   return (
     <MuiButton
       component={Link}
@@ -34,14 +47,14 @@ const CreateContractNegotiationButton = ({
         pathname: "/contractnegotiations/create",
       }}
       state={{
-        record: {
+        record: record && {
           policy: {
-            "@type": record["@type"].replace("odrl:", ""),
-            "@id": record["@id"],
+            "@type": policy["@type"],
+            "@id": policy["@id"],
             assigner: participantId,
-            obligation: record["odrl:obligation"],
-            permission: record["odrl:permission"],
-            prohibition: record["odrl:prohibition"],
+            obligation: policy?.["odrl:obligation"],
+            permission: policy?.["odrl:permission"],
+            prohibition: policy?.["odrl:prohibition"],
             target: datasetId,
           },
           counterPartyAddress,
@@ -68,113 +81,156 @@ const ServiceInformation = () => {
   );
 };
 
-const PoliciesShow = () => {
-  const record = useRecordContext();
-  const EmptyHeader = () => null;
+const PolicySelect = ({ record, onPolicySelect }) => {
+  const choices = record["odrl:hasPolicy"].map((policy, index) => {
+    return {
+      id: index,
+      name: policy["@id"],
+    };
+  });
   return (
-    <ArrayField source="odrl:hasPolicy" label="Policies">
-      <Datagrid
-        bulkActionButtons={false}
-        rowClick={false}
-        hover={false}
-        header={EmptyHeader}
+    <MuiTextField
+      label="Selected Policy"
+      size="small"
+      fullWidth
+      defaultValue={0}
+      select
+      onChange={onPolicySelect}
+      InputLabelProps={{ sx: { p: 0 } }}
+    >
+      {choices.map((choice) => (
+        <MenuItem key={choice.id} value={choice.id}>
+          {choice.name}
+        </MenuItem>
+      ))}
+    </MuiTextField>
+  );
+};
+
+const Permissions = ({ record }) => {
+  const EmptyPermissions = () => <Box sx={{ m: 2 }}>No Permissions</Box>;
+  return (
+    <Labeled fullWidth label="Permissions">
+      <ArrayField
+        source="odrl:permission"
+        label="Permissions"
+        emptyText="No Permissions"
+        record={record}
       >
-        <div>
-          <ArrayField
-            source="odrl:permission"
-            label="Permissions"
-            emptyText="No Permissions"
-          >
-            <Datagrid bulkActionButtons={false} rowClick={false} hover={false}>
-              <ArrayField source="odrl:constraint" label="Constraints">
-                <Datagrid
-                  bulkActionButtons={false}
-                  style={{ tableLayout: "fixed" }}
-                >
-                  <TextField
-                    source="odrl:leftOperand.@id"
-                    label="Left Operand"
-                  />
-                  <TextField source="odrl:operator.@id" label="Operator" />
-                  <TextField source="odrl:rightOperand" label="Right Operand" />
-                </Datagrid>
-              </ArrayField>
+        <Datagrid
+          bulkActionButtons={false}
+          rowClick={false}
+          hover={false}
+          empty={<EmptyPermissions />}
+        >
+          <TextField source="odrl:action.@id" label="Action" sortable={false} />
+          <ArrayField source="odrl:constraint" label="Constraints">
+            <Datagrid
+              hover={false}
+              bulkActionButtons={false}
+              style={{ tableLayout: "fixed" }}
+            >
+              <TextField
+                source="odrl:leftOperand.@id"
+                label="Left Operand"
+                sortable={false}
+              />
+              <TextField
+                source="odrl:operator.@id"
+                label="Operator"
+                sortable={false}
+              />
+              <TextField
+                source="odrl:rightOperand"
+                label="Right Operand"
+                sortable={false}
+              />
             </Datagrid>
           </ArrayField>
-          <CreateContractNegotiationButton
-            datasetId={record["@id"]}
-            counterPartyAddress={record["dcat:service"]["dcat:endpointUrl"]}
-            participantId={record["participantId"]}
-          />
-        </div>
-      </Datagrid>
-    </ArrayField>
+        </Datagrid>
+      </ArrayField>
+    </Labeled>
+  );
+};
+
+const PoliciesShow = () => {
+  const [selectedPolicy, setSelectedPolicy] = useState(0);
+  const record = useRecordContext();
+  const handlePolicyChange = (event) => {
+    setSelectedPolicy(event.target.value);
+  };
+
+  return (
+    <>
+      <PolicySelect record={record} onPolicySelect={handlePolicyChange} />
+      <Permissions record={record?.["odrl:hasPolicy"][selectedPolicy]} />
+      <CreateContractNegotiationButton selectedPolicy={selectedPolicy} />
+    </>
   );
 };
 
 export const FederatedCatalogList = () => {
   const accordionSummaryStyle = {
+    padding: 0,
     "&.MuiAccordionSummary-root": {
       minHeight: 30,
     },
   };
-  const EmptyHeader = () => null;
+  const { data } = useListController();
 
   return (
-    <List empty={false} exporter={false}>
-      <Datagrid bulkActionButtons={false} hover={false} header={EmptyHeader}>
-        <SimpleShowLayout>
-          <ImageField
-            source="image"
-            label={false}
-            sx={{
-              "& .RaImageField-image": {
-                right: 16,
-                position: "absolute",
-              },
-            }}
-          />
-          <FunctionField
-            source="name"
-            render={(record) => (
-              <Typography variant="h6">{record.name}</Typography>
-            )}
-          />
-          <TextField source="participantId" sortable={false} emptyText="-" />
-          <TextField source="type" emptyText="-" sortable={false} />
-          <Labeled fullWidth label="Description">
-            <MarkdownField source="description" />
-          </Labeled>
-          <TextField
-            label="Content Type"
-            source="contenttype"
-            sortable={false}
-            emptyText="-"
-          />
-          <Accordion square elevation={4} disableGutters>
-            <AccordionSummary
-              expandIcon={<ArrowDropDownIcon />}
-              sx={accordionSummaryStyle}
-            >
-              <Typography>Service</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <ServiceInformation />
-            </AccordionDetails>
-          </Accordion>
-          <Accordion square elevation={4} disableGutters defaultExpanded>
-            <AccordionSummary
-              expandIcon={<ArrowDropDownIcon />}
-              sx={accordionSummaryStyle}
-            >
-              <Typography>Policies</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
+    <List empty={false} exporter={false} component={Box}>
+      <Box display="flex" flexDirection="column" gap={4}>
+        {data?.map((record) => (
+          <Paper key={record?.["@id"]}>
+            <SimpleShowLayout record={record}>
+              <ImageField
+                source="image"
+                label={false}
+                sx={{
+                  "& .RaImageField-image": {
+                    right: 16,
+                    position: "absolute",
+                  },
+                }}
+              />
+              <FunctionField
+                source="name"
+                render={(record) => (
+                  <Typography variant="h6">{record.name}</Typography>
+                )}
+              />
+              <TextField
+                source="participantId"
+                sortable={false}
+                emptyText="-"
+              />
+              <TextField source="type" emptyText="-" sortable={false} />
+              <Labeled fullWidth label="Description">
+                <MarkdownField source="description" />
+              </Labeled>
+              <TextField
+                label="Content Type"
+                source="contenttype"
+                sortable={false}
+                emptyText="-"
+              />
+              <Accordion square elevation={0} disableGutters>
+                <AccordionSummary
+                  expandIcon={<ArrowDropDownIcon />}
+                  sx={accordionSummaryStyle}
+                >
+                  <Typography variant="caption">Service</Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 0 }}>
+                  <ServiceInformation />
+                </AccordionDetails>
+              </Accordion>
               <PoliciesShow />
-            </AccordionDetails>
-          </Accordion>
-        </SimpleShowLayout>
-      </Datagrid>
+            </SimpleShowLayout>
+          </Paper>
+        ))}
+      </Box>
     </List>
   );
 };

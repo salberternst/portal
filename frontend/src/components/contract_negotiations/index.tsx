@@ -51,7 +51,11 @@ export const ContractNegotationCreate = () => {
   return (
     <Create>
       <SimpleForm toolbar={<ContractNegotiationsCreateToolbar />}>
-        <TextInput source="counterPartyAddress" fullWidth />
+        <TextInput
+          source="counterPartyAddress"
+          label="Counter Party Address"
+          fullWidth
+        />
         <ContractNegotiationPolicyInput />
         <TextInput
           source="protocol"
