@@ -7,9 +7,9 @@ import (
 )
 
 type Config struct {
-	EnableThingsboard bool
-	EnableFuseki      bool
-	EnableUsers       bool
+	EnableDeviceApi     bool
+	EnableFusekiBackend bool
+	EnableUsers         bool
 }
 
 var (
@@ -20,9 +20,9 @@ var (
 func GetConfig() *Config {
 	once.Do(func() {
 		config = &Config{
-			EnableThingsboard: ReadBoolEnvVariable("ENABLE_THINGSBOARD"),
-			EnableFuseki:      ReadBoolEnvVariable("ENABLE_FUSEKI"),
-			EnableUsers:       ReadBoolEnvVariable("ENABLE_USERS"),
+			EnableDeviceApi:     ReadBoolEnvVariable("ENABLE_DEVICE_API"),
+			EnableFusekiBackend: ReadBoolEnvVariable("ENABLE_FUSEKI_BACKEND"),
+			EnableUsers:         ReadBoolEnvVariable("ENABLE_USERS"),
 		}
 	})
 	return config

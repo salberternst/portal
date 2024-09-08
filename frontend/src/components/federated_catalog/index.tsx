@@ -180,7 +180,7 @@ export const FederatedCatalogList = () => {
   const { data } = useListController();
 
   return (
-    <List empty={false} exporter={false} component={Box}>
+    <List empty={true} exporter={false} component={Box} >
       <Box display="flex" flexDirection="column" gap={4}>
         {data?.map((record) => (
           <Paper key={record?.["@id"]}>

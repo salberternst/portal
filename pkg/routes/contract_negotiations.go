@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +25,6 @@ func CreateContractNegotiation(ctx *gin.Context) {
 
 	createdContractDefinition, err := middleware.GetEdcAPI(ctx).CreateContractNegotiation(contractNegotiation)
 	if err != nil {
-		fmt.Println(err)
 		RespondWithInternalServerError(ctx)
 		return
 	}

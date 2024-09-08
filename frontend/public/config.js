@@ -1,6 +1,4 @@
 var config = {
-  federatedCatalogUrl: 'http://dione:8181/api/catalog/v1alpha/catalog/query',
-
   showDevices: true,
   showThingDescriptions: true,
   showQuery: true,

@@ -17,6 +17,7 @@ func AddRoutes(r *gin.Engine) {
 	api.Use(middleware.ThingsboardMiddleware())
 	api.Use(middleware.FusekiMiddleware())
 	api.Use(middleware.EdcMiddleware())
+	api.Use(middleware.FederatedCatalogMiddleware())
 
 	addCustomersRoutes(api)
 	if utils.GetConfig().EnableUsers {
@@ -29,7 +30,8 @@ func AddRoutes(r *gin.Engine) {
 	addContractAggreementsRoutes(api)
 	addCatalogsRoutes(api)
 	addTransferProcessesRoutes(api)
-	if utils.GetConfig().EnableThingsboard {
+	addFederatedCatalogRoutes(api)
+	if utils.GetConfig().EnableDeviceApi {
 		addDevicesRoutes(api)
 	}
 }

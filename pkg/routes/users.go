@@ -158,7 +158,7 @@ func createUser(ctx *gin.Context) {
 
 		keycloakUser.Groups = &[]string{*group.Path}
 
-		if utils.GetConfig().EnableThingsboard {
+		if utils.GetConfig().EnableDeviceApi {
 			if err := middleware.GetThingsboardAPI(ctx).CreateUser(middleware.GetAccessToken(ctx),
 				user.Email,
 				user.FirstName,
@@ -211,7 +211,7 @@ func DeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	if utils.GetConfig().EnableThingsboard {
+	if utils.GetConfig().EnableDeviceApi {
 		if err := middleware.GetThingsboardAPI(ctx).DeleteUser(middleware.GetKeycloakToken(ctx),
 			userId,
 		); err != nil {

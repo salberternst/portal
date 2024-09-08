@@ -100,13 +100,13 @@ func getCustomers(ctx *gin.Context) {
 			Description: description,
 		}
 
-		if utils.GetConfig().EnableThingsboard {
+		if utils.GetConfig().EnableDeviceApi {
 			customers[i].Thingsboard = &ThingsboardCustomer{
 				Id: customerId,
 			}
 		}
 
-		if utils.GetConfig().EnableFuseki {
+		if utils.GetConfig().EnableFusekiBackend {
 			customers[i].Fuseki = &FusekiDataset{
 				Name: middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId,
 			}
@@ -175,7 +175,7 @@ func getCustomer(ctx *gin.Context) {
 
 	customerId := (*group.Attributes)["customer-id"][0]
 
-	if utils.GetConfig().EnableThingsboard {
+	if utils.GetConfig().EnableDeviceApi {
 		thingsboardCustomer, err := middleware.GetThingsboardAPI(ctx).GetCustomer(
 			middleware.GetAccessToken(ctx),
 			customerId,
@@ -201,7 +201,7 @@ func getCustomer(ctx *gin.Context) {
 		}
 	}
 
-	if utils.GetConfig().EnableFuseki {
+	if utils.GetConfig().EnableFusekiBackend {
 		fusekiDataset, err := middleware.GetFusekiAPI(ctx).GetDataset(
 			middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId,
 		)
@@ -234,7 +234,7 @@ func createCustomer(ctx *gin.Context) {
 
 	var customerId string
 
-	if utils.GetConfig().EnableThingsboard {
+	if utils.GetConfig().EnableDeviceApi {
 		createdThingsboardCustomer, err := middleware.GetThingsboardAPI(ctx).CreateCustomer(
 			middleware.GetAccessToken(ctx),
 			api.ThingsboardCustomer{
@@ -252,7 +252,7 @@ func createCustomer(ctx *gin.Context) {
 		customerId = uuid.New().String()
 	}
 
-	if utils.GetConfig().EnableFuseki {
+	if utils.GetConfig().EnableFusekiBackend {
 		if err := middleware.GetFusekiAPI(ctx).CreateDataset(
 			middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId,
 		); err != nil {
@@ -337,14 +337,14 @@ func deleteCustomer(ctx *gin.Context) {
 
 	customerId := (*group.Attributes)["customer-id"][0]
 
-	if utils.GetConfig().EnableThingsboard {
+	if utils.GetConfig().EnableDeviceApi {
 		if err := middleware.GetThingsboardAPI(ctx).DeleteCustomer(middleware.GetAccessToken(ctx), customerId); err != nil {
 			RespondWithInternalServerError(ctx)
 			return
 		}
 	}
 
-	if utils.GetConfig().EnableFuseki {
+	if utils.GetConfig().EnableFusekiBackend {
 		if err := middleware.GetFusekiAPI(ctx).DeleteDataset(middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId); err != nil {
 			RespondWithInternalServerError(ctx)
 			return

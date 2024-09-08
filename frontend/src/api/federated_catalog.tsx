@@ -8,7 +8,7 @@ import { castArray } from "lodash";
  * @throws {HttpError} If the response is not successful, an HttpError is thrown with the error message and status code.
  */
 export const fetchFederatedCatalog = async () => {
-  const response = await fetch(window.config.federatedCatalogUrl, {
+  const response = await fetch("/api/portal/federated-catalog", {
     headers: {
       "Content-Type": "application/json",
     },
