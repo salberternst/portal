@@ -91,6 +91,7 @@ const PolicySelect = ({ record, onPolicySelect }) => {
   return (
     <MuiTextField
       label="Selected Policy"
+      helperText="Select a policy for negotiation"
       size="small"
       fullWidth
       defaultValue={0}

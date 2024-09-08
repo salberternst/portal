@@ -119,6 +119,11 @@ export async function getMany(params) {
   const policies = await Promise.all(
     params.ids.map((id: any) => fetchPolicy(id))
   );
+
+  for (let i = 0; i < policies.length; i++) {
+    policies[i] = normalizePolicy(policies[i]);
+  }
+
   return {
     data: policies.map((policy: any) => ({
       ...policy,

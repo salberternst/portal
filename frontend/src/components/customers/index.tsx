@@ -89,7 +89,7 @@ export const CustomerShow = () => {
             </Datagrid>
           </ArrayField>
         </Labeled>
-        {window.config.devicesEnabled && (
+        {window.config.showCustomers && (
           <>
             {record.thingsboard?.error !== undefined && (
               <Labeled label="Thingsboard">
@@ -138,7 +138,7 @@ export const CustomerShow = () => {
             )}
           </>
         )}
-        {window.config.sparqlEnabled && (
+        {window.config.showQuery && (
           <>
             {record.fuseki?.error !== undefined && (
               <Labeled label="Fuseki">

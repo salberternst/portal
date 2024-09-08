@@ -123,12 +123,14 @@ const CustomMenu = () => {
 
   return (
     <Menu dense={false}>
-      {window.config.devicesEnabled && <Menu.ResourceItem name="devices" />}
-      {window.config.thingRegisterEnabled && (
+      {window.config.showDevices && <Menu.ResourceItem name="devices" />}
+      {window.config.showThingDescriptions && (
         <Menu.ResourceItem name="thingDescriptions" />
       )}
-      {isAdmin && window.usersEnabled && <Menu.ResourceItem name="customers" />}
-      {window.config.sparqlEnabled && (
+      {isAdmin && window.config.showCustomers && (
+        <Menu.ResourceItem name="customers" />
+      )}
+      {window.config.showQuery && (
         <Menu.Item
           to="/sparql"
           primaryText="Query"
@@ -136,34 +138,36 @@ const CustomMenu = () => {
         />
       )}
       <Divider />
-      <Menu.ResourceItem name="assets" />
-      <Menu.ResourceItem name="policies" />
-      <Menu.ResourceItem name="contractdefinitions" />
-      {isAdmin && (
+      {window.config.showAssets && <Menu.ResourceItem name="assets" />}
+      {window.config.showPolicies && <Menu.ResourceItem name="policies" />}
+      {window.config.showContractDefinitions && (
+        <Menu.ResourceItem name="contractdefinitions" />
+      )}
+      {isAdmin && window.config.showCatalog && (
         <Menu.Item
           to="/catalog"
           primaryText="Catalog"
           leftIcon={<AutoStoriesIcon />}
         />
       )}
-      {isAdmin && (
-        <Menu.ResourceItem
-          name="federatedcatalog"
-          primaryText="Federated Catalog"
-          leftIcon={<WebStoriesIcon />}
-        />
+      {isAdmin && window.config.showFederatedCatalog && (
+        <Menu.ResourceItem name="federatedcatalog" />
       )}
-      <Menu.ResourceItem name="contractagreements" />
-      <Menu.ResourceItem name="transferprocesses" />
+      {window.config.showContractAgreements && (
+        <Menu.ResourceItem name="contractagreements" />
+      )}
+      {window.config.showTransferProcesses && (
+        <Menu.ResourceItem name="transferprocesses" />
+      )}
       <Divider />
-      {window.config.devicesEnabled && (
+      {window.config.showThingsboard && (
         <Menu.Item
           to="/thingsboard"
           primaryText="Thingsboard"
           leftIcon={<DashboardIcon />}
         />
       )}
-      {isAdmin && (
+      {isAdmin && window.config.showKeycloak && (
         <Menu.Item
           to="/keycloak"
           primaryText="Keycloak"
@@ -205,69 +209,91 @@ export const App = () => (
     darkTheme={darkTheme}
   >
     <CustomRoutes>
-      <Route path="/sparql" element={<SparqlPage />} />
-      <Route path="/thingsboard" element={<Thingsboard />} />
-      <Route path="/catalog" element={<Catalog />} />
-      <Route path="/keycloak" element={<Keycloak />} />
+      {window.config.showQuery && (
+        <Route path="/sparql" element={<SparqlPage />} />
+      )}
+      {window.config.showThingboard && (
+        <Route path="/thingsboard" element={<Thingsboard />} />
+      )}
+      {window.config.showCatalog && (
+        <Route path="/catalog" element={<Catalog />} />
+      )}
+      {window.config.showKeycloak && (
+        <Route path="/keycloak" element={<Keycloak />} />
+      )}
     </CustomRoutes>
-    <Resource
-      name="thingDescriptions"
-      options={{ label: "Thing Descriptions" }}
-      icon={DescriptionIcon}
-      list={ThingDescriptionList}
-      show={ThingDescriptionShow}
-      create={ThingDescriptionCreate}
-      edit={ThingDescriptionEdit}
-    />
-    <Resource
-      name="devices"
-      options={{ label: "Devices" }}
-      icon={DeviceHub}
-      list={DevicesList}
-      show={DeviceShow}
-      create={DeviceCreate}
-      edit={DeviceEdit}
-    />
-    <Resource
-      name="assets"
-      options={{ label: "Assets" }}
-      icon={InventoryIcon}
-      list={AssetsList}
-      show={AssetShow}
-      create={AssetCreate}
-    />
-    <Resource
-      name="customers"
-      options={{ label: "Customers" }}
-      icon={GroupsIcon}
-      list={CustomersList}
-      show={CustomerShow}
-      create={CustomerCreate}
-      edit={CustomerUpdate}
-    />
-    <Resource
-      name="users"
-      options={{ label: "Users" }}
-      icon={PeopleOutlineIcon}
-      show={UserShow}
-      create={UserCreate}
-    />
-    <Resource
-      name="policies"
-      options={{ label: "Policies" }}
-      icon={PolicyIcon}
-      list={PoliciesList}
-      show={PolicyShow}
-      create={PolicyCreate}
-    />
-    <Resource
-      name="contractdefinitions"
-      options={{ label: "Contract Definitions" }}
-      icon={GavelIcon}
-      list={ContractDefinitionsList}
-      show={ContractDefinitionShow}
-      create={ContractDefinitionCreate}
-    />
+    {window.config.showThingDescriptions && (
+      <Resource
+        name="thingDescriptions"
+        options={{ label: "Thing Descriptions" }}
+        icon={DescriptionIcon}
+        list={ThingDescriptionList}
+        show={ThingDescriptionShow}
+        create={ThingDescriptionCreate}
+        edit={ThingDescriptionEdit}
+      />
+    )}
+    {window.config.showDevices && (
+      <Resource
+        name="devices"
+        options={{ label: "Devices" }}
+        icon={DeviceHub}
+        list={DevicesList}
+        show={DeviceShow}
+        create={DeviceCreate}
+        edit={DeviceEdit}
+      />
+    )}
+    {window.config.showAssets && (
+      <Resource
+        name="assets"
+        options={{ label: "Assets" }}
+        icon={InventoryIcon}
+        list={AssetsList}
+        show={AssetShow}
+        create={AssetCreate}
+      />
+    )}
+    {window.config.showCustomers && (
+      <Resource
+        name="customers"
+        options={{ label: "Customers" }}
+        icon={GroupsIcon}
+        list={CustomersList}
+        show={CustomerShow}
+        create={CustomerCreate}
+        edit={CustomerUpdate}
+      />
+    )}
+    {window.config.showCustomers && (
+      <Resource
+        name="users"
+        options={{ label: "Users" }}
+        icon={PeopleOutlineIcon}
+        show={UserShow}
+        create={UserCreate}
+      />
+    )}
+    {window.config.showPolicies && (
+      <Resource
+        name="policies"
+        options={{ label: "Policies" }}
+        icon={PolicyIcon}
+        list={PoliciesList}
+        show={PolicyShow}
+        create={PolicyCreate}
+      />
+    )}
+    {window.config.showContractDefinitions && (
+      <Resource
+        name="contractdefinitions"
+        options={{ label: "Contract Definitions" }}
+        icon={GavelIcon}
+        list={ContractDefinitionsList}
+        show={ContractDefinitionShow}
+        create={ContractDefinitionCreate}
+      />
+    )}
     <Resource
       name="contractnegotiations"
       options={{ label: "Contract Negotiations" }}
@@ -276,32 +302,38 @@ export const App = () => (
     >
       <Route path=":id/terminate" element={<ContractNegotiationTerminate />} />
     </Resource>
-    <Resource
-      name="contractagreements"
-      options={{ label: "Contract Agreements" }}
-      list={ContractAgreementsList}
-      show={ContractAgreementShow}
-    />
-    <Resource
-      name="transferprocesses"
-      icon={AutoModeIcon}
-      options={{ label: "Transfer Processes" }}
-      list={TransferProcessesList}
-      show={TransferProcessesShow}
-      create={TransferProcessesCreate}
-    >
-      <Route path=":id/terminate" element={<TransferProcessTerminate />} />
-    </Resource>
+    {window.config.showContractAgreements && (
+      <Resource
+        name="contractagreements"
+        options={{ label: "Contract Agreements" }}
+        list={ContractAgreementsList}
+        show={ContractAgreementShow}
+      />
+    )}
+    {window.config.showTransferProcesses && (
+      <Resource
+        name="transferprocesses"
+        icon={AutoModeIcon}
+        options={{ label: "Transfer Processes" }}
+        list={TransferProcessesList}
+        show={TransferProcessesShow}
+        create={TransferProcessesCreate}
+      >
+        <Route path=":id/terminate" element={<TransferProcessTerminate />} />
+      </Resource>
+    )}
     <Resource
       name="datarequests"
       options={{ label: "Data Requests" }}
       show={DataRequestShow}
     />
-    <Resource
-      name="federatedcatalog"
-      icon={WebStoriesIcon}
-      options={{ label: "Federated Catalog" }}
-      list={FederatedCatalogList}
-    />
+    {window.config.showFederatedCatalog && (
+      <Resource
+        name="federatedcatalog"
+        icon={WebStoriesIcon}
+        options={{ label: "Federated Catalog" }}
+        list={FederatedCatalogList}
+      />
+    )}
   </Admin>
 );

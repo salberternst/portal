@@ -249,13 +249,13 @@ export const AssetCreate = () => {
           fullWidth
           validate={required()}
           InputProps={{
-            endAdornment: (
+            endAdornment: window.config.showQuery ? (
               <InputAdornment position="end">
                 <IconButton>
                   <SearchIcon onClick={handleClickOpen} />
                 </IconButton>
               </InputAdornment>
-            ),
+            ) : null,
           }}
         />
         <TextInput
