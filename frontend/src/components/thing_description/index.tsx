@@ -273,7 +273,7 @@ export const ThingDescriptionShow = () => {
         </Labeled>
       </SimpleShowLayout>
       <TabbedShowLayout>
-        <TabbedShowLayout.Tab label="summary">
+        <TabbedShowLayout.Tab label="Summary">
           <ThingDescriptionShowLinks />
           <ThingDescriptionShowProperties />
           <ThingDescriptionShowActions />
