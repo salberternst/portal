@@ -20,9 +20,7 @@ func AddRoutes(r *gin.Engine) {
 	api.Use(middleware.FederatedCatalogMiddleware())
 
 	addCustomersRoutes(api)
-	if utils.GetConfig().EnableUsers {
-		addUsersRoute(api)
-	}
+	addUsersRoute(api)
 	addAssetsRoutes(api)
 	addPoliciesRoutes(api)
 	addContractDefinitionsRoutes(api)
