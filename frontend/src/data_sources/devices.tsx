@@ -36,7 +36,10 @@ export async function remove(params) {
 export async function create(params) {
   const device = await createDevice(params.data);
   return {
-    data: device,
+    data: {
+      ...device,
+      id: device.id.id,
+    },
   };
 }
 

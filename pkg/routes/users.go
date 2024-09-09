@@ -159,11 +159,17 @@ func createUser(ctx *gin.Context) {
 		keycloakUser.Groups = &[]string{*group.Path}
 
 		if utils.GetConfig().EnableDeviceApi {
+			thingsboardTenantId, err := middleware.GetThingsboardAPI(ctx).GetTenantId(middleware.GetAccessToken(ctx))
+			if err != nil {
+				RespondWithInternalServerError(ctx)
+				return
+			}
+
 			if err := middleware.GetThingsboardAPI(ctx).CreateUser(middleware.GetAccessToken(ctx),
 				user.Email,
 				user.FirstName,
 				user.LastName,
-				middleware.GetAccessTokenClaims(ctx).TenantId,
+				thingsboardTenantId,
 				(*group.Attributes)["customer-id"][0],
 			); err != nil {
 				RespondWithInternalServerError(ctx)

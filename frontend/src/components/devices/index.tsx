@@ -136,7 +136,7 @@ const CustomerSelector = ({ defaultValue }) => {
     <AutocompleteInput
       source="customer"
       choices={data}
-      defaultValue={defaultValue}
+      defaultValue="13814000-1dd2-11b2-8080-808080808080"
       optionText="name"
       optionValue="thingsboard.id"
       emptyText="None"

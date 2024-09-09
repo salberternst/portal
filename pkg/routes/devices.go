@@ -110,7 +110,7 @@ func getDevice(ctx *gin.Context) {
 		Id:   thingsboardDevice["id"].(map[string]interface{})["id"].(string),
 		Name: thingsboardDevice["name"].(string),
 		// Gateway:    thingsboardDevice["additionalInfo"].(map[string]interface{})["gateway"].(bool),
-		// CustomerId: customerId,
+		// CustomerId: thingsboardDevice["customerId"],
 		CreatedAt: int64(thingsboardDevice["createdTime"].(float64)),
 		Credentials: &DeviceCredentials{
 			Credentials: thingsboardDeviceCredentials["credentialsId"].(string),
@@ -126,7 +126,6 @@ func getDevice(ctx *gin.Context) {
 			return
 		}
 	}
-
 	additionalInfo := thingsboardDevice["additionalInfo"].(map[string]interface{})
 	if additionalInfo != nil {
 		if additionalInfo["gateway"] != nil {

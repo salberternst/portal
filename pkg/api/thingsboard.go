@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/go-resty/resty/v2"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type ThingsboardId struct {
@@ -40,6 +41,11 @@ type ThingsboardAPI struct {
 	client      *resty.Client
 	url         string
 	exchangeUrl string
+}
+
+type Claims struct {
+	TenantId string `json:"tenantId"`
+	jwt.RegisteredClaims
 }
 
 func NewThingsboardAPI() *ThingsboardAPI {
@@ -479,4 +485,22 @@ func (tb *ThingsboardAPI) DeleteUser(accessToken string, userID string) error {
 	}
 
 	return nil
+}
+
+func (tb *ThingsboardAPI) GetTenantId(accessToken string) (string, error) {
+	thingsboardToken, err := tb.ExchangeToken(accessToken)
+	if err != nil {
+		return "", err
+	}
+
+	parser := jwt.NewParser()
+
+	token, _, err := parser.ParseUnverified(thingsboardToken, &Claims{})
+	if err == nil {
+		if claims, ok := token.Claims.(*Claims); ok {
+			return claims.TenantId, nil
+		}
+	}
+
+	return "", fmt.Errorf("unable to get tenant id: %s", err)
 }
