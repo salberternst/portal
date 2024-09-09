@@ -7,25 +7,22 @@ import {
 } from "../api/thing_registry";
 
 export async function getList(params) {
-  const things = await fetchThings(params.pagination);
+  const result = await fetchThings(params.pagination, params.sort);
   return {
-    data: things.map((thing) => ({
+    data: result.things.map((thing: any) => ({
       ...thing,
-      id: thing.id,
+      description: {},
     })),
-    pageInfo: {
-      hasNextPage: things.length === params.pagination.perPage,
-      hasPreviousPage: params.pagination.page > 1,
-    },
+    total: result.totalPages * result.pageSize,
   };
 }
 
 export async function getOne(params) {
-  const thing = await fetchThing(params.id);
+  const description = await fetchThing(params.id);
   return {
     data: {
-      ...thing,
-      id: thing.id,
+      id: description.id,
+      description,
     },
   };
 }
@@ -40,21 +37,21 @@ export async function remove(params) {
 }
 
 export async function create(params) {
-  const thing = await createThing(params.data);
+  const createdThing = await createThing(params.data.description);
   return {
     data: {
-      ...thing,
-      id: thing.id,
+      id: createdThing.id,
+      description: {},
     },
   };
 }
 
 export async function update(params) {
-  const updatedThing = await updateThing(params.id, params.data);
+  const updatedThing = await updateThing(params.id, params.data.description);
   return {
     data: {
-      ...updatedThing,
       id: updatedThing.id,
+      description: updatedThing,
     },
   };
 }

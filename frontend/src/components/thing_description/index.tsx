@@ -145,6 +145,7 @@ export const ThingDescriptionShowActions = () => {
 
 export const ThingDescriptionShowEvents = () => {
   const record = useRecordContext();
+  console.log(record);
   if (Object.keys(record.description.events || []).length === 0) {
     return null;
   }
