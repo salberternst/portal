@@ -219,6 +219,7 @@ export const App = () => (
     authProvider={authProvider}
     theme={theme}
     darkTheme={darkTheme}
+    disableTelemetry={true}
   >
     <CustomRoutes>
       {window.config.showQuery && (
