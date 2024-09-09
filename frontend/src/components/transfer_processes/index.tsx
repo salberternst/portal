@@ -16,12 +16,15 @@ import {
   FormDataConsumer,
   Button,
   useRedirect,
+  useRecordContext,
+  TopToolbar,
 } from "react-admin";
 import Alert from "@mui/material/Alert";
 import { Link } from "react-router-dom";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 export const TransferProcessesList = () => (
-  <List empty={false} hasCreate={true} exporter={false}>
+  <List empty={false} exporter={false}>
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" sortable={false} />
       <TextField source="type" sortable={false} />
@@ -42,10 +45,28 @@ export const TransferProcessesList = () => (
   </List>
 );
 
+const TransferProcessesShowBar = () => {
+  const record = useRecordContext();
+  return (
+    <TopToolbar>
+      <Button
+        component={Link}
+        color="error"
+        to={{
+          pathname: `/transferprocesses/${record?.["@id"]}/terminate`,
+        }}
+        disabled={record?.state !== "STARTED"}
+        label="Terminate Transfer Process"
+        startIcon={<CancelIcon />}
+      />
+    </TopToolbar>
+  );
+};
+
 export const TransferProcessesShow = () => {
   const { record } = useShowController();
   return (
-    <Show>
+    <Show actions={<TransferProcessesShowBar />}>
       <SimpleShowLayout>
         <TextField source="id" />
         <TextField source="type" />
@@ -86,17 +107,6 @@ export const TransferProcessesShow = () => {
             </ReferenceField>
           )}
       </SimpleShowLayout>
-      <Button
-        component={Link}
-        to={{
-          pathname: `/transferprocesses/${record?.["@id"]}/terminate`,
-        }}
-        color="error"
-        variant="contained"
-        label="Terminate"
-        disabled={record?.state !== "STARTED"}
-        fullWidth
-      />
     </Show>
   );
 };

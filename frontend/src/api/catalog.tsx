@@ -22,37 +22,12 @@ export const fetchCatalog = async (edcAddress: string) => {
     }),
   });
 
-  const json = await response.json();
+  const catalog = await response.json();
   if (response.ok === false) {
-    throw new HttpError(json.message, response.status);
+    throw new HttpError(catalog.message, response.status);
   }
 
-  if (!Array.isArray(json["dcat:dataset"])) {
-    json["dcat:dataset"] = [json["dcat:dataset"]];
-  }
-
-  if (!Array.isArray(json["dcat:service"])) {
-    json["dcat:service"] = [json["dcat:service"]];
-  }
-
-  for (let dataset of json["dcat:dataset"]) {
-    if (!Array.isArray(dataset["dcat:distribution"])) {
-      dataset["dcat:distribution"] = [dataset["dcat:distribution"]];
-    }
-    if (!Array.isArray(dataset["odrl:hasPolicy"])) {
-      dataset["odrl:hasPolicy"] = [dataset["odrl:hasPolicy"]];
-    }
-    for (let policy of dataset["odrl:hasPolicy"]) {
-      if (!Array.isArray(policy["odrl:permission"])) {
-        policy["odrl:permission"] = [policy["odrl:permission"]];
-      }
-      if (!Array.isArray(policy["odrl:constraint"])) {
-        policy["odrl:constraint"] = [policy["odrl:constraint"]];
-      }
-    }
-  }
-
-  return json;
+  return catalog;
 };
 
 /**

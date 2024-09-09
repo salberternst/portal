@@ -1,5 +1,4 @@
 import { HttpError } from "react-admin";
-import { castArray } from "lodash";
 
 /**
  * Fetches the federated catalog from the specified API endpoint.

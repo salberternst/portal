@@ -19,7 +19,8 @@ import {
   useShowController,
   DeleteWithConfirmButton,
 } from "react-admin";
-import { Divider, Typography } from "@mui/material";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { EditorState } from "@codemirror/state";

@@ -76,6 +76,10 @@ import {
 import Keycloak from "./components/keycloak";
 import { DataRequestShow } from "./components/datarequests";
 import { darkTheme, theme } from "./theme";
+import SvgIcon from "@mui/material/SvgIcon";
+import SmartLivingNextIcon from "./assets/borlabs-cookie-icon-dynamic.svg?react";
+import SmartLivingNextLogo from "./assets/SmartLivingNEXT-bw-1.svg?react";
+import Box from "@mui/material/Box";
 
 const CustomUserMenu = () => {
   const { isLoading, identity } = useGetIdentity();
@@ -93,21 +97,29 @@ const CustomUserMenu = () => {
 const CustomAppBar = () => (
   <AppBar userMenu={<CustomUserMenu />}>
     <Toolbar>
-      <img
-        src="https://smartlivingnext.de/wp-content/plugins/borlabs-cookie/assets/images/borlabs-cookie-icon-dynamic.svg#main"
-        width={30}
-        style={{
-          marginRight: 10,
-          animation: "spin 20s linear infinite",
-          color: "red",
-        }}
-      />
-      <img
-        src="https://smartlivingnext.de/wp-content/uploads/2023/12/SmartLivingNEXT-bw-1.svg"
-        style={{
-          width: "200px",
-        }}
-      />
+      <Box
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+      >
+        <SvgIcon
+          color="primary"
+          fontSize="large"
+          style={{
+            marginRight: 10,
+            animation: "spin 20s linear infinite",
+          }}
+        >
+          <SmartLivingNextIcon />
+        </SvgIcon>
+        <Box
+          sx={{
+            width: 200,
+            height: 35,
+            mixBlendMode: "difference",
+          }}
+        >
+          <SmartLivingNextLogo />
+        </Box>
+      </Box>
     </Toolbar>
     <span style={{ flex: 1 }} />
   </AppBar>
@@ -122,7 +134,7 @@ const CustomMenu = () => {
   const isAdmin = identity?.groups.includes("role:admin");
 
   return (
-    <Menu dense={false}>
+    <Menu dense={false} sx={{ pt: 1 }}>
       {window.config.showDevices && <Menu.ResourceItem name="devices" />}
       {window.config.showThingDescriptions && (
         <Menu.ResourceItem name="thingDescriptions" />
@@ -186,14 +198,14 @@ const CustomLayout = (props: any) => {
     location.pathname === "/keycloak"
   ) {
     return (
-      <Layout menu={CustomMenu} appBar={CustomAppBar}>
+      <Layout menu={CustomMenu} appBar={CustomAppBar} sx={{ pt: 2 }}>
         {props.children}
       </Layout>
     );
   }
 
   return (
-    <Layout menu={CustomMenu} appBar={CustomAppBar}>
+    <Layout menu={CustomMenu} appBar={CustomAppBar} sx={{ pt: 2 }}>
       <Container maxWidth="lg">{props.children}</Container>
     </Layout>
   );

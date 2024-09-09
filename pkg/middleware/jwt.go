@@ -9,12 +9,11 @@ import (
 )
 
 type Claims struct {
-	Name                string `json:"name"`
-	Email               string `json:"email"`
-	TenantId            string `json:"tenant_id"`
-	CustomerId          string `json:"customer_id"`
-	ThingsboardTenantId string `json:"thingsboard_tenant_id"`
-	RealmAccess         struct {
+	Name        string `json:"name"`
+	Email       string `json:"email"`
+	TenantId    string `json:"tenant_id"`
+	CustomerId  string `json:"customer_id"`
+	RealmAccess struct {
 		Roles []string `json:"roles"`
 	} `json:"realm_access"`
 	jwt.RegisteredClaims

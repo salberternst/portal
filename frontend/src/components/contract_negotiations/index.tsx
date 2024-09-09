@@ -16,6 +16,8 @@ import {
   useRedirect,
   ReferenceField,
   Button,
+  TopToolbar,
+  useRecordContext,
 } from "react-admin";
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
@@ -23,6 +25,7 @@ import { EditorState } from "@codemirror/state";
 import { useEffect } from "react";
 import Alert from "@mui/material/Alert";
 import { Link } from "react-router-dom";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 const ContractNegotiationPolicyInput = () => {
   const { field } = useInput({ source: "policy" });
@@ -67,6 +70,24 @@ export const ContractNegotationCreate = () => {
   );
 };
 
+const ContractNegotationShowBar = () => {
+  const record = useRecordContext();
+  return (
+    <TopToolbar>
+      <Button
+        component={Link}
+        to={{
+          pathname: `/contractnegotiations/${record?.["@id"]}/terminate`,
+        }}
+        color="error"
+        label="Terminate"
+        disabled={record?.state === "TERMINATED"}
+        startIcon={<CancelIcon />}
+      />
+    </TopToolbar>
+  );
+};
+
 export const ContractNegotationShow = () => {
   const refresh = useRefresh();
   const { error, isLoading, record } = useShowController();
@@ -85,7 +106,7 @@ export const ContractNegotationShow = () => {
   }
 
   return (
-    <Show>
+    <Show actions={<ContractNegotationShowBar />}>
       <SimpleShowLayout>
         <TextField source="@id" label="Id" />
         {record.createdAt && (
@@ -112,19 +133,6 @@ export const ContractNegotationShow = () => {
           </Labeled>
         )}
       </SimpleShowLayout>
-      {record?.state === "FINALIZED" && (
-        <Button
-          component={Link}
-          to={{
-            pathname: `/contractnegotiations/${record?.["@id"]}/terminate`,
-          }}
-          color="warning"
-          variant="contained"
-          label="Terminate"
-          disabled={record?.state === "TERMINATED"}
-          fullWidth
-        />
-      )}
     </Show>
   );
 };

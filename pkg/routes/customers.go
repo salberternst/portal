@@ -267,13 +267,12 @@ func createCustomer(ctx *gin.Context) {
 		gocloak.Group{
 			Name: &customer.Name,
 			Attributes: &map[string][]string{
-				"tenant-id":             {middleware.GetAccessTokenClaims(ctx).TenantId},
-				"customer-id":           {customerId},
-				"thingsboard-tenant-id": {middleware.GetAccessTokenClaims(ctx).ThingsboardTenantId},
-				"description":           {customer.Description},
-				"created-by":            {middleware.GetAccessTokenClaims(ctx).Email},
-				"created-at":            {time.Now().String()},
-				"type":                  {CustomerType},
+				"tenant-id":   {middleware.GetAccessTokenClaims(ctx).TenantId},
+				"customer-id": {customerId},
+				"description": {customer.Description},
+				"created-by":  {middleware.GetAccessTokenClaims(ctx).Email},
+				"created-at":  {time.Now().String()},
+				"type":        {CustomerType},
 			},
 		},
 	)

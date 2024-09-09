@@ -16,7 +16,6 @@ import {
   SelectInput,
   required,
   FunctionField,
-  useShowController,
 } from "react-admin";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
@@ -108,7 +107,6 @@ const AssetShowBar = () => {
 };
 
 export const AssetShow = () => {
-  const { record } = useShowController();
   return (
     <Show actions={<AssetShowBar />}>
       <SimpleShowLayout>

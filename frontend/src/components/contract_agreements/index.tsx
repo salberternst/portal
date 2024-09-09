@@ -9,8 +9,36 @@ import {
   useShowController,
   Button,
   ReferenceField,
+  TopToolbar,
+  useRecordContext,
 } from "react-admin";
 import { Link } from "react-router-dom";
+import DownloadIcon from "@mui/icons-material/Download";
+
+const ContractAgreementShowBar = () => {
+  const record = useRecordContext();
+  const enabled = record?.negotiation.state !== "TERMINATED";
+  return (
+    <TopToolbar>
+      <Button
+        component={Link}
+        to={{
+          pathname: "/transferprocesses/create",
+        }}
+        state={{
+          record: {
+            counterPartyAddress: record?.negotiation.counterPartyAddress,
+            contractId: record?.id,
+            assetId: record?.contractAgreement.assetId,
+          },
+        }}
+        disabled={!enabled}
+        label="Transfer Dataset"
+        startIcon={<DownloadIcon />}
+      />
+    </TopToolbar>
+  );
+};
 
 export const ContractAgreementShow = () => {
   const { record, isPending } = useShowController();
@@ -19,7 +47,7 @@ export const ContractAgreementShow = () => {
   }
 
   return (
-    <Show emptyWhileLoading={false}>
+    <Show emptyWhileLoading={false} actions={<ContractAgreementShowBar />}>
       <SimpleShowLayout>
         <TextField label="Id" source="id" />
         <TextField label="Type" source="contractAgreement.@type" />
@@ -98,24 +126,6 @@ export const ContractAgreementShow = () => {
           <TextField source="id" />
         </ReferenceField>
       </SimpleShowLayout>
-      {record?.negotiation.state !== "TERMINATED" && (
-        <Button
-          component={Link}
-          to={{
-            pathname: "/transferprocesses/create",
-          }}
-          state={{
-            record: {
-              counterPartyAddress: record?.negotiation.counterPartyAddress,
-              contractId: record?.id,
-              assetId: record?.contractAgreement.assetId,
-            },
-          }}
-          variant="contained"
-          label="Transfer"
-          fullWidth
-        />
-      )}
     </Show>
   );
 };

@@ -26,17 +26,19 @@ import {
 import { countries, getEmojiFlag } from "countries-list";
 import Grid from "@mui/material/Grid";
 import Menu from "@mui/material/Menu";
-import {
-  IconButton,
-  ListItemIcon,
-  MenuItem,
-  MenuList,
-  Typography,
-} from "@mui/material";
+import Accordion from "@mui/material/Accordion";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import IconButton from "@mui/material/IconButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import MenuItem from "@mui/material/MenuItem";
+import MenuList from "@mui/material/MenuList";
+import Typography from "@mui/material/Typography";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import PermIdentityIcon from "@mui/icons-material/PermIdentity";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 
 const countriesList = Object.keys(countries).map((key) => ({
   id: key,
@@ -248,61 +250,87 @@ export const PoliciesList = () => (
   </List>
 );
 
-export const PolicyShow = () => (
-  <Show actions={<PolicyShowBar />}>
-    <SimpleShowLayout>
+export const PolicyShow = () => {
+  const accordionSummaryStyle = {
+    padding: 0,
+    "&.MuiAccordionSummary-root": {
+      minHeight: "auto",
+    },
+    "& .MuiAccordionSummary-content": {
+      margin: 0,
+    },
+  };
+
+  return (
+    <Show actions={<PolicyShowBar />}>
       <SimpleShowLayout>
-        <TextField source="id" />
-        <TextField label="Name" source="privateProperties.name" />
-        <TextField
-          label="Description"
-          source="privateProperties.description"
-          emptyText="-"
-        />
-        <DateField source="createdAt" label="Created At" showTime />
-        <TextField label="Type" source="@type" />
-        <TextField label="Policy Type" source="policy.@type" />
-        <ArrayField source="policy.odrl:permission" label="Permissions">
-          <Datagrid bulkActionButtons={false} rowClick={false} hover={false}>
-            <TextField
-              source="odrl:action.@id"
-              label="Action"
-              sortable={false}
-            />
-            <ArrayField
-              source="odrl:constraint"
-              label="Constraint"
-              sortable={false}
+        <SimpleShowLayout>
+          <TextField source="id" />
+          <TextField label="Name" source="privateProperties.name" />
+          <TextField
+            label="Description"
+            source="privateProperties.description"
+            emptyText="-"
+          />
+          <DateField source="createdAt" label="Created At" showTime />
+          <TextField label="Type" source="@type" />
+          <TextField label="Policy Type" source="policy.@type" />
+          <Accordion square elevation={0} disableGutters defaultExpanded>
+            <AccordionSummary
+              expandIcon={<ArrowDropDownIcon />}
+              sx={accordionSummaryStyle}
             >
-              <Datagrid
-                bulkActionButtons={false}
-                rowClick={false}
-                style={{ tableLayout: "fixed" }}
-                hover={false}
-              >
-                <TextField
-                  source="odrl:leftOperand.@id"
-                  label="Left Operand"
-                  sortable={false}
-                />
-                <TextField
-                  source="odrl:operator.@id"
-                  label="Operator"
-                  sortable={false}
-                />
-                <TextField
-                  source="odrl:rightOperand"
-                  label="Right Operand"
-                  sortable={false}
-                />
-              </Datagrid>
-            </ArrayField>
-          </Datagrid>
-        </ArrayField>
+              <Typography variant="caption">Permissions</Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: 0 }}>
+              <ArrayField source="policy.odrl:permission" label="Permissions">
+                <Datagrid
+                  bulkActionButtons={false}
+                  rowClick={false}
+                  hover={false}
+                >
+                  <TextField
+                    source="odrl:action.@id"
+                    label="Action"
+                    sortable={false}
+                  />
+                  <ArrayField
+                    source="odrl:constraint"
+                    label="Constraint"
+                    sortable={false}
+                  >
+                    <Datagrid
+                      bulkActionButtons={false}
+                      rowClick={false}
+                      style={{ tableLayout: "fixed" }}
+                      hover={false}
+                    >
+                      <TextField
+                        source="odrl:leftOperand.@id"
+                        label="Left Operand"
+                        sortable={false}
+                      />
+                      <TextField
+                        source="odrl:operator.@id"
+                        label="Operator"
+                        sortable={false}
+                      />
+                      <TextField
+                        source="odrl:rightOperand"
+                        label="Right Operand"
+                        sortable={false}
+                      />
+                    </Datagrid>
+                  </ArrayField>
+                </Datagrid>
+              </ArrayField>
+            </AccordionDetails>
+          </Accordion>
+        </SimpleShowLayout>
       </SimpleShowLayout>
-    </SimpleShowLayout>
-  </Show>
-);
+    </Show>
+  );
+};
 
 const PermissionCreate = (props: any) => {
   const renderPermission = ({ type }) => {
