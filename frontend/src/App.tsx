@@ -225,7 +225,7 @@ export const App = () => (
       {window.config.showQuery && (
         <Route path="/sparql" element={<SparqlPage />} />
       )}
-      {window.config.showThingboard && (
+      {window.config.showThingsboard && (
         <Route path="/thingsboard" element={<Thingsboard />} />
       )}
       {window.config.showCatalog && (
