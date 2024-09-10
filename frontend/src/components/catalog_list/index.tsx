@@ -5,7 +5,6 @@ import {
   SimpleShowLayout,
   ArrayField,
   useRecordContext,
-  ImageField,
   FunctionField,
   Labeled,
   Button,
@@ -115,7 +114,9 @@ const Permissions = ({ record }) => {
       minHeight: 30,
     },
   };
-  const EmptyPermissions = () => <Box sx={{ m: 2 }}>No Permissions</Box>;
+  if (record?.["odrl:permission"].length === 0) {
+    return null;
+  }
   return (
     <Accordion square elevation={0} disableGutters>
       <AccordionSummary
@@ -135,7 +136,6 @@ const Permissions = ({ record }) => {
             bulkActionButtons={false}
             rowClick={false}
             hover={false}
-            empty={<EmptyPermissions />}
             size="small"
           >
             <TextField
@@ -199,20 +199,10 @@ export const CatalogList = ({ record }) => {
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap={4} sx={{ maxWidth: 1200 }}>
-      {record?.map((dataset) => (
-        <Paper key={dataset?.["@id"]}>
+    <Box display="flex" flexDirection="column" gap={2} sx={{ maxWidth: 1200 }}>
+      {record?.map((dataset, index) => (
+        <Paper key={dataset?.["@id"] + index}>
           <SimpleShowLayout record={dataset}>
-            <ImageField
-              source="image"
-              label={false}
-              sx={{
-                "& .RaImageField-image": {
-                  right: 16,
-                  position: "absolute",
-                },
-              }}
-            />
             <FunctionField
               source="name"
               render={(record) => (
@@ -221,24 +211,34 @@ export const CatalogList = ({ record }) => {
             />
             <TextField source="participantId" sortable={false} emptyText="-" />
             <TextField source="type" emptyText="-" sortable={false} />
-            <Labeled fullWidth label="Description">
-              <MarkdownField source="description" />
-            </Labeled>
-            <TextField
-              label="Content Type"
-              source="contenttype"
-              sortable={false}
-              emptyText="-"
-            />
             <Accordion square elevation={0} disableGutters>
               <AccordionSummary
                 expandIcon={<ArrowDropDownIcon />}
                 sx={accordionSummaryStyle}
               >
-                <Typography variant="caption">Service</Typography>
+                <Typography variant="caption">Details</Typography>
               </AccordionSummary>
-              <AccordionDetails sx={{ p: 0 }}>
-                <ServiceInformation />
+              <AccordionDetails sx={{ p: 0, marginLeft: 1 }}>
+                <Labeled fullWidth label="Description">
+                  <MarkdownField source="description" />
+                </Labeled>
+                <TextField
+                  label="Content Type"
+                  source="contenttype"
+                  sortable={false}
+                  emptyText="-"
+                />
+                <Accordion square elevation={0} disableGutters>
+                  <AccordionSummary
+                    expandIcon={<ArrowDropDownIcon />}
+                    sx={accordionSummaryStyle}
+                  >
+                    <Typography variant="caption">Service</Typography>
+                  </AccordionSummary>
+                  <AccordionDetails sx={{ p: 0, marginLeft: 1 }}>
+                    <ServiceInformation />
+                  </AccordionDetails>
+                </Accordion>
               </AccordionDetails>
             </Accordion>
             <PoliciesShow />

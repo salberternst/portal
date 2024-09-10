@@ -41,10 +41,22 @@ function normalize(federatedCatalog) {
   return datasets;
 }
 
-export async function getList() {
+export async function getList(params) {
   const federatedCatalog = await fetchFederatedCatalog();
+  const normalizedData = normalize(federatedCatalog);
+  console.log(normalizedData);
+  if (params.filter?.name) {
+    const filteredData = normalizedData.filter((dataset) =>
+      dataset["name"].toLowerCase().includes(params.filter.name.toLowerCase())
+    );
+    return {
+      data: filteredData,
+      total: filteredData.length,
+    };
+  }
+
   return {
-    data: normalize(federatedCatalog),
+    data: normalizedData,
     total: federatedCatalog.length,
   };
 }

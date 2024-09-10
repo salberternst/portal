@@ -83,7 +83,7 @@ export async function create(params) {
     policy: {
       ...params.data.policy,
       "@type": "odrl:Set",
-      "odrl:permission": permissions.map((permission) => ({
+      "odrl:permission": permissions?.map((permission) => ({
         "odrl:action": {
           "@id": "odrl:use",
         },

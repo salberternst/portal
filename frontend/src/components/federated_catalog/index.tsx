@@ -1,9 +1,11 @@
-import { List, useListController } from "react-admin";
+import { List, SearchInput, useListController } from "react-admin";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import useTheme from "@mui/material/styles/useTheme";
 import InboxIcon from "@mui/icons-material/Inbox";
 import { CatalogList } from "../catalog_list";
+
+const postFilters = [<SearchInput source="name" alwaysOn />];
 
 const EmptyFederatedCatalogList = () => {
   const theme = useTheme();
@@ -23,7 +25,12 @@ export const FederatedCatalogList = () => {
   const { data } = useListController();
 
   return (
-    <List empty={<EmptyFederatedCatalogList />} component={Box} actions={false}>
+    <List
+      empty={<EmptyFederatedCatalogList />}
+      component={Box}
+      actions={false}
+      filters={postFilters}
+    >
       <CatalogList record={data} />
     </List>
   );

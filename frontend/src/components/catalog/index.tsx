@@ -6,6 +6,7 @@ import Alert from "@mui/material/Alert";
 import { CatalogList } from "../catalog_list";
 import LinkIcon from "@mui/icons-material/Link";
 import LinkOffIcon from "@mui/icons-material/LinkOff";
+import Box from "@mui/material/Box";
 
 const CatalogShow = () => {
   const record = useRecordContext();
@@ -82,6 +83,7 @@ export const Catalog = () => {
             onError,
             onSuccess,
           }}
+          component={Box}
         >
           <CatalogShow />
         </Show>
