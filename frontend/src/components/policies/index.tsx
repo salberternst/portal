@@ -32,7 +32,6 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import IconButton from "@mui/material/IconButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import MenuItem from "@mui/material/MenuItem";
-import MenuList from "@mui/material/MenuList";
 import Typography from "@mui/material/Typography";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
@@ -332,7 +331,7 @@ export const PolicyShow = () => {
   );
 };
 
-const PermissionCreate = (props: any) => {
+const PermissionCreate = () => {
   const renderPermission = ({ type }) => {
     if (type === "time") {
       return <TimeBasedPermission />;

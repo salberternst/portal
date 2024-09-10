@@ -54,7 +54,7 @@ func GetKeycloakRealm(ctx *gin.Context) string {
 }
 
 func GetCustomerIdByThingsboardCustomerId(ctx *gin.Context, thingsboardCustomerId string) (string, error) {
-	Q := fmt.Sprintf("customer-id:%s tenant-id:%s",
+	Q := fmt.Sprintf("thingsboard-customer-id:%s tenant-id:%s",
 		thingsboardCustomerId,
 		GetAccessTokenClaims(ctx).TenantId,
 	)
@@ -77,4 +77,23 @@ func GetCustomerIdByThingsboardCustomerId(ctx *gin.Context, thingsboardCustomerI
 	} else {
 		return "", fmt.Errorf("customer not found")
 	}
+}
+
+func GetThingsboardCustomerIdByCustomerId(ctx *gin.Context, customerId string) (string, error) {
+	group, err := GetKeycloakClient(ctx).GetGroup(ctx,
+		GetKeycloakToken(ctx),
+		GetKeycloakRealm(ctx),
+		customerId,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	if id, ok := (*group.Attributes)["thingsboard-customer-id"]; ok {
+		thingsboardCustomerId := id[0]
+		return thingsboardCustomerId, nil
+	}
+
+	return "", fmt.Errorf("customer-id not found")
 }

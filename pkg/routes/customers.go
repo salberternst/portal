@@ -44,7 +44,7 @@ type Customer struct {
 	Description string               `json:"description"`
 	Thingsboard *ThingsboardCustomer `json:"thingsboard,omitempty"`
 	Fuseki      *FusekiDataset       `json:"fuseki,omitempty"`
-	Members     []*gocloak.User      `json:"members,omitempty"`
+	Members     []*User              `json:"members,omitempty"`
 }
 
 type CustomerUpdate struct {
@@ -150,7 +150,7 @@ func getCustomer(ctx *gin.Context) {
 		return
 	}
 
-	members, err := middleware.GetKeycloakClient(ctx).GetGroupMembers(ctx,
+	keycloakMembers, err := middleware.GetKeycloakClient(ctx).GetGroupMembers(ctx,
 		middleware.GetKeycloakToken(ctx),
 		middleware.GetKeycloakRealm(ctx),
 		*group.ID,
@@ -159,6 +159,17 @@ func getCustomer(ctx *gin.Context) {
 	if err != nil {
 		RespondWithInternalServerError(ctx)
 		return
+	}
+
+	members := make([]*User, len(keycloakMembers))
+	for i, member := range keycloakMembers {
+		members[i] = &User{
+			Id:            *member.ID,
+			Email:         *member.Email,
+			EmailVerified: *member.EmailVerified,
+			FirstName:     *member.FirstName,
+			LastName:      *member.LastName,
+		}
 	}
 
 	customer := Customer{
@@ -173,12 +184,15 @@ func getCustomer(ctx *gin.Context) {
 		return
 	}
 
-	customerId := (*group.Attributes)["customer-id"][0]
-
 	if utils.GetConfig().EnableDeviceApi {
+		if (*group.Attributes)["thingsboard-customer-id"] == nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+		thingsboardCustomerId := (*group.Attributes)["thingsboard-customer-id"][0]
 		thingsboardCustomer, err := middleware.GetThingsboardAPI(ctx).GetCustomer(
 			middleware.GetAccessToken(ctx),
-			customerId,
+			thingsboardCustomerId,
 		)
 		if err != nil {
 			customer.Thingsboard = &ThingsboardCustomer{
@@ -186,7 +200,7 @@ func getCustomer(ctx *gin.Context) {
 			}
 		} else {
 			customer.Thingsboard = &ThingsboardCustomer{
-				Id:       thingsboardCustomer.Id.ID,
+				Id:       thingsboardCustomer.Id.Id,
 				Title:    thingsboardCustomer.Title,
 				Name:     thingsboardCustomer.Name,
 				Email:    thingsboardCustomer.Email,
@@ -203,7 +217,7 @@ func getCustomer(ctx *gin.Context) {
 
 	if utils.GetConfig().EnableFusekiBackend {
 		fusekiDataset, err := middleware.GetFusekiAPI(ctx).GetDataset(
-			middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId,
+			middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customer.Name,
 		)
 		if err != nil {
 			customer.Fuseki = &FusekiDataset{
@@ -232,8 +246,7 @@ func createCustomer(ctx *gin.Context) {
 		return
 	}
 
-	var customerId string
-
+	var thingsboardCustomerId string
 	if utils.GetConfig().EnableDeviceApi {
 		createdThingsboardCustomer, err := middleware.GetThingsboardAPI(ctx).CreateCustomer(
 			middleware.GetAccessToken(ctx),
@@ -247,14 +260,14 @@ func createCustomer(ctx *gin.Context) {
 			return
 		}
 
-		customerId = createdThingsboardCustomer.Id.ID
+		thingsboardCustomerId = createdThingsboardCustomer.Id.Id
 	} else {
-		customerId = uuid.New().String()
+		thingsboardCustomerId = uuid.New().String()
 	}
 
 	if utils.GetConfig().EnableFusekiBackend {
 		if err := middleware.GetFusekiAPI(ctx).CreateDataset(
-			middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId,
+			middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customer.Name,
 		); err != nil {
 			RespondWithInternalServerError(ctx)
 			return
@@ -267,12 +280,13 @@ func createCustomer(ctx *gin.Context) {
 		gocloak.Group{
 			Name: &customer.Name,
 			Attributes: &map[string][]string{
-				"tenant-id":   {middleware.GetAccessTokenClaims(ctx).TenantId},
-				"customer-id": {customerId},
-				"description": {customer.Description},
-				"created-by":  {middleware.GetAccessTokenClaims(ctx).Email},
-				"created-at":  {time.Now().String()},
-				"type":        {CustomerType},
+				"tenant-id":               {middleware.GetAccessTokenClaims(ctx).TenantId},
+				"customer-id":             {customer.Name},
+				"description":             {customer.Description},
+				"created-by":              {middleware.GetAccessTokenClaims(ctx).Email},
+				"created-at":              {time.Now().String()},
+				"type":                    {CustomerType},
+				"thingsboard-customer-id": {thingsboardCustomerId},
 			},
 		},
 	)
@@ -334,17 +348,16 @@ func deleteCustomer(ctx *gin.Context) {
 		return
 	}
 
-	customerId := (*group.Attributes)["customer-id"][0]
-
 	if utils.GetConfig().EnableDeviceApi {
-		if err := middleware.GetThingsboardAPI(ctx).DeleteCustomer(middleware.GetAccessToken(ctx), customerId); err != nil {
+		thingsboardCustomerId := (*group.Attributes)["thingsboard-customer-id"][0]
+		if err := middleware.GetThingsboardAPI(ctx).DeleteCustomer(middleware.GetAccessToken(ctx), thingsboardCustomerId); err != nil {
 			RespondWithInternalServerError(ctx)
 			return
 		}
 	}
 
 	if utils.GetConfig().EnableFusekiBackend {
-		if err := middleware.GetFusekiAPI(ctx).DeleteDataset(middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId); err != nil {
+		if err := middleware.GetFusekiAPI(ctx).DeleteDataset(middleware.GetAccessTokenClaims(ctx).TenantId + "-" + *group.Name); err != nil {
 			RespondWithInternalServerError(ctx)
 			return
 		}

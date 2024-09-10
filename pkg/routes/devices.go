@@ -21,22 +21,19 @@ type DeviceCredentials struct {
 }
 
 type Device struct {
-	Id         string      `json:"id"`
-	Name       string      `json:"name"`
-	Gateway    bool        `json:"gateway"`
-	CustomerId string      `json:"customerId"`
-	SyncStatus *SyncStatus `json:"syncStatus"`
-	CreatedAt  int64       `json:"createdAt"`
-	// Attributes              []map[string]interface{} `json:"attributes"`
-	Credentials *DeviceCredentials `json:"credentials"`
-	// Thing Model
-	ThingModel string `json:"thingModel"`
-	// Thing Metadata
-	Title        string `json:"title"`
-	Description  string `json:"description"`
-	Category     string `json:"category"`
-	Manufacturer string `json:"manufacturer"`
-	Model        string `json:"model"`
+	Id           string             `json:"id"`
+	Name         string             `json:"name,omitempty"`
+	Gateway      bool               `json:"gateway,omitempty"`
+	CustomerId   string             `json:"customerId,omitempty"`
+	SyncStatus   *SyncStatus        `json:"syncStatus,omitempty"`
+	CreatedAt    int64              `json:"createdAt,omitempty"`
+	Credentials  *DeviceCredentials `json:"credentials"`
+	ThingModel   string             `json:"thingModel,omitempty"`
+	Title        string             `json:"title,omitempty"`
+	Description  string             `json:"description,omitempty"`
+	Category     string             `json:"category,omitempty"`
+	Manufacturer string             `json:"manufacturer,omitempty"`
+	Model        string             `json:"mode,omitempty"`
 }
 
 type CreateDevice struct {
@@ -54,7 +51,7 @@ type CreateDevice struct {
 type UpdateDevice struct {
 	Gateway      *bool   `json:"gateway,omitempty"`
 	ThingModel   *string `json:"thingModel,omitempty"`
-	Customer     *string `json:"customer,omitempty"`
+	CustomerId   *string `json:"customerId,omitempty"`
 	Title        *string `json:"title,omitempty"`
 	Description  *string `json:"description,omitempty"`
 	Category     *string `json:"category,omitempty"`
@@ -63,17 +60,22 @@ type UpdateDevice struct {
 }
 
 func getDevices(ctx *gin.Context) {
-	var devices map[string]interface{}
+	var thingsboardDevices map[string]interface{}
 	var err error
 
 	// todo: implement query parameters
 
 	if middleware.GetAccessTokenClaims(ctx).CustomerId == "" {
-		devices, err = middleware.GetThingsboardAPI(ctx).GetTenantDevices(middleware.GetAccessToken(ctx))
+		thingsboardDevices, err = middleware.GetThingsboardAPI(ctx).GetTenantDevices(middleware.GetAccessToken(ctx))
 	} else {
-		devices, err = middleware.GetThingsboardAPI(ctx).GetCustomerDevices(
+		thingsboardCustomerId, err := middleware.GetThingsboardAPI(ctx).GetCustomerId(middleware.GetAccessToken(ctx))
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+		thingsboardDevices, err = middleware.GetThingsboardAPI(ctx).GetCustomerDevices(
 			middleware.GetAccessToken(ctx),
-			middleware.GetAccessTokenClaims(ctx).CustomerId,
+			thingsboardCustomerId,
 		)
 	}
 
@@ -82,7 +84,38 @@ func getDevices(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, devices)
+	devices := []Device{}
+	for _, item := range thingsboardDevices["data"].([]interface{}) {
+		thingsboardDevice := item.(map[string]interface{})
+		device := Device{
+			Id:        thingsboardDevice["id"].(map[string]interface{})["id"].(string),
+			Name:      thingsboardDevice["name"].(string),
+			CreatedAt: int64(thingsboardDevice["createdTime"].(float64)),
+		}
+
+		additionalInfo := thingsboardDevice["additionalInfo"].(map[string]interface{})
+		if additionalInfo != nil {
+			if additionalInfo["gateway"] != nil {
+				device.Gateway = additionalInfo["gateway"].(bool)
+			}
+		}
+
+		thingsboardCustomerId := thingsboardDevice["customerId"].(map[string]interface{})["id"].(string)
+		if thingsboardCustomerId != "" && thingsboardCustomerId != "13814000-1dd2-11b2-8080-808080808080" {
+			device.CustomerId, err = middleware.GetCustomerIdByThingsboardCustomerId(ctx, thingsboardCustomerId)
+			if err != nil {
+				RespondWithInternalServerError(ctx)
+				return
+			}
+		}
+
+		devices = append(devices, device)
+
+	}
+
+	thingsboardDevices["data"] = devices
+
+	ctx.JSON(http.StatusOK, thingsboardDevices)
 }
 
 func getDevice(ctx *gin.Context) {
@@ -107,10 +140,8 @@ func getDevice(ctx *gin.Context) {
 	}
 
 	device := &Device{
-		Id:   thingsboardDevice["id"].(map[string]interface{})["id"].(string),
-		Name: thingsboardDevice["name"].(string),
-		// Gateway:    thingsboardDevice["additionalInfo"].(map[string]interface{})["gateway"].(bool),
-		// CustomerId: thingsboardDevice["customerId"],
+		Id:        thingsboardDevice["id"].(map[string]interface{})["id"].(string),
+		Name:      thingsboardDevice["name"].(string),
 		CreatedAt: int64(thingsboardDevice["createdTime"].(float64)),
 		Credentials: &DeviceCredentials{
 			Credentials: thingsboardDeviceCredentials["credentialsId"].(string),
@@ -126,6 +157,7 @@ func getDevice(ctx *gin.Context) {
 			return
 		}
 	}
+
 	additionalInfo := thingsboardDevice["additionalInfo"].(map[string]interface{})
 	if additionalInfo != nil {
 		if additionalInfo["gateway"] != nil {
@@ -179,15 +211,26 @@ func createDevice(ctx *gin.Context) {
 		return
 	}
 
+	if createDevice.CustomerId == "" {
+		createDevice.CustomerId = "13814000-1dd2-11b2-8080-808080808080"
+	} else {
+		thingsboardCustomerId, err := middleware.GetThingsboardCustomerIdByCustomerId(ctx, createDevice.CustomerId)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+		createDevice.CustomerId = thingsboardCustomerId
+	}
+
 	thingsboardCreateDevice := api.ThingsboardDevice{
 		Name: createDevice.Name,
+		Customer: api.ThingsboardId{
+			Id:         createDevice.CustomerId,
+			EntityType: "CUSTOMER",
+		},
 		AdditionalInfo: map[string]interface{}{
 			"gateway":     createDevice.Gateway,
 			"description": createDevice.Description,
-			"customerId": map[string]string{
-				"id":         createDevice.CustomerId,
-				"entityType": "CUSTOMER",
-			},
 		},
 	}
 
@@ -239,6 +282,18 @@ func updateDevice(ctx *gin.Context) {
 		return
 	}
 
+	if updateDevice.CustomerId == nil {
+		customerId := "13814000-1dd2-11b2-8080-808080808080"
+		updateDevice.CustomerId = &customerId
+	} else {
+		thingsboardCustomerId, err := middleware.GetThingsboardCustomerIdByCustomerId(ctx, *updateDevice.CustomerId)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+		updateDevice.CustomerId = &thingsboardCustomerId
+	}
+
 	device, err := middleware.GetThingsboardAPI(ctx).GetDevice(middleware.GetAccessToken(ctx), deviceId)
 	if err != nil {
 		RespondWithInternalServerError(ctx)
@@ -253,9 +308,9 @@ func updateDevice(ctx *gin.Context) {
 		device["additionalInfo"].(map[string]interface{})["gateway"] = updateDevice.Gateway
 	}
 
-	if updateDevice.Customer != nil {
+	if updateDevice.CustomerId != nil {
 		device["customerId"] = map[string]string{
-			"id":         *updateDevice.Customer,
+			"id":         *updateDevice.CustomerId,
 			"entityType": "CUSTOMER",
 		}
 	}

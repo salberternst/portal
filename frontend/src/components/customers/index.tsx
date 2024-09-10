@@ -32,7 +32,7 @@ const AddUserButton = () => {
       "/users",
       undefined,
       {},
-      { record: { group: record?.id } }
+      { record: { customer: record?.id } }
     );
   };
 
@@ -103,36 +103,6 @@ export const CustomerShow = () => {
                 <SimpleShowLayout>
                   <TextField source="thingsboard.id" label="ID" />
                   <TextField source="thingsboard.title" label="Title" />
-                  <TextField
-                    source="thingsboard.country"
-                    label="Country"
-                    emptyText="-"
-                  />
-                  <TextField
-                    source="thingsboard.city"
-                    label="City"
-                    emptyText="-"
-                  />
-                  <TextField
-                    source="thingsboard.address"
-                    label="Address"
-                    emptyText="-"
-                  />
-                  <TextField
-                    source="thingsboard.phone"
-                    label="Phone"
-                    emptyText="-"
-                  />
-                  <TextField
-                    source="thingsboard.email"
-                    label="Email"
-                    emptyText="-"
-                  />
-                  <TextField
-                    source="thingsboard.zip"
-                    label="ZIP"
-                    emptyText="-"
-                  />
                 </SimpleShowLayout>
               </Labeled>
             )}

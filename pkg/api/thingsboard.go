@@ -9,7 +9,7 @@ import (
 )
 
 type ThingsboardId struct {
-	ID         string `json:"id"`
+	Id         string `json:"id"`
 	EntityType string `json:"entityType"`
 }
 
@@ -29,7 +29,12 @@ type ThingsboardCustomer struct {
 
 type ThingsboardDevice struct {
 	Name           string                 `json:"name"`
+	Customer       ThingsboardId          `json:"customerId"`
 	AdditionalInfo map[string]interface{} `json:"additionalInfo"`
+}
+
+type ThingsboardCreatedUser struct {
+	Id ThingsboardId `json:"id"`
 }
 
 type ExchangeTokenResponse struct {
@@ -43,8 +48,9 @@ type ThingsboardAPI struct {
 	exchangeUrl string
 }
 
-type Claims struct {
-	TenantId string `json:"tenantId"`
+type ThingsboardClaims struct {
+	TenantId   string `json:"tenantId"`
+	CustomerId string `json:"customerId"`
 	jwt.RegisteredClaims
 }
 
@@ -427,11 +433,13 @@ func (tb *ThingsboardAPI) UpdateDevice(accessToken string, deviceID string, devi
 	return nil
 }
 
-func (tb *ThingsboardAPI) CreateUser(accessToken string, email string, firstName string, lastName string, tenantId string, customerId string) error {
+func (tb *ThingsboardAPI) CreateUser(accessToken string, email string, firstName string, lastName string, tenantId string, customerId string) (string, error) {
 	thingsboardToken, err := tb.ExchangeToken(accessToken)
 	if err != nil {
-		return err
+		return "", err
 	}
+
+	var createdUser ThingsboardCreatedUser
 
 	user := map[string]interface{}{
 		"email":     email,
@@ -452,17 +460,18 @@ func (tb *ThingsboardAPI) CreateUser(accessToken string, email string, firstName
 		SetHeader("Content-Type", "application/json").
 		SetHeader("X-Authorization", "Bearer "+thingsboardToken).
 		SetBody(user).
+		SetResult(&createdUser).
 		Post(tb.url + "/api/user?sendActivationMail=false")
 
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if resp.StatusCode() != 200 {
-		return fmt.Errorf("unable to create user: %s", resp.String())
+		return "", fmt.Errorf("unable to create user: %s", resp.String())
 	}
 
-	return nil
+	return createdUser.Id.Id, nil
 }
 
 func (tb *ThingsboardAPI) DeleteUser(accessToken string, userID string) error {
@@ -495,12 +504,30 @@ func (tb *ThingsboardAPI) GetTenantId(accessToken string) (string, error) {
 
 	parser := jwt.NewParser()
 
-	token, _, err := parser.ParseUnverified(thingsboardToken, &Claims{})
+	token, _, err := parser.ParseUnverified(thingsboardToken, &ThingsboardClaims{})
 	if err == nil {
-		if claims, ok := token.Claims.(*Claims); ok {
+		if claims, ok := token.Claims.(*ThingsboardClaims); ok {
 			return claims.TenantId, nil
 		}
 	}
 
 	return "", fmt.Errorf("unable to get tenant id: %s", err)
+}
+
+func (tb *ThingsboardAPI) GetCustomerId(accessToken string) (string, error) {
+	thingsboardToken, err := tb.ExchangeToken(accessToken)
+	if err != nil {
+		return "", err
+	}
+
+	parser := jwt.NewParser()
+
+	token, _, err := parser.ParseUnverified(thingsboardToken, &ThingsboardClaims{})
+	if err == nil {
+		if claims, ok := token.Claims.(*ThingsboardClaims); ok {
+			return claims.CustomerId, nil
+		}
+	}
+
+	return "", fmt.Errorf("unable to get customer id: %s", err)
 }

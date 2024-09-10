@@ -29,17 +29,17 @@ type CreateUser struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	IsAdmin   bool   `json:"isAdmin,omitempty"`
-	Group     string `json:"group,omitempty"`
+	Customer  string `json:"customer,omitempty"`
 }
 
 type User struct {
-	Id            string  `json:"id,omitempty"`
-	Email         string  `json:"email"`
-	EmailVerified bool    `json:"emailVerified,omitempty"`
-	FirstName     string  `json:"firstName"`
-	LastName      string  `json:"lastName"`
-	Groups        []Group `json:"groups,omitempty"`
-	Password      string  `json:"password,omitempty"`
+	Id            string     `json:"id,omitempty"`
+	Email         string     `json:"email"`
+	EmailVerified bool       `json:"emailVerified,omitempty"`
+	FirstName     string     `json:"firstName"`
+	LastName      string     `json:"lastName"`
+	Customers     []Customer `json:"customers,omitempty"`
+	Password      string     `json:"password,omitempty"`
 }
 
 func getUser(ctx *gin.Context) {
@@ -78,14 +78,18 @@ func getUser(ctx *gin.Context) {
 		return
 	}
 
-	userGroups := []Group{}
+	customers := []Customer{}
 	for _, group := range groups {
-		// query doesn't seem to work, so we need to filter the groups manually
+		if group.Attributes == nil || (*group.Attributes)["tenant-id"] == nil || (*group.Attributes)["customer-id"] == nil {
+			continue
+		}
+
 		tenantId := (*group.Attributes)["tenant-id"]
 		customerId := (*group.Attributes)["customer-id"]
+
 		if tenantId != nil && tenantId[0] == middleware.GetAccessTokenClaims(ctx).TenantId && customerId != nil {
-			userGroups = append(userGroups, Group{
-				Id:   *group.ID,
+			customers = append(customers, Customer{
+				ID:   *group.ID,
 				Name: *group.Name,
 			})
 		}
@@ -95,7 +99,7 @@ func getUser(ctx *gin.Context) {
 		Id:            *keycloakUser.ID,
 		Email:         *keycloakUser.Email,
 		EmailVerified: *keycloakUser.EmailVerified,
-		Groups:        userGroups,
+		Customers:     customers,
 	}
 
 	if keycloakUser.FirstName != nil {
@@ -137,13 +141,14 @@ func createUser(ctx *gin.Context) {
 				Value:     &keycloakUserPassword,
 			},
 		},
+		Attributes: &map[string][]string{},
 	}
 
-	if user.Group != "" {
+	if user.Customer != "" {
 		group, err := middleware.GetKeycloakClient(ctx).GetGroup(ctx,
 			middleware.GetKeycloakToken(ctx),
 			middleware.GetKeycloakRealm(ctx),
-			user.Group,
+			user.Customer,
 		)
 
 		if err != nil {
@@ -165,16 +170,25 @@ func createUser(ctx *gin.Context) {
 				return
 			}
 
-			if err := middleware.GetThingsboardAPI(ctx).CreateUser(middleware.GetAccessToken(ctx),
+			if (*group.Attributes)["thingsboard-customer-id"] == nil {
+				RespondWithInternalServerError(ctx)
+				return
+			}
+
+			thingsboardUserId, err := middleware.GetThingsboardAPI(ctx).CreateUser(middleware.GetAccessToken(ctx),
 				user.Email,
 				user.FirstName,
 				user.LastName,
 				thingsboardTenantId,
-				(*group.Attributes)["customer-id"][0],
-			); err != nil {
+				(*group.Attributes)["thingsboard-customer-id"][0],
+			)
+
+			if err != nil {
 				RespondWithInternalServerError(ctx)
 				return
 			}
+
+			(*keycloakUser.Attributes)["thingsboard-user-id"] = []string{thingsboardUserId}
 		}
 	} else if user.IsAdmin {
 		keycloakUser.Groups = &[]string{middleware.GetAccessTokenClaims(ctx).TenantId}
@@ -208,6 +222,32 @@ func DeleteUser(ctx *gin.Context) {
 
 	userId := ctx.Param("id")
 
+	if utils.GetConfig().EnableDeviceApi {
+		users, err := middleware.GetKeycloakClient(ctx).GetUserByID(ctx,
+			middleware.GetKeycloakToken(ctx),
+			middleware.GetKeycloakRealm(ctx),
+			userId,
+		)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+
+		if users.Attributes == nil || (*users.Attributes)["thingsboard-user-id"] == nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+
+		thingsboardUserId := (*users.Attributes)["thingsboard-user-id"][0]
+
+		if err := middleware.GetThingsboardAPI(ctx).DeleteUser(middleware.GetAccessToken(ctx),
+			thingsboardUserId,
+		); err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+	}
+
 	if err := middleware.GetKeycloakClient(ctx).DeleteUser(ctx,
 		middleware.GetKeycloakToken(ctx),
 		middleware.GetKeycloakRealm(ctx),
@@ -217,16 +257,9 @@ func DeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	if utils.GetConfig().EnableDeviceApi {
-		if err := middleware.GetThingsboardAPI(ctx).DeleteUser(middleware.GetKeycloakToken(ctx),
-			userId,
-		); err != nil {
-			RespondWithInternalServerError(ctx)
-			return
-		}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{})
+	ctx.JSON(http.StatusOK, gin.H{
+		"id": userId,
+	})
 }
 
 func addUsersRoute(r *gin.RouterGroup) {

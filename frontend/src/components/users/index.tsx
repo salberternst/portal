@@ -16,22 +16,9 @@ import {
   TopToolbar,
   DeleteButton,
   useRecordContext,
+  ReferenceField,
 } from "react-admin";
 import Typography from "@mui/material/Typography";
-
-const UserShowBar = () => {
-  const redirect = useRedirect();
-  const record = useRecordContext();
-  const onRedirect = () => {
-    const customerId = record?.groups[0]?.id;
-    return redirect("show", "/customers", customerId);
-  };
-  return (
-    <TopToolbar>
-      <DeleteButton mutationMode="pessimistic" redirect={onRedirect} />
-    </TopToolbar>
-  );
-};
 
 export const UserCreate = () => {
   const notify = useNotify();
@@ -48,9 +35,23 @@ export const UserCreate = () => {
         <TextInput source="email" label="Email" validate={[required()]} />
         <TextInput source="firstName" label="First Name" />
         <TextInput source="lastName" label="Last Name" />
-        <TextInput source="group" label="Group" readOnly />
+        <TextInput source="customer" label="Customer" readOnly />
       </SimpleForm>
     </Create>
+  );
+};
+
+const UserShowBar = () => {
+  const redirect = useRedirect();
+  const record = useRecordContext();
+  const onRedirect = () => {
+    const customerId = record?.customers[0]?.id;
+    return redirect("show", "/customers", customerId);
+  };
+  return (
+    <TopToolbar>
+      <DeleteButton mutationMode="pessimistic" redirect={onRedirect} />
+    </TopToolbar>
   );
 };
 
@@ -87,9 +88,11 @@ export const UserShow = () => {
             <Typography variant="body2">{password}</Typography>
           </Labeled>
         )}
-        <ArrayField source="groups">
-          <Datagrid bulkActionButtons={false}>
-            <TextField source="id" />
+        <ArrayField source="customers">
+          <Datagrid bulkActionButtons={false} rowClick={false}>
+            <ReferenceField source="id" reference="customers" link="show">
+              <TextField source="id" />
+            </ReferenceField>
             <TextField source="name" />
           </Datagrid>
         </ArrayField>

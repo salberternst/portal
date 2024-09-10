@@ -9,10 +9,7 @@ import {
 export async function getList(params) {
   const devices = await fetchDevices(params.pagination);
   return {
-    data: devices.data.map((device) => ({
-      ...device,
-      id: device.id.id,
-    })),
+    data: devices.data,
     total: devices.totalElements,
   };
 }

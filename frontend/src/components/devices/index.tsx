@@ -129,18 +129,17 @@ const ThingModelSelector = ({ defaultValue = "" }) => {
   );
 };
 
-const CustomerSelector = ({ defaultValue }) => {
+const CustomerSelector = () => {
   const { data, isLoading } = useGetList("customers");
   if (isLoading) return null;
+
   return (
     <AutocompleteInput
-      source="customer"
+      source="customerId"
       choices={data}
-      defaultValue="13814000-1dd2-11b2-8080-808080808080"
       optionText="name"
-      optionValue="thingsboard.id"
+      optionValue="id"
       emptyText="None"
-      emptyValue="13814000-1dd2-11b2-8080-808080808080"
       fullWidth
       isLoading={isLoading}
     />
@@ -149,6 +148,12 @@ const CustomerSelector = ({ defaultValue }) => {
 
 export const DeviceEdit = () => {
   const { record } = useEditController();
+  const { isLoading, identity } = useGetIdentity();
+  if (isLoading) {
+    return null;
+  }
+  const isAdmin = identity?.groups.includes("role:admin");
+
   return (
     <Edit mutationMode="pessimistic">
       <SimpleForm>
@@ -187,7 +192,7 @@ export const DeviceEdit = () => {
           defaultValue={record?.gateway}
         />
         <ThingModelSelector defaultValue={record?.thingModel} />
-        <CustomerSelector defaultValue={record?.customerId} />
+        {isAdmin && <CustomerSelector />}
       </SimpleForm>
     </Edit>
   );
@@ -198,8 +203,8 @@ export const DeviceCreate = () => {
     <Create redirect="show">
       <SimpleForm>
         <TextInput source="name" fullWidth validate={[required()]} />
+        <CustomerSelector />
         <BooleanInput source="gateway" label="Gateway" />
-        <ThingModelSelector />
         <TextInput
           source="title"
           fullWidth
@@ -212,6 +217,7 @@ export const DeviceCreate = () => {
           rows={3}
           helperText="Enter a description for the device"
         />
+        <ThingModelSelector />
         <TextInput
           source="category"
           fullWidth
@@ -263,11 +269,16 @@ export const DeviceShow = () => {
         <DateField source="createdAt" label="Created At" showTime />
         <TextField source="title" label="Title" emptyText="-" />
         <TextField source="description" label="Description" emptyText="-" />
+        {record?.customerId && isAdmin && (
+          <ReferenceField source="customerId" reference="customers" link="show">
+            <TextField source="name" label="Name" />
+          </ReferenceField>
+        )}
         <TextField source="category" label="Category" emptyText="-" />
         <TextField source="manufacturer" label="Manufacturer" emptyText="-" />
         <TextField source="model" label="Model" emptyText="-" />
         <TextField source="thingModel" label="Thing Model" emptyText="-" />
-        <BooleanField source="gateway" label="Gateway" />
+        <BooleanField source="gateway" label="Gateway" defaultValue={false} />
         {record?.syncStatus && (
           <Labeled label="Sync Status">
             <SimpleShowLayout>
@@ -283,11 +294,6 @@ export const DeviceShow = () => {
             <TextField source="credentials.credentials" label="Token" />
           </SimpleShowLayout>
         </Labeled>
-        {record?.customerId && isAdmin && (
-          <ReferenceField source="customerId" reference="customers" link="show">
-            <TextField source="name" label="Name" />
-          </ReferenceField>
-        )}
       </SimpleShowLayout>
     </Show>
   );
@@ -317,7 +323,7 @@ export const DevicesList = () => {
         />
         <DateField
           showTime={true}
-          source="createdTime"
+          source="createdAt"
           label="Created At"
           sortable={false}
         />

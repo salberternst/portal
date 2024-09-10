@@ -41,7 +41,7 @@ function normalize(federatedCatalog) {
   return datasets;
 }
 
-export async function getList(params) {
+export async function getList() {
   const federatedCatalog = await fetchFederatedCatalog();
   return {
     data: normalize(federatedCatalog),

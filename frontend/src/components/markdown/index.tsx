@@ -1,7 +1,7 @@
 import { useInput, useFieldValue } from "react-admin";
 import MDEditor from "@uiw/react-md-editor";
 
-export const MarkdownInput = ({ source, label }) => {
+export const MarkdownInput = ({ source }) => {
   const { id, field } = useInput({ source });
   return (
     <div id={id} data-color-mode="light" style={{ width: "100%" }}>
