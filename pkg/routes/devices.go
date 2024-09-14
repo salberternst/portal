@@ -93,20 +93,18 @@ func getDevices(ctx *gin.Context) {
 			CreatedAt: int64(thingsboardDevice["createdTime"].(float64)),
 		}
 
-		additionalInfo := thingsboardDevice["additionalInfo"].(map[string]interface{})
+		additionalInfo := thingsboardDevice["additionalInfo"]
 		if additionalInfo != nil {
-			if additionalInfo["gateway"] != nil {
-				device.Gateway = additionalInfo["gateway"].(bool)
+			gateway := additionalInfo.(map[string]interface{})["gateway"]
+			if gateway != nil {
+				device.Gateway = gateway.(bool)
 			}
 		}
 
 		thingsboardCustomerId := thingsboardDevice["customerId"].(map[string]interface{})["id"].(string)
 		if thingsboardCustomerId != "" && thingsboardCustomerId != "13814000-1dd2-11b2-8080-808080808080" {
-			device.CustomerId, err = middleware.GetCustomerIdByThingsboardCustomerId(ctx, thingsboardCustomerId)
-			if err != nil {
-				RespondWithInternalServerError(ctx)
-				return
-			}
+			device.CustomerId, _ = middleware.GetCustomerIdByThingsboardCustomerId(ctx, thingsboardCustomerId)
+			// If the customer is not found, we will just not set the customer id (for now)
 		}
 
 		devices = append(devices, device)
