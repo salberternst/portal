@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   List,
   Datagrid,
@@ -18,6 +19,7 @@ import {
   useRedirect,
   useRecordContext,
   TopToolbar,
+  useRefresh,
 } from "react-admin";
 import Alert from "@mui/material/Alert";
 import { Link } from "react-router-dom";
@@ -65,6 +67,13 @@ const TransferProcessesShowBar = () => {
 
 export const TransferProcessesShow = () => {
   const { record } = useShowController();
+  const refresh = useRefresh()
+
+  useEffect(() => {
+    const interval = setInterval(refresh, 5000);
+    return () => clearInterval(interval);
+  }, [refresh]);
+
   return (
     <Show actions={<TransferProcessesShowBar />}>
       <SimpleShowLayout>
@@ -132,8 +141,7 @@ export const TransferProcessesCreate = () => (
         validate={[required()]}
         choices={[
           { id: "HttpData-PULL", name: "HttpData-PULL" },
-          { id: "HttpData-PUSH", name: "HttpData-PUSH" },
-          { id: "AmazonS3-PUSH", name: "AmazonS3-PUSH" },
+          { id: "HttpData-PUSH", name: "HttpData-PUSH" }
         ]}
       />
       <FormDataConsumer>
