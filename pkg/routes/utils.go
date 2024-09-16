@@ -73,15 +73,15 @@ func CreateQuerySpecWithoutFilterFromContext(ctx *gin.Context) (api.QuerySpec, e
 }
 
 func BuildFilterExpressionFromContext(ctx *gin.Context) []api.Criterion {
-	filterExpressions := []api.Criterion{
-		{
+	filterExpressions := []api.Criterion{}
+
+	if middleware.IsCustomer(ctx) {
+		filterExpressions = append(filterExpressions, api.Criterion{
 			OperandLeft:  "privateProperties.'https://w3id.org/edc/v0.0.1/ns/tenantId'",
 			Operator:     "=",
 			OperandRight: middleware.GetAccessTokenClaims(ctx).TenantId,
-		},
-	}
+		})
 
-	if middleware.IsCustomer(ctx) {
 		filterExpressions = append(filterExpressions, api.Criterion{
 			OperandLeft:  "privateProperties.'https://w3id.org/edc/v0.0.1/ns/customerId'",
 			Operator:     "=",
@@ -109,11 +109,11 @@ func CheckPrivateProperties(ctx *gin.Context, privateProperties map[string]strin
 			privateProperties["customerId"] != middleware.GetAccessTokenClaims(ctx).CustomerId {
 			return false
 		}
-	}
 
-	if privateProperties["https://w3id.org/edc/v0.0.1/ns/tenantId"] != middleware.GetAccessTokenClaims(ctx).TenantId &&
-		privateProperties["tenantId"] != middleware.GetAccessTokenClaims(ctx).TenantId {
-		return false
+		if privateProperties["https://w3id.org/edc/v0.0.1/ns/tenantId"] != middleware.GetAccessTokenClaims(ctx).TenantId &&
+			privateProperties["tenantId"] != middleware.GetAccessTokenClaims(ctx).TenantId {
+			return false
+		}
 	}
 
 	return true

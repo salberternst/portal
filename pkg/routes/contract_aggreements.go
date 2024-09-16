@@ -23,7 +23,7 @@ func getContractAgreements(ctx *gin.Context) {
 
 	if middleware.IsCustomer(ctx) {
 		// create QuerySpec to filter assets that belong to the customer
-		querySpec, err := CreateQuerySpecFromContext(ctx)
+		querySpec, err = CreateQuerySpecFromContext(ctx)
 		if err != nil {
 			RespondWithBadRequest(ctx, "Bad Request")
 			return
@@ -73,17 +73,18 @@ func getContractAgreement(ctx *gin.Context) {
 		return
 	}
 
-	// if contractAgreement.PrivateProperties == nil || !utils.CheckPrivateProperties(ctx, contractAgreement.PrivateProperties) {
-	// 	ctx.JSON(http.StatusForbidden, gin.H{
-	// 		"status":  http.StatusForbidden,
-	// 		"error":   "forbidden",
-	// 		"message": "You are not allowed to access this contract agreement",
-	// 	})
-	// 	return
-	// }
+	if middleware.IsCustomer(ctx) {
+		asset, err := middleware.GetEdcAPI(ctx).GetAsset(contractAgreement.AssetId)
+		if err != nil {
+			RespondWithResourceNotFound(ctx, id)
+			return
+		}
 
-	// todo: check if user is allowed to access this contract agreement
-	// todo: admin can see all contract agreements
+		if !CheckPrivateProperties(ctx, asset.PrivateProperties) {
+			RespondWithResourceNotFound(ctx, id)
+			return
+		}
+	}
 
 	ctx.JSON(http.StatusOK, contractAgreement)
 }
@@ -95,6 +96,25 @@ func getContractAgreementNegotiation(ctx *gin.Context) {
 	if err != nil {
 		RespondWithInternalServerError(ctx)
 		return
+	}
+
+	if middleware.IsCustomer(ctx) {
+		contractAgreement, err := middleware.GetEdcAPI(ctx).GetContractAgreement(contractAgreementNegotiation.ContractAgreementId)
+		if err != nil {
+			RespondWithResourceNotFound(ctx, id)
+			return
+		}
+
+		asset, err := middleware.GetEdcAPI(ctx).GetAsset(contractAgreement.AssetId)
+		if err != nil {
+			RespondWithResourceNotFound(ctx, id)
+			return
+		}
+
+		if !CheckPrivateProperties(ctx, asset.PrivateProperties) {
+			RespondWithResourceNotFound(ctx, id)
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusOK, contractAgreementNegotiation)
