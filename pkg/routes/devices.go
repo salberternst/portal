@@ -60,13 +60,19 @@ type UpdateDevice struct {
 }
 
 func getDevices(ctx *gin.Context) {
+	queryParams := QueryParams{}
+	if err := ctx.BindQuery(&queryParams); err != nil {
+		RespondWithBadRequest(ctx, "Bad Request")
+		return
+	}
+
 	var thingsboardDevices map[string]interface{}
 	var err error
 
 	// todo: implement query parameters
 
 	if middleware.GetAccessTokenClaims(ctx).CustomerId == "" {
-		thingsboardDevices, err = middleware.GetThingsboardAPI(ctx).GetTenantDevices(middleware.GetAccessToken(ctx))
+		thingsboardDevices, err = middleware.GetThingsboardAPI(ctx).GetTenantDevices(middleware.GetAccessToken(ctx), queryParams.Page, queryParams.PageSize)
 	} else {
 		thingsboardCustomerId, err := middleware.GetThingsboardAPI(ctx).GetCustomerId(middleware.GetAccessToken(ctx))
 		if err != nil {
@@ -76,6 +82,8 @@ func getDevices(ctx *gin.Context) {
 		thingsboardDevices, err = middleware.GetThingsboardAPI(ctx).GetCustomerDevices(
 			middleware.GetAccessToken(ctx),
 			thingsboardCustomerId,
+			queryParams.Page,
+			queryParams.PageSize,
 		)
 	}
 

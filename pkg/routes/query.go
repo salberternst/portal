@@ -1,6 +1,6 @@
 package routes
 
 type QueryParams struct {
-	Page     uint `form:"page" binding:"required"`
-	PageSize uint `form:"page_size"  binding:"required"`
+	Page     int `form:"page" binding:"required"`
+	PageSize int `form:"page_size"  binding:"required"`
 }

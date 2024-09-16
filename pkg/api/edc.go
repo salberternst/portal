@@ -18,8 +18,8 @@ type Criterion struct {
 type QuerySpec struct {
 	Context map[string]string `json:"@context"`
 	Type    string            `json:"@type"`
-	Offset  uint              `json:"offset,omitempty"`
-	Limit   uint              `json:"limit,omitempty"`
+	Offset  int               `json:"offset,omitempty"`
+	Limit   int               `json:"limit,omitempty"`
 	// SortOrder        string            `json:"sortOrder"`
 	// SortField        string            `json:"sortField"`
 	FilterExpression []Criterion `json:"filterExpression"`

@@ -66,6 +66,8 @@ func getCustomers(ctx *gin.Context) {
 	// only show groups that have the tenant-id attribute set to the tenant-id of the user
 	Q := fmt.Sprintf("tenant-id:%s type:customer", middleware.GetAccessTokenClaims(ctx).TenantId)
 	briefRepresentation := false
+	First := (customerQuery.Page - 1) * customerQuery.PageSize
+	Max := customerQuery.PageSize
 
 	groups, err := middleware.GetKeycloakClient(ctx).GetGroups(ctx,
 		middleware.GetKeycloakToken(ctx),
@@ -73,6 +75,8 @@ func getCustomers(ctx *gin.Context) {
 		gocloak.GetGroupsParams{
 			Q:                   &Q,
 			BriefRepresentation: &briefRepresentation,
+			First:               &First,
+			Max:                 &Max,
 		},
 	)
 	if err != nil {

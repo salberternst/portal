@@ -155,7 +155,7 @@ func (tb *ThingsboardAPI) GetCustomer(accessToken string, customerID string) (Th
 	return customer, nil
 }
 
-func (tb *ThingsboardAPI) GetCustomerDevices(accessToken string, customerID string) (map[string]interface{}, error) {
+func (tb *ThingsboardAPI) GetCustomerDevices(accessToken string, customerID string, page int, pageSize int) (map[string]interface{}, error) {
 	thingsboardToken, err := tb.ExchangeToken(accessToken)
 	if err != nil {
 		return nil, err
@@ -168,8 +168,8 @@ func (tb *ThingsboardAPI) GetCustomerDevices(accessToken string, customerID stri
 		SetHeader("X-Authorization", "Bearer "+thingsboardToken).
 		SetResult(&devices).
 		SetQueryParams(map[string]string{
-			"page":     "0",
-			"pageSize": "1000",
+			"page":     fmt.Sprintf("%d", page-1),
+			"pageSize": fmt.Sprintf("%d", pageSize),
 		}).
 		Get(tb.url + "/api/customer/" + customerID + "/devices")
 
@@ -184,7 +184,7 @@ func (tb *ThingsboardAPI) GetCustomerDevices(accessToken string, customerID stri
 	return devices, nil
 }
 
-func (tb *ThingsboardAPI) GetTenantDevices(accessToken string) (map[string]interface{}, error) {
+func (tb *ThingsboardAPI) GetTenantDevices(accessToken string, page int, pageSize int) (map[string]interface{}, error) {
 	thingsboardToken, err := tb.ExchangeToken(accessToken)
 	if err != nil {
 		return nil, err
@@ -197,8 +197,8 @@ func (tb *ThingsboardAPI) GetTenantDevices(accessToken string) (map[string]inter
 		SetHeader("X-Authorization", "Bearer "+thingsboardToken).
 		SetResult(&devices).
 		SetQueryParams(map[string]string{
-			"page":     "0",
-			"pageSize": "1000",
+			"page":     fmt.Sprintf("%d", page-1),
+			"pageSize": fmt.Sprintf("%d", pageSize),
 		}).
 		Get(tb.url + "/api/tenant/devices")
 
