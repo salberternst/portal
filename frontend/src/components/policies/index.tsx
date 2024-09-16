@@ -93,9 +93,8 @@ const IdentityBasedPermission = () => {
     field: { value: operatorValue },
   } = useInput({ source: "operator" });
   const selectMultiple =
-    operatorValue === "odrl:isAnyOf" ||
-    operatorValue === "odrl:isAllOf" ||
-    operatorValue === "odrl:isNoneOf";
+    operatorValue === "odrl:isNoneOf" ||
+    operatorValue === "odrl:isPartOf";
 
   const renderInput = () => {
     if (selectMultiple) {
@@ -115,7 +114,7 @@ const IdentityBasedPermission = () => {
       <Typography sx={{ mt: 2 }}>Identity Based Permission</Typography>
       <TextInput
         source="leftOperand"
-        defaultValue="edc:edc_identity"
+        defaultValue="edc:participantId"
         label={false}
         sx={{ display: "none" }}
       />
@@ -125,9 +124,8 @@ const IdentityBasedPermission = () => {
         choices={[
           { id: "odrl:eq", name: "Equals" },
           { id: "odrl:neq", name: "Not Equals" },
-          { id: "odrl:isAnyOf", name: "Is Any Of" },
-          { id: "odrl:isAllOf", name: "Is All Of" },
           { id: "odrl:isNoneOf", name: "Is None Of" },
+          { id: "odrl:isPartOf", name: "Is Part Of" },
         ]}
         helperText="Select the operator"
         validate={[required()]}
@@ -143,7 +141,7 @@ const TimeBasedPermission = () => {
       <Typography sx={{ mt: 2 }}>Time Based Permission</Typography>
       <TextInput
         source="leftOperand"
-        defaultValue="edc:POLICY_EVALUATION_TIME"
+        defaultValue="edc:policyEvaluationTime"
         label={false}
         sx={{ display: "none" }}
       />
@@ -170,9 +168,8 @@ const LocationBasedPermission = () => {
     field: { value: operatorValue },
   } = useInput({ source: "operator" });
   const selectMultiple =
-    operatorValue === "odrl:isAnyOf" ||
-    operatorValue === "odrl:isAllOf" ||
-    operatorValue === "odrl:isNoneOf";
+    operatorValue === "odrl:isNoneOf" ||
+    operatorValue === "odrl:isPartOf";
 
   const renderInput = () => {
     if (selectMultiple) {
@@ -198,7 +195,7 @@ const LocationBasedPermission = () => {
       <Typography sx={{ mt: 2 }}>Location Based Permission</Typography>
       <TextInput
         source="leftOperand"
-        defaultValue="edc:location"
+        defaultValue="edc:country"
         label={false}
         sx={{ display: "none" }}
       />
@@ -207,9 +204,8 @@ const LocationBasedPermission = () => {
         choices={[
           { id: "odrl:eq", name: "Equals" },
           { id: "odrl:neq", name: "Not Equals" },
-          { id: "odrl:isAnyOf", name: "Is Any Of" },
-          { id: "odrl:isAllOf", name: "Is All Of" },
           { id: "odrl:isNoneOf", name: "Is None Of" },
+          { id: "odrl:isPartOf", name: "Is Part Of" },
         ]}
         validate={[required()]}
       />
