@@ -35,9 +35,11 @@ func getPolicy(ctx *gin.Context) {
 		return
 	}
 
-	if policyDefinition.PrivateProperties == nil || !CheckPrivateProperties(ctx, policyDefinition.PrivateProperties) {
-		RespondWithForbidden(ctx)
-		return
+	if middleware.IsCustomer(ctx) {
+		if policyDefinition.PrivateProperties == nil || !CheckPrivateProperties(ctx, policyDefinition.PrivateProperties) {
+			RespondWithForbidden(ctx)
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusOK, policyDefinition)
@@ -79,9 +81,11 @@ func deletePolicy(ctx *gin.Context) {
 		return
 	}
 
-	if policyDefinition.PrivateProperties == nil || !CheckPrivateProperties(ctx, policyDefinition.PrivateProperties) {
-		RespondWithForbidden(ctx)
-		return
+	if middleware.IsCustomer(ctx) {
+		if policyDefinition.PrivateProperties == nil || !CheckPrivateProperties(ctx, policyDefinition.PrivateProperties) {
+			RespondWithForbidden(ctx)
+			return
+		}
 	}
 
 	if err = middleware.GetEdcAPI(ctx).DeletePolicy(id); err != nil {

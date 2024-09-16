@@ -35,9 +35,11 @@ func getContractDefinition(ctx *gin.Context) {
 		return
 	}
 
-	if contract.PrivateProperties == nil || !CheckPrivateProperties(ctx, contract.PrivateProperties) {
-		RespondWithForbidden(ctx)
-		return
+	if middleware.IsCustomer(ctx) {
+		if contract.PrivateProperties == nil || !CheckPrivateProperties(ctx, contract.PrivateProperties) {
+			RespondWithForbidden(ctx)
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusOK, contract)
@@ -52,9 +54,11 @@ func deleteContractDefinition(ctx *gin.Context) {
 		return
 	}
 
-	if contract.PrivateProperties == nil || !CheckPrivateProperties(ctx, contract.PrivateProperties) {
-		RespondWithForbidden(ctx)
-		return
+	if middleware.IsCustomer(ctx) {
+		if contract.PrivateProperties == nil || !CheckPrivateProperties(ctx, contract.PrivateProperties) {
+			RespondWithForbidden(ctx)
+			return
+		}
 	}
 
 	err = middleware.GetEdcAPI(ctx).DeleteContractDefinition(contractId)

@@ -36,9 +36,11 @@ func getAsset(ctx *gin.Context) {
 	}
 
 	// check if current user has access to the asset
-	if asset.PrivateProperties == nil || !CheckPrivateProperties(ctx, asset.PrivateProperties) {
-		RespondWithResourceNotFound(ctx, id)
-		return
+	if middleware.IsCustomer(ctx) {
+		if asset.PrivateProperties == nil || !CheckPrivateProperties(ctx, asset.PrivateProperties) {
+			RespondWithResourceNotFound(ctx, id)
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusOK, asset)
@@ -53,11 +55,11 @@ func deleteAsset(ctx *gin.Context) {
 		return
 	}
 
-	// check if current user has access to the asset
-	if asset.PrivateProperties == nil || !CheckPrivateProperties(ctx, asset.PrivateProperties) {
-		// fixme: return 403 or 404
-		RespondWithInternalServerError(ctx)
-		return
+	if middleware.IsCustomer(ctx) {
+		if asset.PrivateProperties == nil || !CheckPrivateProperties(ctx, asset.PrivateProperties) {
+			RespondWithResourceNotFound(ctx, id)
+			return
+		}
 	}
 
 	if err := middleware.GetEdcAPI(ctx).DeleteAsset(id); err != nil {
