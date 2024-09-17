@@ -56,40 +56,45 @@ export const ThingDescriptionShowProperties = () => {
 
   return (
     <>
-      <Typography variant="h6" sx={{ marginTop: 2 }}>
-        Properties
-      </Typography>
-      <Divider />
       {Object.keys(record.description.properties).map((name) => (
-        <div key={record.description.properties[name]}>
+        <div
+          key={record.description.properties[name]}
+          style={{ marginTop: 15 }}
+        >
           <Labeled fullWidth label="Name">
-            <TextField source={`description.properties.${name}.name`} />
+            <TextField source={`name`} record={{ name }} />
           </Labeled>
           <Labeled fullWidth label="Title">
             <TextField
-              source={`description.properties.${name}.title`}
+              source={`title`}
+              record={record?.description.properties[name]}
               emptyText="-"
             />
           </Labeled>
           <Labeled fullWidth label="Description">
             <TextField
-              label="description"
-              source={`description.properties.${name}.description`}
+              source={`description`}
+              record={record?.description.properties[name]}
               emptyText="-"
             />
           </Labeled>
           <Labeled fullWidth label="Unit">
             <TextField
-              source={`description.properties.${name}.unit`}
+              source={`unit`}
+              record={record?.description.properties[name]}
               emptyText="-"
             />
           </Labeled>
-          <ArrayField source={`description.properties.${name}.forms`}>
+          <ArrayField
+            source={`forms`}
+            record={record?.description.properties[name]}
+          >
             <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
               <TextField source="op" label="Operation" emptyText="-" />
               <TextField source="href" label="Target" />
             </Datagrid>
           </ArrayField>
+          <Divider sx={{ mt: 4, mb: 4 }} />
         </div>
       ))}
     </>
@@ -104,39 +109,42 @@ export const ThingDescriptionShowActions = () => {
 
   return (
     <>
-      <Typography variant="h6" sx={{ marginTop: 2 }}>
-        Actions
-      </Typography>
-      <Divider />
       {Object.keys(record.description.actions).map((name) => (
         <div key={record.description.actions[name]}>
           <Labeled fullWidth label="Name">
-            <TextField source={`description.actions.${name}.name`} />
+            <TextField source={`name`} record={{ name }} />
           </Labeled>
           <Labeled fullWidth label="Title">
             <TextField
-              source={`description.actions.${name}.title`}
+              source={`title`}
+              record={record?.description.actions[name]}
               emptyText="-"
             />
           </Labeled>
           <Labeled fullWidth label="Description">
             <TextField
-              source={`description.actions.${name}.description`}
+              source={`description`}
+              record={record?.description.actions[name]}
               emptyText="-"
             />
           </Labeled>
           <Labeled fullWidth label="Unit">
             <TextField
-              source={`description.actions.${name}.unit`}
+              source={`unit`}
+              record={record?.description.actions[name]}
               emptyText="-"
             />
           </Labeled>
-          <ArrayField source={`description.actions.${name}.forms`}>
+          <ArrayField
+            source={`forms`}
+            record={record?.description.actions[name]}
+          >
             <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
               <TextField source="op" label="Operation" emptyText="-" />
               <TextField source="href" label="Target" />
             </Datagrid>
           </ArrayField>
+          <Divider sx={{ mt: 4, mb: 4 }} />
         </div>
       ))}
     </>
@@ -151,34 +159,36 @@ export const ThingDescriptionShowEvents = () => {
 
   return (
     <>
-      <Typography variant="h6" sx={{ marginTop: 2 }}>
-        Events
-      </Typography>
-      <Divider />
       {Object.keys(record.description.events).map((name) => (
         <div key={record.description.events[name]}>
           <Labeled fullWidth label="Name">
-            <TextField source={`description.events.${name}.name`} />
+            <TextField source={`name`} record={{ name }} />
           </Labeled>
           <Labeled fullWidth label="Title">
             <TextField
-              source={`description.events.${name}.title`}
+              source={`title`}
+              record={record?.description.events[name]}
               emptyText="-"
             />
           </Labeled>
           <Labeled fullWidth label="Description">
             <TextField
-              source={`description.events.${name}.description`}
+              source={`description`}
+              record={record?.description.events[name]}
               emptyText="-"
             />
           </Labeled>
           <Labeled fullWidth label="Unit">
             <TextField
-              source={`description.events.${name}.unit`}
+              source={`unit`}
+              record={record?.description.events[name]}
               emptyText="-"
             />
           </Labeled>
-          <ArrayField source={`description.events.${name}.forms`}>
+          <ArrayField
+            source={`forms`}
+            record={record?.description.events[name]}
+          >
             <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
               <TextField source="op" label="Operation" emptyText="-" />
               <TextField source="href" label="Target" />
@@ -207,10 +217,6 @@ export const ThingDescriptionShowDescription = () => {
 
 export const ThingDescriptionShowLinks = () => (
   <>
-    <Typography variant="h6" sx={{ marginTop: 2 }}>
-      Links
-    </Typography>
-    <Divider />
     <ArrayField source={`description.links`}>
       <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
         <TextField source="rel" label="Relation" emptyText="-" />
@@ -273,10 +279,20 @@ export const ThingDescriptionShow = () => {
       </SimpleShowLayout>
       <TabbedShowLayout>
         <TabbedShowLayout.Tab label="Summary">
-          <ThingDescriptionShowLinks />
-          <ThingDescriptionShowProperties />
-          <ThingDescriptionShowActions />
-          <ThingDescriptionShowEvents />
+          <TabbedShowLayout syncWithLocation={false}>
+            <TabbedShowLayout.Tab label="Properties" syncWithLocation={false}>
+              <ThingDescriptionShowProperties />
+            </TabbedShowLayout.Tab>
+            <TabbedShowLayout.Tab label="Actions" syncWithLocation={false}>
+              <ThingDescriptionShowActions />
+            </TabbedShowLayout.Tab>
+            <TabbedShowLayout.Tab label="Events" syncWithLocation={false}>
+              <ThingDescriptionShowEvents />
+            </TabbedShowLayout.Tab>
+            <TabbedShowLayout.Tab label="Links" syncWithLocation={false}>
+              <ThingDescriptionShowLinks />
+            </TabbedShowLayout.Tab>
+          </TabbedShowLayout>
         </TabbedShowLayout.Tab>
         <TabbedShowLayout.Tab label="Thing Description">
           <ThingDescriptionShowDescription />
