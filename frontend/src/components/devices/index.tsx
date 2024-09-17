@@ -31,96 +31,80 @@ const ThingModelSelector = ({ defaultValue = "" }) => {
       choices={[
         { id: "", name: "None" },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/carbon_dioxide.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/carbon_dioxide.json",
           name: "Carbon Dioxide",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/carbon_monoxide.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/carbon_monoxide.json",
           name: "Carbon Monoxide",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/connectivity.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/connectivity.json",
           name: "Connectivity",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/data_rate.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/data_rate.json",
           name: "Data Rate",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/energy.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/energy.json",
           name: "Energy",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/enum.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/enum.json",
           name: "Enum",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/garage.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/garage.json",
           name: "Garage",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/gas.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/gas.json",
           name: "Gas",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/generic.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/generic.json",
           name: "Generic",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/human_activity.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/human_activity.json",
           name: "Human Activity",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/humidity.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/humidity.json",
           name: "Humidity",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/moisture.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/moisture.json",
           name: "Moisture",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/motion.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/motion.json",
           name: "Motion",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/netzanschlusspunkt.json",
-          name: "Netzanschlusspunkt",
-        },
-        {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/outlet.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/outlet.json",
           name: "Outlet",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/power.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/power.json",
           name: "Power",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/solar.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/solar.json",
           name: "Solar",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/temperature.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/temperature.json",
           name: "Temperature",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/timestamp.json",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/home_assistant/timestamp.json",
           name: "Timestamp",
         },
         {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/waermpepumpe.json",
-          name: "Waermpepumpe",
-        },
-        {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/wechselrichter.json",
-          name: "Wechselrichter",
-        },
-        {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/wärmepumpe.json",
-          name: "Wärmepumpe",
-        },
-        {
-          id: "https://raw.githubusercontent.com/salberternst/thing-models/main/home_assistant/balkonkraftwerk.json",
-          name: "Balkonkraftwerk",
+          id: "https://gitlab.int.smartlivingnext.de/data-space/components/resources/thing-models/-/raw/main/stadtwerke_sb/iMSys.json",
+          name: "iMSys (Intelligentes Messsystem)",
         },
       ]}
       defaultValue={defaultValue}

@@ -93,8 +93,7 @@ const IdentityBasedPermission = () => {
     field: { value: operatorValue },
   } = useInput({ source: "operator" });
   const selectMultiple =
-    operatorValue === "odrl:isNoneOf" ||
-    operatorValue === "odrl:isPartOf";
+    operatorValue === "odrl:isNoneOf" || operatorValue === "odrl:isPartOf";
 
   const renderInput = () => {
     if (selectMultiple) {
@@ -168,8 +167,7 @@ const LocationBasedPermission = () => {
     field: { value: operatorValue },
   } = useInput({ source: "operator" });
   const selectMultiple =
-    operatorValue === "odrl:isNoneOf" ||
-    operatorValue === "odrl:isPartOf";
+    operatorValue === "odrl:isNoneOf" || operatorValue === "odrl:isPartOf";
 
   const renderInput = () => {
     if (selectMultiple) {

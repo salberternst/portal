@@ -96,7 +96,9 @@ export async function create(params) {
             "odrl:operator": {
               "@id": permission.operator,
             },
-            "odrl:rightOperand": Array.isArray(permission.rightOperand) ? permission.rightOperand.join(', ') : permission.rightOperand,
+            "odrl:rightOperand": Array.isArray(permission.rightOperand)
+              ? permission.rightOperand.join(", ")
+              : permission.rightOperand,
           },
         ],
       })),

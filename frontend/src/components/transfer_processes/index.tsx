@@ -67,7 +67,7 @@ const TransferProcessesShowBar = () => {
 
 export const TransferProcessesShow = () => {
   const { record } = useShowController();
-  const refresh = useRefresh()
+  const refresh = useRefresh();
 
   useEffect(() => {
     const interval = setInterval(refresh, 5000);
@@ -141,7 +141,7 @@ export const TransferProcessesCreate = () => (
         validate={[required()]}
         choices={[
           { id: "HttpData-PULL", name: "HttpData-PULL" },
-          { id: "HttpData-PUSH", name: "HttpData-PUSH" }
+          { id: "HttpData-PUSH", name: "HttpData-PUSH" },
         ]}
       />
       <FormDataConsumer>
