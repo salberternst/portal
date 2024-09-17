@@ -1,11 +1,11 @@
 {
-    "short_name": "frontend",
-    "name": "{{name}}",
+    "short_name": "Portal",
+    "name": "SmartLivingNEXT Portal",
     "icons": [
         {
-            "src": "cropped-android-chrome-512x512-1-1-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
+            "src": "borlabs-cookie-icon-dynamic.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
         }
     ],
     "start_url": "./index.html",

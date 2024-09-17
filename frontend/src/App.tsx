@@ -1,386 +1,211 @@
 import {
   Admin,
   Resource,
-  Labeled,
-  List,
-  Datagrid,
-  DateField,
-  BooleanField,
-  TextField,
-  Show,
-  Edit,
-  SimpleForm,
-  TextInput,
-  Create,
-  ArrayField,
-  BooleanInput,
-  ArrayInput,
-  SimpleFormIterator,
   CustomRoutes,
   Layout,
   Menu,
-  FileInput,
-  FileField,
-  useRecordContext,
-  TabbedShowLayout,
-  SimpleShowLayout,
   AppBar,
-  TopToolbar,
-  EditButton,
-  Button,
   useGetIdentity,
 } from "react-admin";
 import { Route } from "react-router-dom";
-import { Divider, Typography, Container } from "@mui/material";
+import Divider from "@mui/material/Divider";
+import Typography from "@mui/material/Typography";
+import Container from "@mui/material/Container";
 import DeviceHub from "@mui/icons-material/DeviceHub";
 import QueryStatsIcon from "@mui/icons-material/QueryStats";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import CodeMirror from "@uiw/react-codemirror";
-import { json } from "@codemirror/lang-json";
-import { EditorState } from "@codemirror/state";
-import lzs from "lz-string";
+import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
+import PolicyIcon from "@mui/icons-material/Policy";
+import GroupsIcon from "@mui/icons-material/Groups";
+import GavelIcon from "@mui/icons-material/Gavel";
+import AutoStoriesIcon from "@mui/icons-material/AutoStories";
+import AutoModeIcon from "@mui/icons-material/AutoMode";
+import ShieldIcon from "@mui/icons-material/Shield";
+import DescriptionIcon from "@mui/icons-material/Description";
+import WebStoriesIcon from "@mui/icons-material/WebStories";
+import InventoryIcon from "@mui/icons-material/Inventory";
+import Toolbar from "@mui/material/Toolbar";
 import { useLocation } from "react-router-dom";
-
 import dataSource from "./data-source";
 import authProvider from "./auth-provider";
 import { SparqlPage } from "./custom_pages/sparql";
 import Thingsboard from "./components/thingsboard";
-
-const ThingList = () => (
-  <List empty={false} hasCreate={true} exporter={false}>
-    <Datagrid bulkActionButtons={false} rowClick="show">
-      <TextField source="id" />
-      <DateField showTime={true} source="createdAt" />
-      <TextField source="title" />
-      <TextField source="types" />
-    </Datagrid>
-  </List>
-);
-
-const ThingShowProperties = () => {
-  const record = useRecordContext();
-  return (
-    <>
-      <Typography variant="h6" sx={{ marginTop: 2 }}>
-        Properties
-      </Typography>
-      <Divider />
-      {record.properties?.map((_, index) => (
-        <div key={record.properties[index].id}>
-          <Labeled fullWidth label="Name">
-            <TextField source={`properties.${index}.name`} />
-          </Labeled>
-          <Labeled fullWidth label="Title">
-            <TextField source={`properties.${index}.title`} emptyText="-" />
-          </Labeled>
-          <Labeled fullWidth label="Description">
-            <TextField
-              label="description"
-              source={`properties.${index}.description`}
-              emptyText="-"
-            />
-          </Labeled>
-          <Labeled fullWidth label="Unit">
-            <TextField source={`properties.${index}.unit`} emptyText="-" />
-          </Labeled>
-          <ArrayField source={`properties.${index}.forms`}>
-            <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
-              <TextField source="op" label="Operation" emptyText="-" />
-              <TextField source="href" label="Target" />
-              <BooleanField source="public" />
-            </Datagrid>
-          </ArrayField>
-        </div>
-      ))}
-    </>
-  );
-};
-
-const ThingShowActions = () => {
-  const record = useRecordContext();
-  return (
-    <>
-      <Typography variant="h6" sx={{ marginTop: 2 }}>
-        Actions
-      </Typography>
-      <Divider />
-      {record.actions?.map((_, index) => (
-        <div key={record.actions[index].id}>
-          <Labeled fullWidth label="Name">
-            <TextField source={`actions.${index}.name`} />
-          </Labeled>
-          <Labeled fullWidth label="Title">
-            <TextField source={`actions.${index}.title`} emptyText="-" />
-          </Labeled>
-          <Labeled fullWidth label="Description">
-            <TextField source={`actions.${index}.description`} emptyText="-" />
-          </Labeled>
-          <Labeled fullWidth label="Unit">
-            <TextField source={`actions.${index}.unit`} emptyText="-" />
-          </Labeled>
-          <ArrayField source={`actions.${index}.forms`}>
-            <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
-              <TextField source="op" label="Operation" emptyText="-" />
-              <TextField source="href" label="Target" />
-              <BooleanField source="public" />
-            </Datagrid>
-          </ArrayField>
-        </div>
-      ))}
-    </>
-  );
-};
-
-const ThingShowEvents = () => {
-  const record = useRecordContext();
-  if (record.events?.length === 0) {
-    return null;
-  }
-
-  return (
-    <>
-      <Typography variant="h6" sx={{ marginTop: 2 }}>
-        Events
-      </Typography>
-      <Divider />
-      {record.events?.map((_, index) => (
-        <div key={record.events[index].id}>
-          <Labeled fullWidth label="Name">
-            <TextField source={`events.${index}.name`} />
-          </Labeled>
-          <Labeled fullWidth label="Title">
-            <TextField source={`events.${index}.title`} emptyText="-" />
-          </Labeled>
-          <Labeled fullWidth label="Description">
-            <TextField source={`events.${index}.description`} emptyText="-" />
-          </Labeled>
-          <Labeled fullWidth label="Unit">
-            <TextField source={`events.${index}.unit`} emptyText="-" />
-          </Labeled>
-          <ArrayField source={`events.${index}.forms`}>
-            <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
-              <TextField source="op" label="Operation" emptyText="-" />
-              <TextField source="href" label="Target" />
-              <BooleanField source="public" />
-            </Datagrid>
-          </ArrayField>
-        </div>
-      ))}
-    </>
-  );
-};
-
-const ThingShowDescription = () => {
-  const record = useRecordContext();
-  return (
-    <CodeMirror
-      value={JSON.stringify(record.description, null, 4)}
-      extensions={[json(), EditorState.readOnly.of(true)]}
-      basicSetup={{
-        lineNumbers: false,
-        foldGutter: false,
-      }}
-      maxHeight="100%"
-    />
-  );
-};
-
-const ThingShowCredentials = () => {
-  return (
-    <>
-      <Typography variant="h6" sx={{ marginTop: 2 }}>
-        Security Definitions
-      </Typography>
-      <Divider />
-      <ArrayField source="securityDefinitions">
-        <Datagrid bulkActionButtons={false}>
-          <TextField source="name" />
-          <TextField source="scheme" />
-          <TextField source="description" emptyText="-" />
-        </Datagrid>
-      </ArrayField>
-    </>
-  );
-};
-
-const ThingShowLinks = () => (
-  <>
-    <Typography variant="h6" sx={{ marginTop: 2 }}>
-      Links
-    </Typography>
-    <Divider />
-    <ArrayField source={`description.links`}>
-      <Datagrid bulkActionButtons={false} hover={false} sx={{}}>
-        <TextField source="rel" label="Relation" emptyText="-" />
-        <TextField source="type" label="Type" emptyText="-" />
-        <TextField source="href" label="Link" emptyText="-" />
-      </Datagrid>
-    </ArrayField>
-  </>
-);
-
-const ThingShowTitle = () => {
-  const record = useRecordContext();
-  return (
-    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-      {record.description?.title}
-    </Typography>
-  );
-};
-
-const ThingShowActionBar = () => {
-  const record = useRecordContext();
-  const onClick = () => {
-    if (record) {
-      const data = "td" + "json" + JSON.stringify(record.description, null, 4);
-      const compressed = lzs.compressToEncodedURIComponent(data);
-      window.open(`http://plugfest.thingweb.io/playground/#${compressed}`);
-    }
-  };
-
-  return (
-    <TopToolbar>
-      <EditButton />
-      <Button color="primary" onClick={onClick} label="Open in Editor" />
-    </TopToolbar>
-  );
-};
-
-const ThingShow = () => {
-  return (
-    <Show actions={<ThingShowActionBar />}>
-      <SimpleShowLayout>
-        <ThingShowTitle />
-        <Divider />
-        <Labeled fullWidth label="Id">
-          <TextField source="description.id" />
-        </Labeled>
-        <Labeled fullWidth label="Title">
-          <TextField source="description.title" />
-        </Labeled>
-        <Labeled fullWidth label="Description">
-          <TextField source="description.description" emptyText="-" />
-        </Labeled>
-      </SimpleShowLayout>
-      <TabbedShowLayout>
-        <TabbedShowLayout.Tab label="summary">
-          <ThingShowLinks />
-          <ThingShowCredentials />
-          <ThingShowProperties />
-          <ThingShowActions />
-          <ThingShowEvents />
-        </TabbedShowLayout.Tab>
-        <TabbedShowLayout.Tab label="Thing Description">
-          <ThingShowDescription />
-        </TabbedShowLayout.Tab>
-      </TabbedShowLayout>
-    </Show>
-  );
-};
-
-const ThingEdit = () => {
-  return (
-    <Edit mutationMode="pessimistic">
-      <SimpleForm>
-        <TextInput fullWidth source="description.id" label="Id" disabled />
-        <TextInput fullWidth source="description.title" label="Title" />
-        <TextInput
-          fullWidth
-          source="description.description"
-          label="Description"
-        />
-        <ArrayInput source="properties">
-          <SimpleFormIterator fullWidth inline>
-            <TextInput fullWidth source="name" />
-            <TextInput fullWidth source="description" />
-            <ArrayInput source="forms">
-              <SimpleFormIterator fullWidth inline>
-                <TextInput sx={{ flex: 1 }} source="href" label="Target" />
-                <BooleanInput source="public" />
-              </SimpleFormIterator>
-            </ArrayInput>
-          </SimpleFormIterator>
-        </ArrayInput>
-        <ArrayInput source="actions">
-          <SimpleFormIterator fullWidth inline>
-            <TextInput fullWidth source="name" />
-            <TextInput fullWidth source="description" />
-            <ArrayInput source="forms">
-              <SimpleFormIterator fullWidth inline>
-                <TextInput sx={{ flex: 1 }} source="href" label="Target" />
-                <BooleanInput source="public" />
-              </SimpleFormIterator>
-            </ArrayInput>
-          </SimpleFormIterator>
-        </ArrayInput>
-        <ArrayInput source="events">
-          <SimpleFormIterator fullWidth inline>
-            <TextInput fullWidth source="name" />
-            <TextInput fullWidth source="description" />
-            <ArrayInput source="forms">
-              <SimpleFormIterator fullWidth inline>
-                <TextInput sx={{ flex: 1 }} source="href" label="Target" />
-                <BooleanInput source="public" />
-              </SimpleFormIterator>
-            </ArrayInput>
-          </SimpleFormIterator>
-        </ArrayInput>
-      </SimpleForm>
-    </Edit>
-  );
-};
-
-const ThingCreate = () => (
-  <Create redirect="show">
-    <SimpleForm>
-      <FileInput source="attachments" accept="application/json">
-        <FileField source="src" title="title" />
-      </FileInput>
-    </SimpleForm>
-  </Create>
-);
+import {
+  ThingDescriptionCreate,
+  ThingDescriptionEdit,
+  ThingDescriptionList,
+  ThingDescriptionShow,
+} from "./components/thing_description";
+import { AssetCreate, AssetShow, AssetsList } from "./components/assets";
+import {
+  CustomerCreate,
+  CustomerShow,
+  CustomersList,
+  CustomerUpdate,
+} from "./components/customers";
+import { UserCreate, UserShow } from "./components/users";
+import { PoliciesList, PolicyCreate, PolicyShow } from "./components/policies";
+import {
+  ContractDefinitionCreate,
+  ContractDefinitionShow,
+  ContractDefinitionsList,
+} from "./components/contract_definitions";
+import { Catalog } from "./components/catalog";
+import { FederatedCatalogList } from "./components/federated_catalog";
+import {
+  ContractNegotationCreate,
+  ContractNegotationShow,
+  ContractNegotiationTerminate,
+} from "./components/contract_negotiations";
+import {
+  ContractAgreementShow,
+  ContractAgreementsList,
+} from "./components/contract_agreements";
+import {
+  TransferProcessesCreate,
+  TransferProcessesList,
+  TransferProcessesShow,
+  TransferProcessTerminate,
+} from "./components/transfer_processes";
+import {
+  DeviceCreate,
+  DeviceEdit,
+  DeviceShow,
+  DevicesList,
+} from "./components/devices";
+import Keycloak from "./components/keycloak";
+import { DataRequestShow } from "./components/datarequests";
+import { darkTheme, theme } from "./theme";
+import SvgIcon from "@mui/material/SvgIcon";
+import SmartLivingNextIcon from "./assets/borlabs-cookie-icon-dynamic.svg?react";
+import SmartLivingNextLogo from "./assets/SmartLivingNEXT-bw-1.svg?react";
+import Box from "@mui/material/Box";
 
 const CustomUserMenu = () => {
   const { isLoading, identity } = useGetIdentity();
-
   if (isLoading) {
     return null;
   }
 
   return (
     <>
-      <Typography variant="button">{identity.fullName}</Typography>
+      <Typography variant="button">{identity?.email}</Typography>
     </>
   );
 };
 
-const CustomAppBar = () => <AppBar userMenu={<CustomUserMenu />} />;
-
-const CustomMenu = () => (
-  <Menu>
-    <Menu.Item
-      to="/thingsboard"
-      primaryText="Thingsboard"
-      leftIcon={<DashboardIcon />}
-    />
-    <Menu.ResourceItem name="thingDescriptions" />
-    <Menu.Item to="/sparql" primaryText="Query" leftIcon={<QueryStatsIcon />} />
-  </Menu>
+const CustomAppBar = () => (
+  <AppBar userMenu={<CustomUserMenu />}>
+    <Toolbar>
+      <Box
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+      >
+        <SvgIcon
+          color="primary"
+          fontSize="large"
+          style={{
+            marginRight: 10,
+            animation: "spin 20s linear infinite",
+          }}
+        >
+          <SmartLivingNextIcon />
+        </SvgIcon>
+        <Box
+          sx={{
+            width: 200,
+            height: 35,
+            mixBlendMode: "difference",
+          }}
+        >
+          <SmartLivingNextLogo />
+        </Box>
+      </Box>
+    </Toolbar>
+    <span style={{ flex: 1 }} />
+  </AppBar>
 );
+
+const CustomMenu = () => {
+  const { isLoading, identity } = useGetIdentity();
+  if (isLoading) {
+    return null;
+  }
+
+  const isAdmin = identity?.groups.includes("role:admin");
+
+  return (
+    <Menu dense={false} sx={{ pt: 1 }}>
+      {window.config.showDevices && <Menu.ResourceItem name="devices" />}
+      {window.config.showThingDescriptions && (
+        <Menu.ResourceItem name="thingDescriptions" />
+      )}
+      {isAdmin && window.config.showCustomers && (
+        <Menu.ResourceItem name="customers" />
+      )}
+      {window.config.showQuery && (
+        <Menu.Item
+          to="/sparql"
+          primaryText="Query"
+          leftIcon={<QueryStatsIcon />}
+        />
+      )}
+      <Divider />
+      {window.config.showAssets && <Menu.ResourceItem name="assets" />}
+      {window.config.showPolicies && <Menu.ResourceItem name="policies" />}
+      {window.config.showContractDefinitions && (
+        <Menu.ResourceItem name="contractdefinitions" />
+      )}
+      {isAdmin && window.config.showCatalog && (
+        <Menu.Item
+          to="/catalog"
+          primaryText="Catalog"
+          leftIcon={<AutoStoriesIcon />}
+        />
+      )}
+      {isAdmin && window.config.showFederatedCatalog && (
+        <Menu.ResourceItem name="federatedcatalog" />
+      )}
+      {window.config.showContractAgreements && (
+        <Menu.ResourceItem name="contractagreements" />
+      )}
+      {window.config.showTransferProcesses && (
+        <Menu.ResourceItem name="transferprocesses" />
+      )}
+      <Divider />
+      {window.config.showThingsboard && (
+        <Menu.Item
+          to="/thingsboard"
+          primaryText="Thingsboard"
+          leftIcon={<DashboardIcon />}
+        />
+      )}
+      {isAdmin && window.config.showKeycloak && (
+        <Menu.Item
+          to="/keycloak"
+          primaryText="Keycloak"
+          leftIcon={<ShieldIcon />}
+        />
+      )}
+    </Menu>
+  );
+};
 
 const CustomLayout = (props: any) => {
   const location = useLocation();
 
-  if (location.pathname === "/thingsboard") {
+  if (
+    location.pathname === "/thingsboard" ||
+    location.pathname === "/keycloak"
+  ) {
     return (
-      <Layout menu={CustomMenu} appBar={CustomAppBar}>
+      <Layout menu={CustomMenu} appBar={CustomAppBar} sx={{ pt: 2 }}>
         {props.children}
       </Layout>
     );
   }
 
   return (
-    <Layout menu={CustomMenu} appBar={CustomAppBar}>
+    <Layout menu={CustomMenu} appBar={CustomAppBar} sx={{ pt: 2 }}>
       <Container maxWidth="lg">{props.children}</Container>
     </Layout>
   );
@@ -389,23 +214,139 @@ const CustomLayout = (props: any) => {
 export const App = () => (
   <Admin
     loginPage={false}
-    dataProvider={dataSource}
     layout={CustomLayout}
+    dataProvider={dataSource}
     authProvider={authProvider}
+    theme={theme}
+    darkTheme={darkTheme}
+    disableTelemetry={true}
   >
     <CustomRoutes>
-      <Route path="/sparql" element={<SparqlPage />} />
-      <Route path="/thingsboard" element={<Thingsboard />} />
+      {window.config.showQuery && (
+        <Route path="/sparql" element={<SparqlPage />} />
+      )}
+      {window.config.showThingsboard && (
+        <Route path="/thingsboard" element={<Thingsboard />} />
+      )}
+      {window.config.showCatalog && (
+        <Route path="/catalog" element={<Catalog />} />
+      )}
+      {window.config.showKeycloak && (
+        <Route path="/keycloak" element={<Keycloak />} />
+      )}
     </CustomRoutes>
+    {window.config.showThingDescriptions && (
+      <Resource
+        name="thingDescriptions"
+        options={{ label: "Thing Descriptions" }}
+        icon={DescriptionIcon}
+        list={ThingDescriptionList}
+        show={ThingDescriptionShow}
+        create={ThingDescriptionCreate}
+        edit={ThingDescriptionEdit}
+      />
+    )}
+    {window.config.showDevices && (
+      <Resource
+        name="devices"
+        options={{ label: "Devices" }}
+        icon={DeviceHub}
+        list={DevicesList}
+        show={DeviceShow}
+        create={DeviceCreate}
+        edit={DeviceEdit}
+      />
+    )}
+    {window.config.showAssets && (
+      <Resource
+        name="assets"
+        options={{ label: "Assets" }}
+        icon={InventoryIcon}
+        list={AssetsList}
+        show={AssetShow}
+        create={AssetCreate}
+      />
+    )}
+    {window.config.showCustomers && (
+      <Resource
+        name="customers"
+        options={{ label: "Customers" }}
+        icon={GroupsIcon}
+        list={CustomersList}
+        show={CustomerShow}
+        create={CustomerCreate}
+        edit={CustomerUpdate}
+      />
+    )}
+    {window.config.showCustomers && (
+      <Resource
+        name="users"
+        options={{ label: "Users" }}
+        icon={PeopleOutlineIcon}
+        show={UserShow}
+        create={UserCreate}
+      />
+    )}
+    {window.config.showPolicies && (
+      <Resource
+        name="policies"
+        options={{ label: "Policies" }}
+        icon={PolicyIcon}
+        list={PoliciesList}
+        show={PolicyShow}
+        create={PolicyCreate}
+      />
+    )}
+    {window.config.showContractDefinitions && (
+      <Resource
+        name="contractdefinitions"
+        options={{ label: "Contract Definitions" }}
+        icon={GavelIcon}
+        list={ContractDefinitionsList}
+        show={ContractDefinitionShow}
+        create={ContractDefinitionCreate}
+      />
+    )}
     <Resource
-      name="thingDescriptions"
-      options={{ label: "Thing Descriptions" }}
-      icon={DeviceHub}
-      list={ThingList}
-      show={ThingShow}
-      edit={ThingEdit}
-      create={ThingCreate}
+      name="contractnegotiations"
+      options={{ label: "Contract Negotiations" }}
+      create={ContractNegotationCreate}
+      show={ContractNegotationShow}
+    >
+      <Route path=":id/terminate" element={<ContractNegotiationTerminate />} />
+    </Resource>
+    {window.config.showContractAgreements && (
+      <Resource
+        name="contractagreements"
+        options={{ label: "Contract Agreements" }}
+        list={ContractAgreementsList}
+        show={ContractAgreementShow}
+      />
+    )}
+    {window.config.showTransferProcesses && (
+      <Resource
+        name="transferprocesses"
+        icon={AutoModeIcon}
+        options={{ label: "Transfer Processes" }}
+        list={TransferProcessesList}
+        show={TransferProcessesShow}
+        create={TransferProcessesCreate}
+      >
+        <Route path=":id/terminate" element={<TransferProcessTerminate />} />
+      </Resource>
+    )}
+    <Resource
+      name="datarequests"
+      options={{ label: "Data Requests" }}
+      show={DataRequestShow}
     />
-    <Resource name="thingCredentials" icon={DeviceHub} edit={ThingEdit} />
+    {window.config.showFederatedCatalog && (
+      <Resource
+        name="federatedcatalog"
+        icon={WebStoriesIcon}
+        options={{ label: "Federated Catalog" }}
+        list={FederatedCatalogList}
+      />
+    )}
   </Admin>
 );
