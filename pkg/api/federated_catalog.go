@@ -28,7 +28,7 @@ func (e *FederatedCatalogAPI) Query(querySpec QuerySpec) ([]map[string]interface
 		SetHeader("x-api-key", e.apiKey).
 		SetBody(querySpec).
 		SetResult(&federatedCatalog).
-		Post(e.url + "/api/catalog/v1alpha/catalog/query")
+		Post(e.url + "/v1alpha/catalog/query")
 
 	if err != nil {
 		return nil, err
