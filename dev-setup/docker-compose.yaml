@@ -40,25 +40,6 @@ services:
       - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
       - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
 
-  # portal-consumer:
-
-  #   build:
-  #     context: ../
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - 8082:8080
-  #   environment:
-  #     - EDC_URL=http://edc-consumer:29193
-  #     - EDC_API_KEY=supersecret
-  #     - FUSEKI_USERNAME=admin
-  #     - FUSEKI_PASSWORD=c2qjCSZKMdMlDnjB
-  #     - FUSEKI_URL=https://fuseki.mvp-ds.dev.mat.ptr.smartlivingnext.de
-  #     - THINGSBOARD_URL=https://thingsboard.mvp-ds.dev.mat.ptr.smartlivingnext.de
-  #     - THINGSBOARD_EXCHANGE_TOKEN_URL=https://mvp-ds.dev.mat.ptr.smartlivingnext.de/api/auth/login
-  #     - KEYCLOAK_CLIENT_ID=mobile-app-backend
-  #     - KEYCLOAK_CLIENT_SECRET=WxltLSX0Kd6WMKYloqcDxBYdiOgXzQdy
-  #     - KEYCLOAK_REALM=dataspace
-  #     - KEYCLOAK_URL=https://mvp-ds.dev.mat.ptr.smartlivingnext.de
 
   oauth2-proxy:
     build:
