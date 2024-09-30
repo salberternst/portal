@@ -9,6 +9,8 @@ export * as contractNegotiationsDatasource from "./contract_negotiations";
 export * as federatedCatalogDatasource from "./federated_catalog";
 export * as thingRegistryDatasource from "./thing_registry";
 export * as transferProcessesDatasource from "./transfer_processes";
+export * as dataConsumerPullDatasource from "./data_consumer_pull";
+export * as rawDataConsumerPullDatasource from "./data";
 export * as usersDatasource from "./users";
 export * as terminateContractNegotiationDatasource from "./terminate_contract_negotiation";
 export * as terminateTransferProcessDatasource from "./terminate_transfer_process";

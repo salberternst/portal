@@ -139,6 +139,7 @@ export const ContractNegotationShow = () => {
 
 export const ContractNegotiationTerminate = () => {
   const { record } = useShowController();
+
   const redirect = useRedirect();
   const onRedirect = () => {
     return redirect("show", "/contractagreements", record?.contractAgreementId);

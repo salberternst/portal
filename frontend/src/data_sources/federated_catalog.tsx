@@ -44,6 +44,7 @@ function normalize(federatedCatalog) {
 export async function getList(params) {
   const federatedCatalog = await fetchFederatedCatalog();
   const normalizedData = normalize(federatedCatalog);
+  console.log(normalizedData);
   if (params.filter?.name) {
     const filteredData = normalizedData.filter((dataset) =>
       dataset["name"].toLowerCase().includes(params.filter.name.toLowerCase())
@@ -56,6 +57,6 @@ export async function getList(params) {
 
   return {
     data: normalizedData,
-    total: normalizedData.length,
+    total: federatedCatalog.length,
   };
 }

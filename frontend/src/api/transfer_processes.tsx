@@ -95,7 +95,55 @@ export const fetchTransferProcessDataRequest = async (id: string) => {
 
   return json;
 };
+/**
+ * Fetches data for visualization  from the server.
+ *
+ * @param id - The ID of the transfer process.
+ * @returns A Promise that resolves to the JSON response from the server.
+ * @throws {HttpError} If the response status is not ok.
+ */
+export const fetchTransferProcessDataConsumerPull = async (id: string) => {
+  const response = await fetch(
+    `/api/portal/transferprocesses/${id}/data`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
+  const json = await response.json();
+  if (response.ok === false) {
+    throw new HttpError(json.message, response.status);
+  }
+
+  return json;
+};
+
+/**
+ * Fetches raw data  from the server.
+ *
+ * @param id - The ID of the transfer process.
+ * @returns A Promise that resolves to the JSON response from the server.
+ * @throws {HttpError} If the response status is not ok.
+ */
+export const fetchRawDataConsumerPull = async (id: string) => {
+  const response = await fetch(
+    `/api/portal/transferprocesses/${id}/download`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  const json = await response.json();
+  if (response.ok === false) {
+    throw new HttpError(json.message, response.status);
+  }
+
+  return json;
+};
 /**
  * Terminates a transfer process.
  *

@@ -3,6 +3,8 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+
 	"os"
 
 	"github.com/go-resty/resty/v2"
@@ -812,4 +814,56 @@ func (e *EdcAPI) GetEdrDataAddress(id string) (*DataAddress, error) {
 	}
 
 	return &dataAddress, nil
+}
+// this function is used by dataconsumerpull show to fetch the data for visualization -> it works fine with json/array of json
+func (e *EdcAPI) GetDataConsumerPull(DataAddress DataAddress) (interface{}, error) {
+	var data interface{}
+	resp, err := e.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
+		SetHeader("Authorization", DataAddress.Authorization).
+		SetHeader("Accept", "application/json").
+		SetResult(&data).
+		Get(DataAddress.Endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode() != 200 {
+		return nil, fmt.Errorf("unable to get data from source: %s", resp.String())
+	}
+	return data, nil
+}
+
+type RawData struct {
+	BodyString  string `json:"bodyString"`
+	ContentType string `json:"contentType"`
+}
+// this function is almost the same as previous one, but fetches data as bytes  -> can deal with any data type; used for downloading
+
+func (e *EdcAPI) GetRawDataConsumerPull(DataAddress DataAddress) (*RawData, error) {
+
+	resp, err := e.client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("x-api-key", e.apiKey).
+		SetHeader("Authorization", DataAddress.Authorization).
+		SetDoNotParseResponse(true).
+		Get(DataAddress.Endpoint)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.RawBody().Close()
+	if resp.StatusCode() != 200 {
+		return nil, fmt.Errorf("unable to get data from source: %s", resp.String())
+	}
+
+	bodyBytes, err := io.ReadAll(resp.RawBody())
+	if err != nil {
+		return nil, err
+	}
+	contentType := resp.Header()["Content-Type"][0]
+	bodyString := string(bodyBytes)
+	RawData := RawData{BodyString: bodyString, ContentType: contentType}
+
+	return &RawData, nil
 }

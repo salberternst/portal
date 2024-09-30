@@ -75,6 +75,7 @@ import {
 } from "./components/devices";
 import Keycloak from "./components/keycloak";
 import { DataRequestShow } from "./components/datarequests";
+import { DataConsumerPullShow, RawDataDownloadShow } from "./components/data_consumer_pull";
 import { darkTheme, theme } from "./theme";
 import SvgIcon from "@mui/material/SvgIcon";
 import SmartLivingNextIcon from "./assets/borlabs-cookie-icon-dynamic.svg?react";
@@ -340,6 +341,17 @@ export const App = () => (
       options={{ label: "Data Requests" }}
       show={DataRequestShow}
     />
+    <Resource
+      name="dataconsumerpull"
+      options={{ label: "Data Consumer Pull" }}
+      show={DataConsumerPullShow}
+   
+    />
+    <Resource
+    name="rawdataconsumerpull"
+    options={{ label: "Data Download" }}
+    show={RawDataDownloadShow}>
+    </Resource>
     {window.config.showFederatedCatalog && (
       <Resource
         name="federatedcatalog"
