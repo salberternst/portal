@@ -85,6 +85,10 @@ func getDevices(ctx *gin.Context) {
 			queryParams.Page,
 			queryParams.PageSize,
 		)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
 	}
 
 	if err != nil {

@@ -1,0 +1,249 @@
+version: "3.9"
+
+services:
+  # echo-server:
+  #   build:
+  #     context: ../echo_server
+  #     dockerfile: Dockerfile
+
+  cors-proxy:
+    build:
+      context: ../cors-proxy
+      dockerfile: Dockerfile
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    ports:
+      - 5173:5173
+    volumes:
+      - ../frontend/src:/app/src
+
+  portal-provider:
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8080
+    environment:
+      - EDC_URL=http://edc-provider:19193/management
+      - FEDERATED_CATALOG_URL=http://fc:8181/catalog
+      - EDC_API_KEY=supersecret
+      - FUSEKI_URL=https://fuseki.mvp-ds.dev.mat.ptr.smartlivingnext.de
+      - THINGSBOARD_URL=https://thingsboard.mvp-ds.dev.mat.ptr.smartlivingnext.de
+      - THINGSBOARD_EXCHANGE_TOKEN_URL=https://mvp-ds.dev.mat.ptr.smartlivingnext.de/api/auth/login
+      - KEYCLOAK_REALM=dataspace
+      - KEYCLOAK_URL=https://mvp-ds.dev.mat.ptr.smartlivingnext.de
+      - FUSEKI_USERNAME=${FUSEKI_USERNAME}
+      - FUSEKI_PASSWORD=${FUSEKI_PASSWORD}
+      - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
+      - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
+
+  # portal-consumer:
+
+  #   build:
+  #     context: ../
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 8082:8080
+  #   environment:
+  #     - EDC_URL=http://edc-consumer:29193
+  #     - EDC_API_KEY=supersecret
+  #     - FUSEKI_USERNAME=admin
+  #     - FUSEKI_PASSWORD=c2qjCSZKMdMlDnjB
+  #     - FUSEKI_URL=https://fuseki.mvp-ds.dev.mat.ptr.smartlivingnext.de
+  #     - THINGSBOARD_URL=https://thingsboard.mvp-ds.dev.mat.ptr.smartlivingnext.de
+  #     - THINGSBOARD_EXCHANGE_TOKEN_URL=https://mvp-ds.dev.mat.ptr.smartlivingnext.de/api/auth/login
+  #     - KEYCLOAK_CLIENT_ID=mobile-app-backend
+  #     - KEYCLOAK_CLIENT_SECRET=WxltLSX0Kd6WMKYloqcDxBYdiOgXzQdy
+  #     - KEYCLOAK_REALM=dataspace
+  #     - KEYCLOAK_URL=https://mvp-ds.dev.mat.ptr.smartlivingnext.de
+
+  oauth2-proxy:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - 4180:4180
+    environment:
+      - ISSUER_URL=${ISSUER_URL}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
+    command: |
+      oauth2-proxy 
+        --alpha-config=/tmp/config.yaml 
+        --cookie-secret=${COOKIE_SECRET} 
+        --email-domain="*" 
+        --skip-provider-button
+        --cookie-secure=false
+        --cookie-refresh=3m
+        --skip-jwt-bearer-tokens=true
+        --cookie-samesite=lax
+        --cookie-expire=12h
+  fc:
+    image: registry.int.smartlivingnext.de/registry/public/edc-fc:0.0.1
+    command: sh -c 'sleep 30 && java -jar /app/launcher/build/libs/fc.jar'
+    ports:
+      - 8089:8080
+      - 8181:8181
+    volumes:
+      - ./vault.properties:/resources/vault.properties
+      - ./nodes.properties:/resources/nodes.properties
+    environment:
+      EDC_VAULT_FILE_PATH: /resources/vault.properties
+      WEB_HTTP_PATH: /api
+      WEB_HTTP_PORT: 8080
+      WEB_HTTP_CATALOG_PORT: 8181
+      WEB_HTTP_CATALOG_PATH: /catalog
+      # crawler settings, default is 60 sec
+      EDC_CATALOG_CACHE_EXECUTION_PERIOD_SECONDS: 120
+      # oauth2
+      # EDC_OAUTH_TOKEN_URL: https://mvp-ds.dev-prd01.fsn.iotx.materna.work/realms/dataspace/protocol/openid-connect/token
+      EDC_OAUTH_TOKEN_URL: http://keycloak:8080/realms/dataspace/protocol/openid-connect/token
+      # EDC_OAUTH_PROVIDER_JWKS_URL: https://mvp-ds.dev-prd01.fsn.iotx.materna.work/realms/dataspace/protocol/openid-connect/certs
+      EDC_OAUTH_PROVIDER_JWKS_URL: http://keycloak:8080/realms/dataspace/protocol/openid-connect/certs
+      EDC_OAUTH_CERTIFICATE_ALIAS: public-key
+      EDC_OAUTH_PRIVATE_KEY_ALIAS: private-key
+      EDC_OAUTH_CLIENT_ID: edc-fc
+      # EDC_OAUTH_PROVIDER_AUDIENCE: https://mvp-ds.dev-prd01.fsn.iotx.materna.work/realms/dataspace
+      EDC_OAUTH_PROVIDER_AUDIENCE: http://keycloak:8080/realms/dataspace
+      EDC_OAUTH_VALIDATION_NBF_LEEWAY: 20
+      EDC_OAUTH_VALIDATION_ISSUED_AT_LEEWAY: 5
+      # name of the claim key
+      EDC_AGENT_IDENTITY_KEY: edc_identity
+      EDC_PARTICIPANT_ID: edc-fc
+      #trying to read edc adresses from file
+      EDC_NODES_FILE_PATH: /resources/nodes.properties
+
+  edc-provider:
+    image: registry.int.smartlivingnext.de/registry/public/edc:2.3.0
+    command: sh -c 'sleep 30 && java -jar /app/launchers/sln-connector/build/libs/connector.jar'
+    ports:
+      - 19191:19191 # health check
+      # - 19192:19192
+      - 19193:19193 # management endpoint
+      # - 19194:19194 # ds protocol (normaly forwarded, but edcs are in same network)
+      - 19291:19291 # public endpoint
+    volumes:
+      - ./vault.properties:/resources/vault.properties
+    environment:
+      # contains public & private key for oauth2
+      EDC_VAULT_FILE_PATH: /resources/vault.properties
+      EDC_DSP_CALLBACK_ADDRESS: http://edc-provider:19194/protocol
+      EDC_HOSTNAME: edc-provider
+      WEB_HTTP_PORT: 19191
+      WEB_HTTP_PATH: /api
+      WEB_HTTP_MANAGEMENT_PORT: 19193
+      WEB_HTTP_MANAGEMENT_PATH: /management
+      WEB_HTTP_PROTOCOL_PORT: 19194
+      WEB_HTTP_PROTOCOL_PATH: /protocol
+      EDC_RECEIVER_HTTP_ENDPOINT: http://http-request-logger:4000/receiver/urn:connector:provider/callback
+      EDC_PUBLIC_KEY_ALIAS: public-key
+      # EDC_TRANSFER_DATAPLANE_TOKEN_SIGNER_PRIVATEKEY_ALIAS: private-key
+      EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: private-key
+      EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: public-key
+      WEB_HTTP_PUBLIC_PORT: 19291
+      WEB_HTTP_PUBLIC_PATH: /public
+      WEB_HTTP_CONTROL_PORT: 19192
+      WEB_HTTP_CONTROL_PATH: /control
+      #EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: http://edc-provider:19192/control/token
+      #EDC_DATAPLANE_API_PUBLIC_BASEURL: http://edc-provider:19291/public
+      EDC_SAMPLES_BASIC_03_LOGPREFIX: ProviderLogPrefix
+      # postgres configs
+      EDC_DATASOURCE_DEFAULT_URL: jdbc:postgresql://postgres:5432/dataspace?options=-c%20search_path=provider
+      EDC_DATASOURCE_DEFAULT_USER: user
+      EDC_DATASOURCE_DEFAULT_PASSWORD: postgres
+      # oauth2
+      # EDC_OAUTH_TOKEN_URL: https://mvp-ds.dev-prd01.fsn.iotx.materna.work/realms/dataspace/protocol/openid-connect/token
+      EDC_OAUTH_TOKEN_URL: http://keycloak:8080/realms/dataspace/protocol/openid-connect/token
+      # EDC_OAUTH_PROVIDER_JWKS_URL: https://mvp-ds.dev-prd01.fsn.iotx.materna.work/realms/dataspace/protocol/openid-connect/certs
+      EDC_OAUTH_PROVIDER_JWKS_URL: http://keycloak:8080/realms/dataspace/protocol/openid-connect/certs
+      EDC_OAUTH_CERTIFICATE_ALIAS: public-key
+      EDC_OAUTH_PRIVATE_KEY_ALIAS: private-key
+      EDC_OAUTH_CLIENT_ID: edc-provider
+      # EDC_OAUTH_PROVIDER_AUDIENCE: https://mvp-ds.dev-prd01.fsn.iotx.materna.work/realms/dataspace
+      EDC_OAUTH_PROVIDER_AUDIENCE: http://keycloak:8080/realms/dataspace
+      EDC_OAUTH_VALIDATION_NBF_LEEWAY: 20
+      EDC_OAUTH_VALIDATION_ISSUED_AT_LEEWAY: 5
+      # name of the claim key
+      EDC_AGENT_IDENTITY_KEY: edc_identity
+      EDC_PARTICIPANT_ID: company1
+  edc-consumer:
+    image: registry.int.smartlivingnext.de/registry/public/edc:2.3.0
+    command: sh -c 'sleep 30 && java -jar /app/launchers/sln-connector/build/libs/connector.jar'
+    ports:
+      - 29191:29191 # health check
+      # - 29192:29192
+      - 29193:29193 # management endpoint
+      # - 29194:29194 # ds protocol (normaly forwarded, but edcs are in same network)
+      - 29291:29291 # public endpoint
+    volumes:
+      - ./vault.properties:/resources/vault.properties
+    environment:
+      # contains public & private key for oauth2
+      EDC_VAULT_FILE_PATH: /resources/vault.properties
+      EDC_DSP_CALLBACK_ADDRESS: http://edc-consumer:29194/protocol
+      EDC_HOSTNAME: edc-consumer
+      WEB_HTTP_PORT: 29191
+      WEB_HTTP_PATH: /api
+      WEB_HTTP_MANAGEMENT_PORT: 29193
+      WEB_HTTP_MANAGEMENT_PATH: /management
+      WEB_HTTP_PROTOCOL_PORT: 29194
+      WEB_HTTP_PROTOCOL_PATH: /protocol
+      EDC_RECEIVER_HTTP_ENDPOINT: http://http-request-logger:4000/receiver/urn:connector:provider/callback
+      EDC_PUBLIC_KEY_ALIAS: public-key
+      # EDC_TRANSFER_DATAPLANE_TOKEN_SIGNER_PRIVATEKEY_ALIAS: private-key
+      EDC_TRANSFER_PROXY_TOKEN_SIGNER_PRIVATEKEY_ALIAS: private-key
+      EDC_TRANSFER_PROXY_TOKEN_VERIFIER_PUBLICKEY_ALIAS: public-key
+      WEB_HTTP_PUBLIC_PORT: 29291
+      WEB_HTTP_PUBLIC_PATH: /public
+      WEB_HTTP_CONTROL_PORT: 29192
+      WEB_HTTP_CONTROL_PATH: /control
+      #EDC_DATAPLANE_TOKEN_VALIDATION_ENDPOINT: http://edc-consumer:29192/control/token
+      #EDC_DATAPLANE_API_PUBLIC_BASEURL: http://edc-consumer:29291/public
+      EDC_SAMPLES_BASIC_03_LOGPREFIX: ConsumerLogPrefix
+      # postgres configs
+      EDC_DATASOURCE_DEFAULT_URL: jdbc:postgresql://postgres:5432/dataspace?options=-c%20search_path=consumer
+      EDC_DATASOURCE_DEFAULT_USER: user
+      EDC_DATASOURCE_DEFAULT_PASSWORD: postgres
+      # oauth2
+      # EDC_OAUTH_TOKEN_URL: https://mvp-ds.dev-prd01.fsn.iotx.materna.work/realms/dataspace/protocol/openid-connect/token
+      EDC_OAUTH_TOKEN_URL: http://keycloak:8080/realms/dataspace/protocol/openid-connect/token
+      # EDC_OAUTH_PROVIDER_JWKS_URL: https://mvp-ds.dev-prd01.fsn.iotx.materna.work/realms/dataspace/protocol/openid-connect/certs
+      EDC_OAUTH_PROVIDER_JWKS_URL: http://keycloak:8080/realms/dataspace/protocol/openid-connect/certs
+      EDC_OAUTH_CERTIFICATE_ALIAS: public-key
+      EDC_OAUTH_PRIVATE_KEY_ALIAS: private-key
+      EDC_OAUTH_CLIENT_ID: edc-consumer
+      # EDC_OAUTH_PROVIDER_AUDIENCE: https://mvp-ds.dev-prd01.fsn.iotx.materna.work/realms/dataspace
+      EDC_OAUTH_PROVIDER_AUDIENCE: http://keycloak:8080/realms/dataspace
+      EDC_OAUTH_VALIDATION_NBF_LEEWAY: 20
+      EDC_OAUTH_VALIDATION_ISSUED_AT_LEEWAY: 5
+      # name of the claim key
+      EDC_AGENT_IDENTITY_KEY: edc_identity
+      EDC_PARTICIPANT_ID: company2
+
+  postgres:
+    container_name: postgres
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dataspace
+    image: bitnami/postgresql:13.3.0
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres:/docker-entrypoint-initdb.d
+
+  keycloak:
+    image: bitnami/keycloak:23.0.3
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_DATABASE_VENDOR=dev-file
+      - KEYCLOAK_ADMIN_USER=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KEYCLOAK_EXTRA_ARGS='--import-realm'
+      - KEYCLOAK_ENABLE_HEALTH_ENDPOINTS=true
+    volumes:
+      - ./realm-export-dataspace.json:/opt/bitnami/keycloak/data/import/dataspace-realm.json

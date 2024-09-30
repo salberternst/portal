@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -215,12 +216,76 @@ func terminateTransferProcess(ctx *gin.Context) {
 		"id": id,
 	})
 }
+func getDataConsumerPull(ctx *gin.Context) {
+	if !middleware.IsCustomer(ctx) && !middleware.IsAdmin(ctx) {
+		RespondWithForbidden(ctx)
+		return
+	}
+
+	id := ctx.Param("id")
+	transferProcess, err := middleware.GetEdcAPI(ctx).GetTransferProcess(id)
+	if err != nil {
+		RespondWithInternalServerError(ctx)
+		return
+	}
+
+	if transferProcess.Type == "CONSUMER" {
+		DataAddress, err := middleware.GetEdcAPI(ctx).GetEdrDataAddress(id)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+		DataConsumerPull, err := middleware.GetEdcAPI(ctx).GetDataConsumerPull(*DataAddress)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+		fmt.Println("getDataConsumerPull" , "data",DataConsumerPull)
+		ctx.JSON(http.StatusOK, gin.H{"data": DataConsumerPull})
+		return
+	}
+
+	RespondWithBadRequest(ctx, "Bad Request")
+}
+
+func getRawDataConsumerPull(ctx *gin.Context) {
+	if !middleware.IsCustomer(ctx) && !middleware.IsAdmin(ctx) {
+		RespondWithForbidden(ctx)
+		return
+	}
+
+	id := ctx.Param("id")
+	transferProcess, err := middleware.GetEdcAPI(ctx).GetTransferProcess(id)
+	if err != nil {
+		RespondWithInternalServerError(ctx)
+		return
+	}
+
+	if transferProcess.Type == "CONSUMER" {
+		DataAddress, err := middleware.GetEdcAPI(ctx).GetEdrDataAddress(id)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+		RawData, err := middleware.GetEdcAPI(ctx).GetRawDataConsumerPull(*DataAddress)
+		if err != nil {
+			RespondWithInternalServerError(ctx)
+			return
+		}
+		ctx.JSON(http.StatusOK, RawData)
+		return
+	}
+
+	RespondWithBadRequest(ctx, "Bad Request")
+}
 
 func addTransferProcessesRoutes(r *gin.RouterGroup) {
 	transferProcesses := r.Group("/transferprocesses")
 	transferProcesses.GET("/", getTransferProcesses)
 	transferProcesses.GET("/:id", getTransferProcess)
 	transferProcesses.GET("/:id/datarequest", getTransferProcessDataRequest)
+	transferProcesses.GET("/:id/data", getDataConsumerPull)
+	transferProcesses.GET("/:id/download", getRawDataConsumerPull)
 	transferProcesses.POST("/:id/terminate", terminateTransferProcess)
 	transferProcesses.POST("/", createTransferProcess)
 }

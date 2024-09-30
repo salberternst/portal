@@ -26,7 +26,7 @@ import { Link } from "react-router-dom";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 export const TransferProcessesList = () => (
-  <List empty={false} exporter={false}>
+  <List empty={false} exporter={false} >
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" sortable={false} />
       <TextField source="type" sortable={false} />
@@ -114,7 +114,9 @@ export const TransferProcessesShow = () => {
             >
               <TextField source="id" />
             </ReferenceField>
+            
           )}
+
       </SimpleShowLayout>
     </Show>
   );
@@ -223,6 +225,7 @@ export const TransferProcessesCreate = () => (
 
 export const TransferProcessTerminate = () => {
   const { record } = useShowController();
+
   const redirect = useRedirect();
   const onRedirect = () => {
     return redirect("show", "/transferprocesses", record?.id);
