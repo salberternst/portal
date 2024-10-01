@@ -4,22 +4,12 @@ async function fetchUserInfo() {
   return userInfo;
 }
 
-async function fetchAuth() {
-  const response = await fetch("/oauth2/auth");
-  if (response.status === 401 || response.status === 403) {
-    throw new Error("Unauthorized");
-  }
-}
-
 const authProvider = {
-  checkAuth: () => fetchAuth(),
-  checkError: () => fetchAuth(),
+  checkAuth: () => Promise.resolve(),
+  checkError: ()  => Promise.resolve(),
   getIdentity: () => fetchUserInfo(),
-  getPermissions: () => Promise.resolve(""),
-  logout: () => {
-    window.location.href = "/oauth2/sign_out";
-    return Promise.resolve();
-  },
+  getPermissions: () => Promise.resolve(),
+  logout: () => Promise.resolve()
 };
 
 export default authProvider;
