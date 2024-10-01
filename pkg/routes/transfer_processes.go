@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -240,7 +239,6 @@ func getDataConsumerPull(ctx *gin.Context) {
 			RespondWithInternalServerError(ctx)
 			return
 		}
-		fmt.Println("getDataConsumerPull" , "data",DataConsumerPull)
 		ctx.JSON(http.StatusOK, gin.H{"data": DataConsumerPull})
 		return
 	}

@@ -57,6 +57,6 @@ export async function getList(params) {
 
   return {
     data: normalizedData,
-    total: federatedCatalog.length,
+    total: normalizedData.length,
   };
 }
