@@ -134,11 +134,18 @@ export const ContractAgreementsList = () => (
   <List empty={false} hasCreate={true} exporter={false}>
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" sortable={false} />
-      <TextField
+      {/* <TextField
         source="contractAgreement.assetId"
         sortable={false}
         label="Asset"
-      />
+      /> */}
+      <ReferenceField
+        reference="assets"
+        source="contractAgreement.assetId"
+        label="Asset"
+      >
+        <TextField source="properties.name"></TextField>
+      </ReferenceField>
       <TextField
         source="contractAgreement.consumerId"
         sortable={false}
