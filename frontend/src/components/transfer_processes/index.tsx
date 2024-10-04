@@ -33,6 +33,7 @@ export const TransferProcessesList = () => (
         label="Asset"
         source="contractId"
         reference="contractagreements"
+        sortable={false}
       >
         <TextField source="dataset.name" />
       </ReferenceField>
