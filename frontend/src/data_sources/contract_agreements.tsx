@@ -60,15 +60,25 @@ export async function getMany(params) {
   const contracts = await Promise.all(
     params.ids.map((id) => fetchContractAgreement(id))
   );
-  return {
-    data: contracts.map((contract) => ({
-      contractAgreement: {
-        ...contract,
+
+  const result = await Promise.all(
+    contracts.map(async (contract) => {
+      const asset = await fetchAsset(contract.assetId);
+      return {
+        contractAgreement: {
+          ...contract,
+          id: contract["@id"],
+        },
+        negotiation: {},
+        dataset: {
+          "@id": asset["@id"],
+          name: asset.properties.name,
+          contenttype: asset.properties.contenttype,
+        },
         id: contract["@id"],
-      },
-      negotiation: {},
-      dataset: {},
-      id: contract["@id"],
-    })),
-  };
+      };
+    })
+  );
+
+  return { data: result };
 }

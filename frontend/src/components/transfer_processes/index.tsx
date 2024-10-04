@@ -29,6 +29,13 @@ export const TransferProcessesList = () => (
   <List empty={false} exporter={false}>
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" sortable={false} />
+      <ReferenceField
+        label="Asset"
+        source="contractId"
+        reference="contractagreements"
+      >
+        <TextField source="dataset.name" />
+      </ReferenceField>
       <TextField source="type" sortable={false} />
       <TextField source="state" sortable={false} />
       <TextField source="transferType" sortable={false} label="Transfer Type" />
