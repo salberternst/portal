@@ -7,10 +7,11 @@ import { HttpError } from "react-admin";
  * @returns A Promise that resolves to the JSON response from the server.
  * @throws {HttpError} If the server returns an error response.
  */
-export const fetchTransferProcesses = async (pagination: any) => {
+export const fetchTransferProcesses = async (pagination: any, sort: any) => {
   const { page, perPage }: { page: number; perPage: number } = pagination;
+  const { field, order }: { field: number; order: string } = sort;
   const response = await fetch(
-    `/api/portal/transferprocesses?page=${page}&page_size=${perPage}`,
+    `/api/portal/transferprocesses?page=${page}&page_size=${perPage}&field=${field}&order=${order}`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -103,14 +104,11 @@ export const fetchTransferProcessDataRequest = async (id: string) => {
  * @throws {HttpError} If the response status is not ok.
  */
 export const fetchTransferProcessDataConsumerPull = async (id: string) => {
-  const response = await fetch(
-    `/api/portal/transferprocesses/${id}/data`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  const response = await fetch(`/api/portal/transferprocesses/${id}/data`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
   const json = await response.json();
   if (response.ok === false) {
@@ -128,14 +126,11 @@ export const fetchTransferProcessDataConsumerPull = async (id: string) => {
  * @throws {HttpError} If the response status is not ok.
  */
 export const fetchRawDataConsumerPull = async (id: string) => {
-  const response = await fetch(
-    `/api/portal/transferprocesses/${id}/download`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
+  const response = await fetch(`/api/portal/transferprocesses/${id}/download`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
   const json = await response.json();
   if (response.ok === false) {

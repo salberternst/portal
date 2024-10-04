@@ -18,13 +18,13 @@ type Criterion struct {
 }
 
 type QuerySpec struct {
-	Context map[string]string `json:"@context"`
-	Type    string            `json:"@type"`
-	Offset  int               `json:"offset,omitempty"`
-	Limit   int               `json:"limit,omitempty"`
-	// SortOrder        string            `json:"sortOrder"`
-	// SortField        string            `json:"sortField"`
-	FilterExpression []Criterion `json:"filterExpression"`
+	Context          map[string]string `json:"@context"`
+	Type             string            `json:"@type"`
+	Offset           int               `json:"offset,omitempty"`
+	Limit            int               `json:"limit,omitempty"`
+	SortOrder        string            `json:"sortOrder,omitempty"`
+	SortField        string            `json:"sortField,omitempty"`
+	FilterExpression []Criterion       `json:"filterExpression"`
 }
 
 type Constraint struct {
@@ -815,6 +815,7 @@ func (e *EdcAPI) GetEdrDataAddress(id string) (*DataAddress, error) {
 
 	return &dataAddress, nil
 }
+
 // this function is used by dataconsumerpull show to fetch the data for visualization -> it works fine with json/array of json
 func (e *EdcAPI) GetDataConsumerPull(DataAddress DataAddress) (interface{}, error) {
 	var data interface{}
@@ -839,6 +840,7 @@ type RawData struct {
 	BodyString  string `json:"bodyString"`
 	ContentType string `json:"contentType"`
 }
+
 // this function is almost the same as previous one, but fetches data as bytes  -> can deal with any data type; used for downloading
 
 func (e *EdcAPI) GetRawDataConsumerPull(DataAddress DataAddress) (*RawData, error) {

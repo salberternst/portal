@@ -26,12 +26,12 @@ import { Link } from "react-router-dom";
 import CancelIcon from "@mui/icons-material/Cancel";
 
 export const TransferProcessesList = () => (
-  <List empty={false} exporter={false} >
+  <List empty={false} exporter={false}>
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" sortable={false} />
       <TextField source="type" sortable={false} />
       <TextField source="state" sortable={false} />
-      <TextField source="transferType" label="Transfer Type" />
+      <TextField source="transferType" sortable={false} label="Transfer Type" />
       <TextField
         label="Data Destination Type"
         source="dataDestination.type"
@@ -40,7 +40,7 @@ export const TransferProcessesList = () => (
       <DateField
         label="State Timestamp"
         source="stateTimestamp"
-        sortable={false}
+        sortable={true}
         showTime
       />
     </Datagrid>
@@ -114,9 +114,7 @@ export const TransferProcessesShow = () => {
             >
               <TextField source="id" />
             </ReferenceField>
-            
           )}
-
       </SimpleShowLayout>
     </Show>
   );

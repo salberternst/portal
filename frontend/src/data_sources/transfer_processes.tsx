@@ -21,7 +21,10 @@ export async function create(params) {
 }
 
 export async function getList(params) {
-  const transfers = await fetchTransferProcesses(params.pagination);
+  const transfers = await fetchTransferProcesses(
+    params.pagination,
+    params.sort
+  );
   return {
     data: transfers.map((transfer) => ({
       ...transfer,

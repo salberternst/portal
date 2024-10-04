@@ -66,9 +66,11 @@ func CreateQuerySpecWithoutFilterFromContext(ctx *gin.Context) (api.QuerySpec, e
 		Context: map[string]string{
 			"@vocab": "https://w3id.org/edc/v0.0.1/ns/",
 		},
-		Type:   "QuerySpec",
-		Offset: (queryParams.Page - 1) * queryParams.PageSize,
-		Limit:  queryParams.PageSize,
+		Type:      "QuerySpec",
+		Offset:    (queryParams.Page - 1) * queryParams.PageSize,
+		Limit:     queryParams.PageSize,
+		SortOrder: queryParams.SortOrder,
+		SortField: queryParams.SortField,
 	}, nil
 }
 
