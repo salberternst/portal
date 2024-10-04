@@ -20,12 +20,14 @@ services:
     volumes:
       - ../frontend/src:/app/src
 
-  portal-provider:
+  backend:
     build:
       context: ../
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_dev
     ports:
       - 8081:8080
+    volumes:
+      - ../:/app
     environment:
       - EDC_URL=http://edc-provider:19193/management
       - FEDERATED_CATALOG_URL=http://fc:8181/catalog
@@ -39,7 +41,6 @@ services:
       - FUSEKI_PASSWORD=${FUSEKI_PASSWORD}
       - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
       - KEYCLOAK_CLIENT_SECRET=${KEYCLOAK_CLIENT_SECRET}
-
 
   oauth2-proxy:
     build:

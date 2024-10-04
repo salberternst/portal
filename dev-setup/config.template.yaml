@@ -3,7 +3,7 @@ upstreamConfig:
     - id: backend-provider
       path: ^/(api/portal/.*)$
       rewriteTarget: /$1
-      uri: http://portal-provider:8080
+      uri: http://backend:8080
     # - id: backend-consumer
     #   path: ^/(consumer/api/portal/.*)$
     #   rewriteTarget: /$1

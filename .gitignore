@@ -27,3 +27,4 @@ config
 __debug_bin
 .env
 
+/tmp
