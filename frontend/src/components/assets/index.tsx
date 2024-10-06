@@ -18,6 +18,9 @@ import {
   FunctionField,
 } from "react-admin";
 import InputAdornment from "@mui/material/InputAdornment";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Switch from "@mui/material/Switch";
 import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
 import Dialog from "@mui/material/Dialog";
@@ -26,7 +29,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
+import { useFormContext } from "react-hook-form";
 import { MarkdownField, MarkdownInput } from "../markdown";
+import { PasswordField } from "../password_field";
 
 const ThingEndpointsQuery = `
 PREFIX iot: <http://iotschema.org/>
@@ -185,8 +190,70 @@ export const AssetShow = () => {
             )}
           />
         </Labeled>
+        <Labeled fullWidth label="Authorization Key">
+          <TextField source="dataAddress.authKey" emptyText="-" />
+        </Labeled>
+        <Labeled fullWidth label="Authorization Token">
+          <FunctionField
+            source="dataAddress.authCode"
+            render={(record) => {
+              return record.dataAddress.authCode ? (
+                <PasswordField source="dataAddress.authCode"></PasswordField>
+              ) : (
+                <TextField source="dataAddress.authCode" emptyText="-" />
+              );
+            }}
+          ></FunctionField>
+        </Labeled>
       </SimpleShowLayout>
     </Show>
+  );
+};
+
+// input component for AuthKey & AuthCode
+const AuthHeaderInput = () => {
+  const [showAuthHeader, setShowAuthHeader] = useState(false);
+  const { unregister } = useFormContext();
+
+  useEffect(() => {
+    if (!showAuthHeader) {
+      // need to unregister, to properly remove from form state
+      unregister("dataAddress.authKey");
+      unregister("dataAddress.authCode");
+    }
+  }, [showAuthHeader]);
+  return (
+    <>
+      <FormGroup>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={showAuthHeader}
+              onChange={() => setShowAuthHeader((v) => !v)}
+            />
+          }
+          label="Add Auth Header"
+        />
+      </FormGroup>
+      {showAuthHeader && (
+        <>
+          <TextInput
+            source="dataAddress.authKey"
+            label="Header Name"
+            helperText="Name of the auth header, e.g. Authorization, X-Api-Key, ..."
+            validate={required()}
+            fullWidth
+          />
+          <TextInput
+            source="dataAddress.authCode"
+            label="Authorization Token"
+            helperText="Authorization Token"
+            validate={required()}
+            fullWidth
+          />
+        </>
+      )}
+    </>
   );
 };
 
@@ -249,8 +316,8 @@ export const AssetCreate = () => {
           InputProps={{
             endAdornment: window.config.showQuery ? (
               <InputAdornment position="end">
-                <IconButton>
-                  <SearchIcon onClick={handleClickOpen} />
+                <IconButton onClick={handleClickOpen}>
+                  <SearchIcon />
                 </IconButton>
               </InputAdornment>
             ) : null,
@@ -290,6 +357,7 @@ export const AssetCreate = () => {
           parse={(v) => (v ? "true" : "false")}
           format={(v) => v === "true"}
         />
+        <AuthHeaderInput />
       </SimpleForm>
     </Create>
   );
