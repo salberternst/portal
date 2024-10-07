@@ -8,16 +8,47 @@ import { fetchAsset } from "../api/assets";
 
 export async function getList(params) {
   const contracts = await fetchContractAgreements(params.pagination);
+
+  const result = await Promise.all(
+    contracts.map(async (contract) => {
+      const negotiation = await fetchContractAgreementNegotiation(
+        contract["@id"]
+      );
+      if (negotiation.type === "PROVIDER") {
+        const asset = await fetchAsset(contract.assetId);
+        return {
+          contractAgreement: {
+            ...contract,
+            id: contract["@id"],
+          },
+          negotiation: {},
+          dataset: {
+            "@id": asset["@id"],
+            name: asset.properties.name,
+            contenttype: asset.properties.contenttype,
+          },
+          id: contract["@id"],
+        };
+      } else {
+        const dataset = await fetchCatalogDataset(
+          negotiation["counterPartyAddress"],
+          contract.assetId
+        );
+        return {
+          contractAgreement: {
+            ...contract,
+            id: contract["@id"],
+          },
+          negotiation: {},
+          dataset,
+          id: contract["@id"],
+        };
+      }
+    })
+  );
+
   return {
-    data: contracts.map((contract) => ({
-      id: contract["@id"],
-      contractAgreement: {
-        ...contract,
-        id: contract["@id"],
-      },
-      negotiation: {},
-      dataset: {},
-    })),
+    data: result,
     pageInfo: {
       hasNextPage: contracts.length === params.pagination.perPage,
       hasPreviousPage: params.pagination.page > 1,
@@ -63,20 +94,39 @@ export async function getMany(params) {
 
   const result = await Promise.all(
     contracts.map(async (contract) => {
-      const asset = await fetchAsset(contract.assetId);
-      return {
-        contractAgreement: {
-          ...contract,
+      const negotiation = await fetchContractAgreementNegotiation(
+        contract["@id"]
+      );
+      if (negotiation.type === "PROVIDER") {
+        const asset = await fetchAsset(contract.assetId);
+        return {
+          contractAgreement: {
+            ...contract,
+            id: contract["@id"],
+          },
+          negotiation: {},
+          dataset: {
+            "@id": asset["@id"],
+            name: asset.properties.name,
+            contenttype: asset.properties.contenttype,
+          },
           id: contract["@id"],
-        },
-        negotiation: {},
-        dataset: {
-          "@id": asset["@id"],
-          name: asset.properties.name,
-          contenttype: asset.properties.contenttype,
-        },
-        id: contract["@id"],
-      };
+        };
+      } else {
+        const dataset = await fetchCatalogDataset(
+          negotiation["counterPartyAddress"],
+          contract.assetId
+        );
+        return {
+          contractAgreement: {
+            ...contract,
+            id: contract["@id"],
+          },
+          negotiation: {},
+          dataset,
+          id: contract["@id"],
+        };
+      }
     })
   );
 
