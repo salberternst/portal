@@ -134,7 +134,6 @@ export const ContractAgreementsList = () => (
   <List empty={false} hasCreate={true} exporter={false}>
     <Datagrid bulkActionButtons={false} rowClick="show">
       <TextField source="id" sortable={false} />
-      <TextField source="dataset.name" sortable={false} label="Asset" />
       <ReferenceField
         reference="federatedcatalog"
         source="contractAgreement.assetId"
