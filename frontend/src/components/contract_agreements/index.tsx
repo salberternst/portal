@@ -138,6 +138,7 @@ export const ContractAgreementsList = () => (
         reference="federatedcatalog"
         source="contractAgreement.assetId"
         label="Asset"
+        sortable={false}
       >
         <TextField source="name"></TextField>
       </ReferenceField>
