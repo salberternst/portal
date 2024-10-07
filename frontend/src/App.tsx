@@ -27,7 +27,7 @@ import InventoryIcon from "@mui/icons-material/Inventory";
 import Toolbar from "@mui/material/Toolbar";
 import { useLocation } from "react-router-dom";
 import dataSource from "./data-source";
-import authProvider from "./auth-provider";
+// import authProvider from "./auth-provider";
 import { SparqlPage } from "./custom_pages/sparql";
 import Thingsboard from "./components/thingsboard";
 import {
@@ -75,7 +75,10 @@ import {
 } from "./components/devices";
 import Keycloak from "./components/keycloak";
 import { DataRequestShow } from "./components/datarequests";
-import { DataConsumerPullShow, RawDataDownloadShow } from "./components/data_consumer_pull";
+import {
+  DataConsumerPullShow,
+  RawDataDownloadShow,
+} from "./components/data_consumer_pull";
 import { darkTheme, theme } from "./theme";
 import SvgIcon from "@mui/material/SvgIcon";
 import SmartLivingNextIcon from "./assets/borlabs-cookie-icon-dynamic.svg?react";
@@ -132,7 +135,7 @@ const CustomMenu = () => {
     return null;
   }
 
-  const isAdmin = identity?.groups.includes("role:admin");
+  const isAdmin = true;
 
   return (
     <Menu dense={false} sx={{ pt: 1 }}>
@@ -217,7 +220,6 @@ export const App = () => (
     loginPage={false}
     layout={CustomLayout}
     dataProvider={dataSource}
-    authProvider={authProvider}
     theme={theme}
     darkTheme={darkTheme}
     disableTelemetry={true}
@@ -345,13 +347,12 @@ export const App = () => (
       name="dataconsumerpull"
       options={{ label: "Data Consumer Pull" }}
       show={DataConsumerPullShow}
-   
     />
     <Resource
-    name="rawdataconsumerpull"
-    options={{ label: "Data Download" }}
-    show={RawDataDownloadShow}>
-    </Resource>
+      name="rawdataconsumerpull"
+      options={{ label: "Data Download" }}
+      show={RawDataDownloadShow}
+    ></Resource>
     {window.config.showFederatedCatalog && (
       <Resource
         name="federatedcatalog"

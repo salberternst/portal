@@ -1,8 +1,8 @@
 var config = {
-  showDevices: true,
-  showThingDescriptions: true,
-  showQuery: true,
-  showCustomers: true,
+  showDevices: false,
+  showThingDescriptions: false,
+  showQuery: false,
+  showCustomers: false,
   showAssets: true,
   showPolicies: true,
   showContractDefinitions: true,
@@ -10,6 +10,6 @@ var config = {
   showFederatedCatalog: true,
   showContractAgreements: true,
   showTransferProcesses: true,
-  showThingsboard : true,
-  showKeycloak: true
-}
+  showThingsboard: false,
+  showKeycloak: false,
+};

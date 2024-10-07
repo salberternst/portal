@@ -13,9 +13,9 @@ func AddRoutes(r *gin.Engine) {
 
 	// only use the middlewares in the api group
 	api.Use(middleware.TokenMiddleware())
-	api.Use(middleware.KeycloakMiddleware())
-	api.Use(middleware.ThingsboardMiddleware())
-	api.Use(middleware.FusekiMiddleware())
+	// api.Use(middleware.KeycloakMiddleware())
+	// api.Use(middleware.ThingsboardMiddleware())
+	// api.Use(middleware.FusekiMiddleware())
 	api.Use(middleware.EdcMiddleware())
 	api.Use(middleware.FederatedCatalogMiddleware())
 

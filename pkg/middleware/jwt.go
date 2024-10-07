@@ -1,9 +1,6 @@
 package middleware
 
 import (
-	"errors"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -20,21 +17,11 @@ type Claims struct {
 }
 
 func TokenMiddleware() gin.HandlerFunc {
-	parser := jwt.NewParser()
-
 	return func(ctx *gin.Context) {
-		idToken := ctx.GetHeader("X-Access-Token")
-		token, _, err := parser.ParseUnverified(idToken, &Claims{})
-		if err == nil {
-			if claims, ok := token.Claims.(*Claims); ok {
-				ctx.Set("access-token-claims", claims)
-				ctx.Set("access-token", idToken)
-				ctx.Next()
-				return
-			}
-		}
-
-		ctx.AbortWithError(http.StatusInternalServerError, errors.New("unable to decode X-Access-Token"))
+		hardCodedClaims := &Claims{TenantId: "default"}
+		ctx.Set("access-token-claims", hardCodedClaims)
+		ctx.Next()
+		return
 	}
 }
 
@@ -47,13 +34,7 @@ func GetAccessToken(ctx *gin.Context) string {
 }
 
 func IsAdmin(ctx *gin.Context) bool {
-	claims := GetAccessTokenClaims(ctx)
-	for _, role := range claims.RealmAccess.Roles {
-		if role == "admin" {
-			return true
-		}
-	}
-	return false
+	return true
 }
 
 func IsCustomer(ctx *gin.Context) bool {
