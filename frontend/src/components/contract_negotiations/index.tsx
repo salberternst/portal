@@ -22,13 +22,16 @@ import {
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { EditorState } from "@codemirror/state";
+import { githubLight, githubDark } from "@uiw/codemirror-theme-github";
 import { useEffect } from "react";
 import Alert from "@mui/material/Alert";
 import { Link } from "react-router-dom";
 import CancelIcon from "@mui/icons-material/Cancel";
+import useTheme from "@mui/material/styles/useTheme";
 
 const ContractNegotiationPolicyInput = () => {
   const { field } = useInput({ source: "policy" });
+  const theme = useTheme();
   return (
     <Labeled label="Policy">
       <CodeMirror
@@ -39,6 +42,7 @@ const ContractNegotiationPolicyInput = () => {
           lineNumbers: false,
           foldGutter: false,
         }}
+        theme={theme.palette.mode === "dark" ? githubDark : githubLight}
       />
     </Labeled>
   );
