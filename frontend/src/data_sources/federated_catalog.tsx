@@ -59,3 +59,11 @@ export async function getList(params) {
     total: normalizedData.length,
   };
 }
+
+export async function getMany(params) {
+  const federatedCatalog = await fetchFederatedCatalog();
+  const normalizedData = normalize(federatedCatalog);
+  return {
+    data:  normalizedData
+  };
+}
