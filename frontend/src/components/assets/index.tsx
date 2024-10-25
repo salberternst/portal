@@ -221,7 +221,7 @@ const AuthHeaderInput = () => {
       unregister("dataAddress.authKey");
       unregister("dataAddress.authCode");
     }
-  }, [showAuthHeader]);
+  }, [showAuthHeader, unregister]);
   return (
     <>
       <FormGroup>

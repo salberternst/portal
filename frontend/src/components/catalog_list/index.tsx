@@ -9,6 +9,7 @@ import {
   Labeled,
   Button,
 } from "react-admin";
+import PropTypes from "prop-types";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -107,7 +108,12 @@ const PolicySelect = ({ record, onPolicySelect }) => {
   );
 };
 
-const Permissions = ({ record }) => {
+PolicySelect.propTypes = {
+  record: PropTypes.object,
+  onPolicySelect: PropTypes.func,
+};
+
+const PermissionAccordion = ({ record }) => {
   const accordionSummaryStyle = {
     padding: 0,
     "&.MuiAccordionSummary-root": {
@@ -174,6 +180,10 @@ const Permissions = ({ record }) => {
   );
 };
 
+PermissionAccordion.propTypes = {
+  record: PropTypes.object,
+};
+
 const PoliciesShow = () => {
   const [selectedPolicy, setSelectedPolicy] = useState(0);
   const record = useRecordContext();
@@ -184,7 +194,9 @@ const PoliciesShow = () => {
   return (
     <>
       <PolicySelect record={record} onPolicySelect={handlePolicyChange} />
-      <Permissions record={record?.["odrl:hasPolicy"][selectedPolicy]} />
+      <PermissionAccordion
+        record={record?.["odrl:hasPolicy"][selectedPolicy]}
+      />
       <CreateContractNegotiationButton selectedPolicy={selectedPolicy} />
     </>
   );
@@ -247,4 +259,8 @@ export const CatalogList = ({ record }) => {
       ))}
     </Box>
   );
+};
+
+CatalogList.propTypes = {
+  record: PropTypes.array,
 };

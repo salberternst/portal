@@ -28,7 +28,7 @@ const datasourceMapping = {
   contractagreements: contractAgreementsDatasource,
   contractnegotiations: contractNegotiationsDatasource,
   transferprocesses: transferProcessesDatasource,
-  dataconsumerpull: dataConsumerPullDatasource, 
+  dataconsumerpull: dataConsumerPullDatasource,
   rawdataconsumerpull: rawDataConsumerPullDatasource,
   users: usersDatasource,
   federatedcatalog: federatedCatalogDatasource,

@@ -5,6 +5,7 @@ import useTheme from "@mui/material/styles/useTheme";
 import InboxIcon from "@mui/icons-material/Inbox";
 import { CatalogList } from "../catalog_list";
 
+// eslint-disable-next-line react/jsx-key
 const postFilters = [<SearchInput source="name" alwaysOn />];
 
 const EmptyFederatedCatalogList = () => {

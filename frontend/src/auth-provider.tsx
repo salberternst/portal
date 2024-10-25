@@ -6,10 +6,10 @@ async function fetchUserInfo() {
 
 const authProvider = {
   checkAuth: () => Promise.resolve(),
-  checkError: ()  => Promise.resolve(),
+  checkError: () => Promise.resolve(),
   getIdentity: () => fetchUserInfo(),
   getPermissions: () => Promise.resolve(),
-  logout: () => Promise.resolve()
+  logout: () => Promise.resolve(),
 };
 
 export default authProvider;

@@ -5,6 +5,7 @@ import IconButton from "@mui/material/IconButton";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useFieldValue } from "react-admin";
+import PropTypes from "prop-types";
 
 export const PasswordField = ({ source }) => {
   const value = useFieldValue({ source });
@@ -30,4 +31,8 @@ export const PasswordField = ({ source }) => {
       }}
     />
   );
+};
+
+PasswordField.propTypes = {
+  source: PropTypes.string,
 };

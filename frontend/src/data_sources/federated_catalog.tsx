@@ -60,10 +60,10 @@ export async function getList(params) {
   };
 }
 
-export async function getMany(params) {
+export async function getMany() {
   const federatedCatalog = await fetchFederatedCatalog();
   const normalizedData = normalize(federatedCatalog);
   return {
-    data:  normalizedData
+    data: normalizedData,
   };
 }

@@ -1,38 +1,42 @@
-import {   Link, ReferenceField, TextField, Show, SimpleShowLayout,  TopToolbar,Button,  useRecordContext } from "react-admin";
+import {
+  ReferenceField,
+  TextField,
+  Show,
+  SimpleShowLayout,
+  TopToolbar,
+  Button,
+} from "react-admin";
 import { PasswordField } from "../password_field";
-import TimelineIcon from '@mui/icons-material/Timeline';
-import DownloadIcon from '@mui/icons-material/Download';
+import TimelineIcon from "@mui/icons-material/Timeline";
+import DownloadIcon from "@mui/icons-material/Download";
 
 const DataRequestShowBar = () => {
-
-  const record = useRecordContext();
   return (
-    
-<TopToolbar>
-<ReferenceField
-    source="id"
-    reference="rawdataconsumerpull"
-    link="show"
-    label="Download"
-    >
-    <Button
-        // color="success"
+    <TopToolbar>
+      <ReferenceField
+        source="id"
+        reference="rawdataconsumerpull"
+        link="show"
         label="Download"
-        startIcon={<DownloadIcon />}
-      />
-</ReferenceField>
-    <ReferenceField
-    source="id"
-    reference="dataconsumerpull"
-    link="show"
-    label="Visualization">
+      >
         <Button
-        // color="info"
+          // color="success"
+          label="Download"
+          startIcon={<DownloadIcon />}
+        />
+      </ReferenceField>
+      <ReferenceField
+        source="id"
+        reference="dataconsumerpull"
+        link="show"
         label="Visualization"
-        startIcon={<TimelineIcon />}
-      />
-  </ReferenceField>
-       
+      >
+        <Button
+          // color="info"
+          label="Visualization"
+          startIcon={<TimelineIcon />}
+        />
+      </ReferenceField>
     </TopToolbar>
   );
 };
@@ -44,7 +48,6 @@ export const DataRequestShow = () => {
         <TextField source="endpoint" />
         <TextField source="authType" label="Authentication Type" />
         <PasswordField source="authorization" label="Authentication" />
-      
       </SimpleShowLayout>
     </Show>
   );

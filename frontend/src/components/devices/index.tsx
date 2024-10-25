@@ -23,6 +23,7 @@ import {
   ListActions,
   DeleteWithConfirmButton,
 } from "react-admin";
+import PropTypes from "prop-types";
 
 const ThingModelSelector = ({ defaultValue = "" }) => {
   return (
@@ -111,6 +112,10 @@ const ThingModelSelector = ({ defaultValue = "" }) => {
       fullWidth
     />
   );
+};
+
+ThingModelSelector.propTypes = {
+  defaultValue: PropTypes.string,
 };
 
 const CustomerSelector = () => {

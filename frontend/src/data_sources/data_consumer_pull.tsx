@@ -1,4 +1,4 @@
-import { fetchTransferProcessDataConsumerPull} from "../api/transfer_processes";
+import { fetchTransferProcessDataConsumerPull } from "../api/transfer_processes";
 
 export async function getOne(params) {
   const dataRequest = await fetchTransferProcessDataConsumerPull(params.id);
@@ -10,20 +10,17 @@ export async function getOne(params) {
   };
 }
 
-
 export async function getMany(params) {
-    const dataRequests = await Promise.all(
-      params.ids.map((id: any) =>
-        fetchTransferProcessDataConsumerPull(id).then((dataRequest: any) => ({
-          ...dataRequest,
-          id,
-        }))
-      )
-    );
-  
-    return {
-      data: dataRequests,
-    };
-  }
-  
-  
+  const dataRequests = await Promise.all(
+    params.ids.map((id: any) =>
+      fetchTransferProcessDataConsumerPull(id).then((dataRequest: any) => ({
+        ...dataRequest,
+        id,
+      }))
+    )
+  );
+
+  return {
+    data: dataRequests,
+  };
+}

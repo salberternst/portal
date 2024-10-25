@@ -132,7 +132,7 @@ const componentsOverrides = (theme: Theme) => {
   };
 };
 
-const alert = {
+const alertPalette = {
   error: { main: "#E53935" },
   warning: { main: "#FFB74D" },
   info: { main: "#29B6F6" },
@@ -143,7 +143,7 @@ const darkPalette: PaletteOptions = {
   primary: { main: "#9055fd" },
   secondary: { main: "#FF83F6" },
   background: { default: "#110e1c", paper: "#151221" },
-  ...alert,
+  ...alertPalette,
   mode: "dark" as "dark",
 };
 
@@ -155,7 +155,7 @@ const lightPalette: PaletteOptions = {
     primary: "#544f5a",
     secondary: "#89868D",
   },
-  ...alert,
+  ...alertPalette,
   mode: "light" as "light",
 };
 

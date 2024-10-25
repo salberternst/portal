@@ -1,5 +1,6 @@
 import { useInput, useFieldValue } from "react-admin";
 import MDEditor from "@uiw/react-md-editor";
+import PropTypes from "prop-types";
 
 export const MarkdownInput = ({ source }) => {
   const { id, field } = useInput({ source });
@@ -9,6 +10,10 @@ export const MarkdownInput = ({ source }) => {
       <MDEditor {...field} height={500} />
     </div>
   );
+};
+
+MarkdownInput.propTypes = {
+  source: PropTypes.string,
 };
 
 export const MarkdownField = ({ source }) => {
@@ -22,4 +27,8 @@ export const MarkdownField = ({ source }) => {
       <MDEditor.Markdown source={value} />
     </div>
   );
+};
+
+MarkdownField.propTypes = {
+  source: PropTypes.string,
 };
