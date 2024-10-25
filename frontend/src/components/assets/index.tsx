@@ -16,7 +16,10 @@ import {
   SelectInput,
   required,
   FunctionField,
+  FormDataConsumer,
+  useShowController,
 } from "react-admin";
+import PropTypes from "prop-types";
 import InputAdornment from "@mui/material/InputAdornment";
 import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -111,7 +114,129 @@ const AssetShowBar = () => {
   );
 };
 
+const HttpDataShow = () => {
+  return (
+    <SimpleShowLayout sx={{ mt: 0, pt: 0 }}>
+      <Labeled fullWidth label="Base URL">
+        <TextField source="dataAddress.baseUrl" />
+      </Labeled>
+      <Labeled fullWidth label="Accept Header">
+        <TextField source="dataAddress.header:Accept" emptyText="-" />
+      </Labeled>
+      <Labeled fullWidth label="Proxy Path">
+        <FunctionField
+          source="dataAddress.proxyPath"
+          render={(record) => (
+            <BooleanField
+              record={{ value: record.dataAddress.proxyPath === "true" }}
+              source="value"
+            />
+          )}
+        />
+      </Labeled>
+      <Labeled fullWidth label="Proxy Query Params">
+        <FunctionField
+          source="dataAddress.proxyQueryParams"
+          render={(record) => (
+            <BooleanField
+              record={{
+                value: record.dataAddress.proxyQueryParams === "true",
+              }}
+              source="value"
+            />
+          )}
+        />
+      </Labeled>
+      <Labeled fullWidth label="Proxy Body">
+        <FunctionField
+          source="dataAddress.proxyBody"
+          render={(record) => (
+            <BooleanField
+              record={{ value: record.dataAddress.proxyBody === "true" }}
+              source="value"
+            />
+          )}
+        />
+      </Labeled>
+      <Labeled fullWidth label="Proxy Method">
+        <FunctionField
+          source="dataAddress.proxyMethod"
+          render={(record) => (
+            <BooleanField
+              record={{
+                value: record.dataAddress.proxyMethod === "true",
+              }}
+              source="value"
+            />
+          )}
+        />
+      </Labeled>
+      <Labeled fullWidth label="Authorization Key">
+        <TextField source="dataAddress.authKey" emptyText="-" />
+      </Labeled>
+      <Labeled fullWidth label="Authorization Token">
+        <FunctionField
+          source="dataAddress.authCode"
+          render={(record) => {
+            return record.dataAddress.authCode ? (
+              <PasswordField source="dataAddress.authCode"></PasswordField>
+            ) : (
+              <TextField source="dataAddress.authCode" emptyText="-" />
+            );
+          }}
+        ></FunctionField>
+      </Labeled>
+    </SimpleShowLayout>
+  );
+};
+
+HttpDataShow.propTypes = {
+  record: PropTypes.object,
+};
+
+const AmazonS3Show = () => {
+  return (
+    <SimpleShowLayout sx={{ mt: 0, pt: 0 }}>
+      <Labeled fullWidth label="Region">
+        <TextField source="dataAddress.region" />
+      </Labeled>
+      <Labeled fullWidth label="Endpoint Override">
+        <TextField source="dataAddress.endpointOverride" emptyText="-" />
+      </Labeled>
+      <Labeled fullWidth label="Bucket Name">
+        <TextField source="dataAddress.bucketName" />
+      </Labeled>
+      <Labeled fullWidth label="Object Name">
+        <TextField source="dataAddress.objectName" emptyText="-" />
+      </Labeled>
+      <Labeled fullWidth label="Object Prefix">
+        <TextField source="dataAddress.objectPrefix" emptyText="-" />
+      </Labeled>
+      <Labeled fullWidth label="Access Key ID">
+        <TextField source="dataAddress.accessKeyId" emptyText="-" />
+      </Labeled>
+      <Labeled fullWidth label="Secret Access Key">
+        <FunctionField
+          source="dataAddress.secretAccessKey"
+          render={(record) => {
+            return record.dataAddress.secretAccessKey ? (
+              <PasswordField source="dataAddress.secretAccessKey"></PasswordField>
+            ) : (
+              <TextField source="dataAddress.secretAccessKey" emptyText="-" />
+            );
+          }}
+        ></FunctionField>
+      </Labeled>
+    </SimpleShowLayout>
+  );
+};
+
+AmazonS3Show.propTypes = {
+  record: PropTypes.object,
+};
+
 export const AssetShow = () => {
+  const { record } = useShowController();
   return (
     <Show actions={<AssetShowBar />}>
       <SimpleShowLayout>
@@ -136,76 +261,13 @@ export const AssetShow = () => {
         <Labeled fullWidth label="Type">
           <TextField source="dataAddress.type" />
         </Labeled>
-        <Labeled fullWidth label="Base URL">
-          <TextField source="dataAddress.baseUrl" />
-        </Labeled>
-        <Labeled fullWidth label="Accept Header">
-          <TextField source="dataAddress.header:Accept" emptyText="-" />
-        </Labeled>
-        <Labeled fullWidth label="Proxy Path">
-          <FunctionField
-            source="dataAddress.proxyPath"
-            render={(record) => (
-              <BooleanField
-                record={{ value: record.dataAddress.proxyPath === "true" }}
-                source="value"
-              />
-            )}
-          />
-        </Labeled>
-        <Labeled fullWidth label="Proxy Query Params">
-          <FunctionField
-            source="dataAddress.proxyQueryParams"
-            render={(record) => (
-              <BooleanField
-                record={{
-                  value: record.dataAddress.proxyQueryParams === "true",
-                }}
-                source="value"
-              />
-            )}
-          />
-        </Labeled>
-        <Labeled fullWidth label="Proxy Body">
-          <FunctionField
-            source="dataAddress.proxyBody"
-            render={(record) => (
-              <BooleanField
-                record={{ value: record.dataAddress.proxyBody === "true" }}
-                source="value"
-              />
-            )}
-          />
-        </Labeled>
-        <Labeled fullWidth label="Proxy Method">
-          <FunctionField
-            source="dataAddress.proxyMethod"
-            render={(record) => (
-              <BooleanField
-                record={{
-                  value: record.dataAddress.proxyMethod === "true",
-                }}
-                source="value"
-              />
-            )}
-          />
-        </Labeled>
-        <Labeled fullWidth label="Authorization Key">
-          <TextField source="dataAddress.authKey" emptyText="-" />
-        </Labeled>
-        <Labeled fullWidth label="Authorization Token">
-          <FunctionField
-            source="dataAddress.authCode"
-            render={(record) => {
-              return record.dataAddress.authCode ? (
-                <PasswordField source="dataAddress.authCode"></PasswordField>
-              ) : (
-                <TextField source="dataAddress.authCode" emptyText="-" />
-              );
-            }}
-          ></FunctionField>
-        </Labeled>
       </SimpleShowLayout>
+      {record?.dataAddress?.type === "HttpData" && (
+        <HttpDataShow record={record}></HttpDataShow>
+      )}
+      {record?.dataAddress?.type === "AmazonS3" && (
+        <AmazonS3Show record={record}></AmazonS3Show>
+      )}
     </Show>
   );
 };
@@ -257,6 +319,119 @@ const AuthHeaderInput = () => {
   );
 };
 
+const HttpDataInput = ({ handleShowEndpoints }) => {
+  return (
+    <>
+      <TextInput
+        source="dataAddress.baseUrl"
+        label="Base URL"
+        helperText="The base URL of the data address e.g. http://example.com/api/v1/"
+        fullWidth
+        validate={required()}
+        InputProps={{
+          endAdornment: window.config.showQuery ? (
+            <InputAdornment position="end">
+              <IconButton onClick={handleShowEndpoints}>
+                <SearchIcon />
+              </IconButton>
+            </InputAdornment>
+          ) : null,
+        }}
+      />
+      <TextInput
+        source="dataAddress.header:Accept"
+        label="Accept Header"
+        helperText="The accept header of the data address e.g. application/json"
+        fullWidth
+      />
+      <BooleanInput
+        source="dataAddress.proxyPath"
+        helperText="Allows specifying additional path segments."
+        defaultValue={"false"}
+        parse={(v) => (v ? "true" : "false")}
+        format={(v) => v === "true"}
+      />
+      <BooleanInput
+        source="dataAddress.proxyQueryParams"
+        helperText="Allows specifying query params."
+        defaultValue={"false"}
+        parse={(v) => (v ? "true" : "false")}
+        format={(v) => v === "true"}
+      />
+      <BooleanInput
+        source="dataAddress.proxyBody"
+        helperText="Allows attaching a body."
+        defaultValue={"false"}
+        parse={(v) => (v ? "true" : "false")}
+        format={(v) => v === "true"}
+      />
+      <BooleanInput
+        source="dataAddress.proxyMethod"
+        helperText="Allows specifying the Http Method (default `GET`)"
+        defaultValue={"false"}
+        parse={(v) => (v ? "true" : "false")}
+        format={(v) => v === "true"}
+      />
+      <AuthHeaderInput />
+    </>
+  );
+};
+
+HttpDataInput.propTypes = {
+  handleShowEndpoints: PropTypes.func.isRequired,
+};
+
+const AmazonS3Input = () => {
+  return (
+    <>
+      <TextInput
+        source="dataAddress.region"
+        label="Region"
+        helperText="The region of the S3 bucket."
+        fullWidth
+        validate={required()}
+      />
+      <TextInput
+        source="dataAddress.endpointOverride"
+        label="Endpoint Override"
+        helperText="The endpoint override of the S3 bucket."
+        fullWidth
+      />
+      <TextInput
+        source="dataAddress.bucketName"
+        label="Bucket Name"
+        helperText="The name of the S3 bucket."
+        fullWidth
+        validate={required()}
+      />
+      <TextInput
+        source="dataAddress.objectName"
+        label="Object Name"
+        helperText="The name of the S3 object."
+        fullWidth
+      />
+      <TextInput
+        source="dataAddress.objectPrefix"
+        label="Object Prefix"
+        helperText="The prefix of the S3 object."
+        fullWidth
+      />
+      <TextInput
+        source="dataAddress.accessKeyId"
+        label="Access Key ID"
+        helperText="The access key ID of the S3 bucket."
+        fullWidth
+      />
+      <TextInput
+        source="dataAddress.secretAccessKey"
+        label="Secret Access Key"
+        helperText="The secret access key of the S3 bucket."
+        fullWidth
+      />
+    </>
+  );
+};
+
 export const AssetCreate = () => {
   const [open, setOpen] = useState(false);
 
@@ -298,66 +473,34 @@ export const AssetCreate = () => {
           fullWidth
           validate={required()}
         />
-        <TextInput
+        <SelectInput
           source="dataAddress.type"
           label="Data Address Type"
           defaultValue="HttpData"
           helperText="The type of the data address e.g. HttpData"
           fullWidth
           validate={required()}
-          readOnly
+          choices={[
+            { id: "HttpData", name: "HttpData" },
+            { id: "AmazonS3", name: "AmazonS3" },
+          ]}
         />
-        <TextInput
-          source="dataAddress.baseUrl"
-          label="Base URL"
-          helperText="The base URL of the data address e.g. http://example.com/api/v1/"
-          fullWidth
-          validate={required()}
-          InputProps={{
-            endAdornment: window.config.showQuery ? (
-              <InputAdornment position="end">
-                <IconButton onClick={handleClickOpen}>
-                  <SearchIcon />
-                </IconButton>
-              </InputAdornment>
-            ) : null,
+        <FormDataConsumer>
+          {({ formData }) => {
+            if (
+              formData.dataAddress &&
+              formData.dataAddress.type === "HttpData"
+            ) {
+              return <HttpDataInput handleShowEndpoints={handleClickOpen} />;
+            } else if (
+              formData.dataAddress &&
+              formData.dataAddress.type === "AmazonS3"
+            ) {
+              return <AmazonS3Input />;
+            }
+            return null;
           }}
-        />
-        <TextInput
-          source="dataAddress.header:Accept"
-          label="Accept Header"
-          helperText="The accept header of the data address e.g. application/json"
-          fullWidth
-        />
-        <BooleanInput
-          source="dataAddress.proxyPath"
-          helperText="Allows specifying additional path segments."
-          defaultValue={"false"}
-          parse={(v) => (v ? "true" : "false")}
-          format={(v) => v === "true"}
-        />
-        <BooleanInput
-          source="dataAddress.proxyQueryParams"
-          helperText="Allows specifying query params."
-          defaultValue={"false"}
-          parse={(v) => (v ? "true" : "false")}
-          format={(v) => v === "true"}
-        />
-        <BooleanInput
-          source="dataAddress.proxyBody"
-          helperText="Allows attaching a body."
-          defaultValue={"false"}
-          parse={(v) => (v ? "true" : "false")}
-          format={(v) => v === "true"}
-        />
-        <BooleanInput
-          source="dataAddress.proxyMethod"
-          helperText="Allows specifying the Http Method (default `GET`)"
-          defaultValue={"false"}
-          parse={(v) => (v ? "true" : "false")}
-          format={(v) => v === "true"}
-        />
-        <AuthHeaderInput />
+        </FormDataConsumer>
       </SimpleForm>
     </Create>
   );
