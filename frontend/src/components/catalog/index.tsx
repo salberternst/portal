@@ -83,7 +83,7 @@ export const Catalog = () => {
             onError,
             onSuccess,
           }}
-          component={Box}
+          component={(props) => <Box {...props} sx={{ maxWidth: "100%" }} />}
         >
           <CatalogShow />
         </Show>
