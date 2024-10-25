@@ -31,11 +31,11 @@ export const TransferProcessesList = () => (
       <TextField source="id" sortable={false} />
       <ReferenceField
         label="Asset"
-        source="contractId"
-        reference="contractagreements"
+        source="assetId"
+        reference="federatedcatalog"
         sortable={false}
       >
-        <TextField source="dataset.name" />
+        <TextField source="name" />
       </ReferenceField>
       <TextField source="type" sortable={false} />
       <TextField source="state" sortable={false} />
