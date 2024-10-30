@@ -13,14 +13,27 @@ func AddRoutes(r *gin.Engine) {
 
 	// only use the middlewares in the api group
 	api.Use(middleware.TokenMiddleware())
-	api.Use(middleware.KeycloakMiddleware())
-	api.Use(middleware.ThingsboardMiddleware())
-	api.Use(middleware.FusekiMiddleware())
+
+	if utils.GetConfig().EnableUsersApi {
+		api.Use(middleware.KeycloakMiddleware())
+	}
+
+	if utils.GetConfig().EnableDeviceApi {
+		api.Use(middleware.ThingsboardMiddleware())
+	}
+
+	if utils.GetConfig().EnableFusekiBackend {
+		api.Use(middleware.FusekiMiddleware())
+	}
+
 	api.Use(middleware.EdcMiddleware())
 	api.Use(middleware.FederatedCatalogMiddleware())
 
-	addCustomersRoutes(api)
-	addUsersRoute(api)
+	if utils.GetConfig().EnableUsersApi {
+		addCustomersRoutes(api)
+		addUsersRoute(api)
+	}
+
 	addAssetsRoutes(api)
 	addPoliciesRoutes(api)
 	addContractDefinitionsRoutes(api)
@@ -29,6 +42,7 @@ func AddRoutes(r *gin.Engine) {
 	addCatalogsRoutes(api)
 	addTransferProcessesRoutes(api)
 	addFederatedCatalogRoutes(api)
+
 	if utils.GetConfig().EnableDeviceApi {
 		addDevicesRoutes(api)
 	}

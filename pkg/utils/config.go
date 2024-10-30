@@ -9,6 +9,7 @@ import (
 type Config struct {
 	EnableDeviceApi     bool
 	EnableFusekiBackend bool
+	EnableUsersApi      bool
 }
 
 var (
@@ -21,6 +22,7 @@ func GetConfig() *Config {
 		config = &Config{
 			EnableDeviceApi:     ReadBoolEnvVariable("ENABLE_DEVICE_API"),
 			EnableFusekiBackend: ReadBoolEnvVariable("ENABLE_FUSEKI_BACKEND"),
+			EnableUsersApi:      ReadBoolEnvVariable("ENABLE_USERS_API"),
 		}
 	})
 	return config
