@@ -4,7 +4,7 @@ This repository contains the frontend and backend code for the SmartLivingNEXT p
 
 ## How to run this image
 ```shell
-docker run -it --rm --name landing-page registry.int.smartlivingnext.de/registry/public/landing-page:latest
+docker run -it --rm --name portal registry.int.smartlivingnext.de/registry/public/portal:latest
 ```
 
 ## Authors
