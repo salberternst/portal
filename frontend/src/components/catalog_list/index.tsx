@@ -33,7 +33,7 @@ const CreateContractNegotiationButton = ({
   const policy = record?.["odrl:hasPolicy"][selectedPolicy];
   const datasetId = record?.["@id"];
   const counterPartyAddress = record?.["dcat:service"]?.["dcat:endpointUrl"];
-  const participantId = record?.["participantId"];
+  const participantId = record?.["dspace:participantId"];
 
   return (
     <Button
@@ -209,7 +209,12 @@ export const CatalogList = ({ record }) => {
                 <Typography variant="h6">{record.name}</Typography>
               )}
             />
-            <TextField source="participantId" sortable={false} emptyText="-" />
+            <TextField
+              source="dspace:participantId"
+              label="Participant"
+              sortable={false}
+              emptyText="-"
+            />
             <TextField source="type" emptyText="-" sortable={false} />
             <Accordion square elevation={0} disableGutters>
               <AccordionSummary
