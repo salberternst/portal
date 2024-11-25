@@ -13,6 +13,7 @@ variables:
 
 publish-container:
   variables:
+    CONTAINER_REGISTRY: "${CI_REGISTRY}/registry/public"
     CONTAINER_REGISTRY_PASSWORD: ${DEVELOPER_REGISTRY_WRITE_TOKEN}
     DESTINATIONS: "registry.int.smartlivingnext.de/registry/public/${CI_PROJECT_NAME}:${CI_COMMIT_TAG} registry.int.smartlivingnext.de/registry/public/${CI_PROJECT_NAME}:latest"
 
