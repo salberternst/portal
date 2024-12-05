@@ -1,0 +1,4 @@
+{
+  "company1": "http://edc-provider:19194/protocol",
+  "company2": "http://edc-consumer:19194/protocol"
+}
