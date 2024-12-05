@@ -60,7 +60,7 @@ services:
         --cookie-expire=12h
 
   edc-provider:
-    image: registry.int.smartlivingnext.de/registry/public/edc:3.0.0
+    image: registry.int.smartlivingnext.de/registry/public/edc:4.0.0
     command: sh -c 'sleep 30 && java -jar /app/launchers/sln-connector/build/libs/connector.jar'
     ports:
       - 19191:19191 # health check
@@ -71,7 +71,7 @@ services:
       - 19199:19199 # federated catalog endpoint
     volumes:
       - ./vault.properties:/resources/vault.properties
-      - ./nodes.properties:/resources/nodes.properties
+      - ./nodes.json:/resources/nodes.json
     environment:
       # contains public & private key for oauth2
       EDC_VAULT_FILE_PATH: /resources/vault.properties
@@ -117,10 +117,10 @@ services:
       # name of the claim key
       EDC_AGENT_IDENTITY_KEY: participant_id
       EDC_PARTICIPANT_ID: company1
-      EDC_NODES_FILE_PATH: /resources/nodes.properties
+      EDC_NODES_FILE_PATH: /resources/nodes.json
 
   edc-consumer:
-    image: registry.int.smartlivingnext.de/registry/public/edc:3.0.0
+    image: registry.int.smartlivingnext.de/registry/public/edc:4.0.0
     command: sh -c 'sleep 30 && java -jar /app/launchers/sln-connector/build/libs/connector.jar'
     ports:
       - 29191:19191 # health check
@@ -131,7 +131,7 @@ services:
       - 29199:19199 # federated catalog endpoint
     volumes:
       - ./vault.properties:/resources/vault.properties
-      - ./nodes.properties:/resources/nodes.properties
+      - ./nodes.json:/resources/nodes.json
     environment:
       # contains public & private key for oauth2
       EDC_VAULT_FILE_PATH: /resources/vault.properties
@@ -177,7 +177,7 @@ services:
       # name of the claim key
       EDC_AGENT_IDENTITY_KEY: participant_id
       EDC_PARTICIPANT_ID: company2
-      EDC_NODES_FILE_PATH: /resources/nodes.properties
+      EDC_NODES_FILE_PATH: /resources/nodes.json
 
   postgres:
     container_name: postgres

@@ -25,6 +25,7 @@ export async function create(params) {
     "@context": {
       "@vocab": "https://w3id.org/edc/v0.0.1/ns/",
       edc: "https://w3id.org/edc/v0.0.1/ns/",
+      odrl: "http://www.w3.org/ns/odrl/2/",
     },
   });
   return {
