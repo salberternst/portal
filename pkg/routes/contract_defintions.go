@@ -35,7 +35,7 @@ func getContractDefinition(ctx *gin.Context) {
 		return
 	}
 
-	if middleware.IsCustomer(ctx) {
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
 		if contract.PrivateProperties == nil || !CheckPrivateProperties(ctx, contract.PrivateProperties) {
 			RespondWithForbidden(ctx)
 			return
@@ -54,7 +54,7 @@ func deleteContractDefinition(ctx *gin.Context) {
 		return
 	}
 
-	if middleware.IsCustomer(ctx) {
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
 		if contract.PrivateProperties == nil || !CheckPrivateProperties(ctx, contract.PrivateProperties) {
 			RespondWithForbidden(ctx)
 			return

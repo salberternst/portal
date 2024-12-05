@@ -141,7 +141,7 @@ export const DeviceEdit = () => {
   if (isLoading) {
     return null;
   }
-  const isAdmin = identity?.groups.includes("role:admin");
+  const isAdmin = identity?.roles.includes("admin");
 
   return (
     <Edit mutationMode="pessimistic">
@@ -232,7 +232,7 @@ const DeviceShowBar = () => {
   if (isLoading) {
     return null;
   }
-  const isAdmin = identity?.groups.includes("role:admin");
+  const isAdmin = identity?.roles.includes("admin");
 
   return (
     <TopToolbar>
@@ -248,7 +248,7 @@ export const DeviceShow = () => {
   if (isLoading) {
     return null;
   }
-  const isAdmin = identity?.groups.includes("role:admin");
+  const isAdmin = identity?.roles.includes("admin");
 
   return (
     <Show actions={<DeviceShowBar />}>
@@ -293,7 +293,7 @@ export const DevicesList = () => {
   if (isLoading) {
     return null;
   }
-  const isAdmin = identity?.groups.includes("role:admin");
+  const isAdmin = identity?.roles.includes("admin");
 
   return (
     <List

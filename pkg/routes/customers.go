@@ -52,7 +52,7 @@ type CustomerUpdate struct {
 }
 
 func getCustomers(ctx *gin.Context) {
-	if !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}
@@ -64,7 +64,7 @@ func getCustomers(ctx *gin.Context) {
 	}
 
 	// only show groups that have the tenant-id attribute set to the tenant-id of the user
-	Q := fmt.Sprintf("tenant-id:%s type:customer", middleware.GetAccessTokenClaims(ctx).TenantId)
+	Q := fmt.Sprintf("tenant-id:%s type:customer", middleware.GetAuthenticatedUser(ctx).TenantId)
 	briefRepresentation := false
 	First := (customerQuery.Page - 1) * customerQuery.PageSize
 	Max := customerQuery.PageSize
@@ -112,7 +112,7 @@ func getCustomers(ctx *gin.Context) {
 
 		if utils.GetConfig().EnableFusekiBackend {
 			customers[i].Fuseki = &FusekiDataset{
-				Name: middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customerId,
+				Name: middleware.GetAuthenticatedUser(ctx).TenantId + "-" + customerId,
 			}
 		}
 	}
@@ -121,7 +121,7 @@ func getCustomers(ctx *gin.Context) {
 }
 
 func getCustomer(ctx *gin.Context) {
-	if !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}
@@ -141,7 +141,7 @@ func getCustomer(ctx *gin.Context) {
 	description := ""
 	if group.Attributes != nil {
 		tenantId, ok := (*group.Attributes)["tenant-id"]
-		if !ok || tenantId[0] != middleware.GetAccessTokenClaims(ctx).TenantId {
+		if !ok || tenantId[0] != middleware.GetAuthenticatedUser(ctx).TenantId {
 			RespondWithResourceNotFound(ctx, customerID)
 			return
 		}
@@ -221,7 +221,7 @@ func getCustomer(ctx *gin.Context) {
 
 	if utils.GetConfig().EnableFusekiBackend {
 		fusekiDataset, err := middleware.GetFusekiAPI(ctx).GetDataset(
-			middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customer.Name,
+			middleware.GetAuthenticatedUser(ctx).TenantId + "-" + customer.Name,
 		)
 		if err != nil {
 			customer.Fuseki = &FusekiDataset{
@@ -239,7 +239,7 @@ func getCustomer(ctx *gin.Context) {
 }
 
 func createCustomer(ctx *gin.Context) {
-	if !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}
@@ -271,7 +271,7 @@ func createCustomer(ctx *gin.Context) {
 
 	if utils.GetConfig().EnableFusekiBackend {
 		if err := middleware.GetFusekiAPI(ctx).CreateDataset(
-			middleware.GetAccessTokenClaims(ctx).TenantId + "-" + customer.Name,
+			middleware.GetAuthenticatedUser(ctx).TenantId + "-" + customer.Name,
 		); err != nil {
 			RespondWithInternalServerError(ctx)
 			return
@@ -284,10 +284,10 @@ func createCustomer(ctx *gin.Context) {
 		gocloak.Group{
 			Name: &customer.Name,
 			Attributes: &map[string][]string{
-				"tenant-id":               {middleware.GetAccessTokenClaims(ctx).TenantId},
+				"tenant-id":               {middleware.GetAuthenticatedUser(ctx).TenantId},
 				"customer-id":             {customer.Name},
 				"description":             {customer.Description},
-				"created-by":              {middleware.GetAccessTokenClaims(ctx).Email},
+				"created-by":              {middleware.GetAuthenticatedUser(ctx).Email},
 				"created-at":              {time.Now().String()},
 				"type":                    {CustomerType},
 				"thingsboard-customer-id": {thingsboardCustomerId},
@@ -361,7 +361,7 @@ func deleteCustomer(ctx *gin.Context) {
 	}
 
 	if utils.GetConfig().EnableFusekiBackend {
-		if err := middleware.GetFusekiAPI(ctx).DeleteDataset(middleware.GetAccessTokenClaims(ctx).TenantId + "-" + *group.Name); err != nil {
+		if err := middleware.GetFusekiAPI(ctx).DeleteDataset(middleware.GetAuthenticatedUser(ctx).TenantId + "-" + *group.Name); err != nil {
 			RespondWithInternalServerError(ctx)
 			return
 		}

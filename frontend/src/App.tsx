@@ -135,7 +135,7 @@ const CustomMenu = () => {
     return null;
   }
 
-  const isAdmin = identity?.groups.includes("role:admin");
+  const isAdmin = identity?.roles.includes("admin");
 
   return (
     <Menu dense={false} sx={{ pt: 1 }}>

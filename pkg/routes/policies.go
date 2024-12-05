@@ -35,7 +35,7 @@ func getPolicy(ctx *gin.Context) {
 		return
 	}
 
-	if middleware.IsCustomer(ctx) {
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
 		if policyDefinition.PrivateProperties == nil || !CheckPrivateProperties(ctx, policyDefinition.PrivateProperties) {
 			RespondWithForbidden(ctx)
 			return
@@ -81,7 +81,7 @@ func deletePolicy(ctx *gin.Context) {
 		return
 	}
 
-	if middleware.IsCustomer(ctx) {
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
 		if policyDefinition.PrivateProperties == nil || !CheckPrivateProperties(ctx, policyDefinition.PrivateProperties) {
 			RespondWithForbidden(ctx)
 			return

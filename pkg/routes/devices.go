@@ -71,7 +71,7 @@ func getDevices(ctx *gin.Context) {
 
 	// todo: implement query parameters
 
-	if middleware.GetAccessTokenClaims(ctx).CustomerId == "" {
+	if middleware.GetAuthenticatedUser(ctx).CustomerId == "" {
 		thingsboardDevices, err = middleware.GetThingsboardAPI(ctx).GetTenantDevices(middleware.GetAccessToken(ctx), queryParams.Page, queryParams.PageSize)
 	} else {
 		thingsboardCustomerId, err := middleware.GetThingsboardAPI(ctx).GetCustomerId(middleware.GetAccessToken(ctx))

@@ -9,7 +9,7 @@ import (
 )
 
 func CreateContractNegotiation(ctx *gin.Context) {
-	if !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}
@@ -43,7 +43,7 @@ func GetContractNegotiation(ctx *gin.Context) {
 
 	// consumer contracts can only be viewed by admins
 	if contractNegotiation.Type == "CONSUMER" {
-		if !middleware.IsAdmin(ctx) {
+		if !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 			RespondWithForbidden(ctx)
 			return
 		}
@@ -86,7 +86,7 @@ func TerminateContractNegotiation(ctx *gin.Context) {
 	}
 
 	if contractNegotiation.Type == "CONSUMER" {
-		if !middleware.IsAdmin(ctx) {
+		if !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 			RespondWithForbidden(ctx)
 			return
 		}

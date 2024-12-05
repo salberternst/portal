@@ -1,5 +1,5 @@
 async function fetchUserInfo() {
-  const response = await fetch("/oauth2/userinfo");
+  const response = await fetch("/api/portal/userinfo");
   const userInfo = await response.json();
   return userInfo;
 }
