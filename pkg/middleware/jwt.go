@@ -3,6 +3,7 @@ package middleware
 import (
 	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
@@ -19,22 +20,30 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func TokenMiddleware() gin.HandlerFunc {
+func JwtMiddleware() gin.HandlerFunc {
 	parser := jwt.NewParser()
 
 	return func(ctx *gin.Context) {
 		idToken := ctx.GetHeader("X-Access-Token")
-		token, _, err := parser.ParseUnverified(idToken, &Claims{})
-		if err == nil {
-			if claims, ok := token.Claims.(*Claims); ok {
-				ctx.Set("access-token-claims", claims)
-				ctx.Set("access-token", idToken)
-				ctx.Next()
-				return
+		if idToken != "" {
+			token, _, err := parser.ParseUnverified(idToken, &Claims{})
+			if err == nil {
+				if claims, ok := token.Claims.(*Claims); ok {
+					// extract claims from token and set them as headers
+					ctx.Request.Header.Set("X-User-Id", claims.Subject)
+					ctx.Request.Header.Set("X-User-Email", claims.Email)
+					ctx.Request.Header.Set("X-User-Full-Name", claims.Name)
+					ctx.Request.Header.Set("X-User-Roles", strings.Join(claims.RealmAccess.Roles, ","))
+					ctx.Request.Header.Set("X-User-Tenant-Id", claims.TenantId)
+					ctx.Request.Header.Set("X-User-Customer-Id", claims.CustomerId)
+					ctx.Set("access-token-claims", claims)
+					ctx.Set("access-token", idToken)
+					ctx.Next()
+					return
+				}
 			}
+			ctx.AbortWithError(http.StatusInternalServerError, errors.New("unable to decode X-Access-Token"))
 		}
-
-		ctx.AbortWithError(http.StatusInternalServerError, errors.New("unable to decode X-Access-Token"))
 	}
 }
 
@@ -44,34 +53,4 @@ func GetAccessTokenClaims(ctx *gin.Context) *Claims {
 
 func GetAccessToken(ctx *gin.Context) string {
 	return ctx.MustGet("access-token").(string)
-}
-
-func IsAdmin(ctx *gin.Context) bool {
-	claims := GetAccessTokenClaims(ctx)
-	for _, role := range claims.RealmAccess.Roles {
-		if role == "admin" {
-			return true
-		}
-	}
-	return false
-}
-
-func IsCustomer(ctx *gin.Context) bool {
-	claims := GetAccessTokenClaims(ctx)
-	for _, role := range claims.RealmAccess.Roles {
-		if role == "customer" {
-			return true
-		}
-	}
-	return false
-}
-
-func IsSysadmin(ctx *gin.Context) bool {
-	claims := GetAccessTokenClaims(ctx)
-	for _, role := range claims.RealmAccess.Roles {
-		if role == "sysadmin" {
-			return true
-		}
-	}
-	return false
 }

@@ -1,12 +1,7 @@
-FROM golang:1.23-alpine
+FROM golang:1.21.1 as base
 
-RUN go install github.com/air-verse/air@latest
+RUN curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh| sh -s -- -b $(go env GOPATH)/bin v1.42.0
 
 WORKDIR /app
-COPY .air.toml /app/.air.toml
-# COPY pkg /app/pkg
-# COPY cmd /app/cmd
-COPY go.mod go.sum ./
-RUN go mod download
 
-CMD ["air", "-c", ".air.toml"]
+CMD air --build.cmd "go build -o bin/server cmd/server/main.go" --build.bin "./bin/server"

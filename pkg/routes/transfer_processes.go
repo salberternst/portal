@@ -9,7 +9,7 @@ import (
 )
 
 func getTransferProcesses(ctx *gin.Context) {
-	if !middleware.IsCustomer(ctx) && !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsCustomer() && !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}
@@ -20,7 +20,7 @@ func getTransferProcesses(ctx *gin.Context) {
 		return
 	}
 
-	if middleware.IsCustomer(ctx) {
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
 		// this works on the provider side as we get all
 		querySpec, err = CreateQuerySpecFromContext(ctx)
 		if err != nil {
@@ -68,7 +68,7 @@ func getTransferProcesses(ctx *gin.Context) {
 }
 
 func getTransferProcess(ctx *gin.Context) {
-	if !middleware.IsCustomer(ctx) && !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsCustomer() && !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}
@@ -121,7 +121,7 @@ func getTransferProcess(ctx *gin.Context) {
 }
 
 func createTransferProcess(ctx *gin.Context) {
-	if !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}
@@ -144,7 +144,7 @@ func createTransferProcess(ctx *gin.Context) {
 }
 
 func getTransferProcessDataRequest(ctx *gin.Context) {
-	if !middleware.IsCustomer(ctx) && !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsCustomer() && !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}
@@ -187,7 +187,7 @@ func terminateTransferProcess(ctx *gin.Context) {
 	}
 
 	if transferProcess.Type == "CONSUMER" {
-		if !middleware.IsAdmin(ctx) {
+		if !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 			RespondWithForbidden(ctx)
 			return
 		}
@@ -216,7 +216,7 @@ func terminateTransferProcess(ctx *gin.Context) {
 	})
 }
 func getDataConsumerPull(ctx *gin.Context) {
-	if !middleware.IsCustomer(ctx) && !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsCustomer() && !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}
@@ -247,7 +247,7 @@ func getDataConsumerPull(ctx *gin.Context) {
 }
 
 func getRawDataConsumerPull(ctx *gin.Context) {
-	if !middleware.IsCustomer(ctx) && !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsCustomer() && !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}

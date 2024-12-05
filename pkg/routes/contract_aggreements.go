@@ -21,7 +21,7 @@ func getContractAgreements(ctx *gin.Context) {
 		return
 	}
 
-	if middleware.IsCustomer(ctx) {
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
 		// create QuerySpec to filter assets that belong to the customer
 		querySpec, err = CreateQuerySpecFromContext(ctx)
 		if err != nil {
@@ -73,7 +73,7 @@ func getContractAgreement(ctx *gin.Context) {
 		return
 	}
 
-	if middleware.IsCustomer(ctx) {
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
 		asset, err := middleware.GetEdcAPI(ctx).GetAsset(contractAgreement.AssetId)
 		if err != nil {
 			RespondWithResourceNotFound(ctx, id)
@@ -98,7 +98,7 @@ func getContractAgreementNegotiation(ctx *gin.Context) {
 		return
 	}
 
-	if middleware.IsCustomer(ctx) {
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
 		contractAgreement, err := middleware.GetEdcAPI(ctx).GetContractAgreement(contractAgreementNegotiation.ContractAgreementId)
 		if err != nil {
 			RespondWithResourceNotFound(ctx, id)

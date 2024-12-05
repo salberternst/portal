@@ -56,7 +56,7 @@ func GetKeycloakRealm(ctx *gin.Context) string {
 func GetCustomerIdByThingsboardCustomerId(ctx *gin.Context, thingsboardCustomerId string) (string, error) {
 	Q := fmt.Sprintf("thingsboard-customer-id:%s tenant-id:%s",
 		thingsboardCustomerId,
-		GetAccessTokenClaims(ctx).TenantId,
+		GetAuthenticatedUser(ctx).TenantId,
 	)
 
 	groups, err := GetKeycloakClient(ctx).GetGroups(ctx,

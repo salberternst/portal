@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,6 +20,7 @@ func getAssets(ctx *gin.Context) {
 	// only return assets that return to the customer
 	assets, err := middleware.GetEdcAPI(ctx).GetAssets(querySpec)
 	if err != nil {
+		fmt.Println(err)
 		RespondWithInternalServerError(ctx)
 		return
 	}
@@ -36,7 +38,7 @@ func getAsset(ctx *gin.Context) {
 	}
 
 	// check if current user has access to the asset
-	if middleware.IsCustomer(ctx) {
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
 		if asset.PrivateProperties == nil || !CheckPrivateProperties(ctx, asset.PrivateProperties) {
 			RespondWithResourceNotFound(ctx, id)
 			return
@@ -55,7 +57,7 @@ func deleteAsset(ctx *gin.Context) {
 		return
 	}
 
-	if middleware.IsCustomer(ctx) {
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
 		if asset.PrivateProperties == nil || !CheckPrivateProperties(ctx, asset.PrivateProperties) {
 			RespondWithResourceNotFound(ctx, id)
 			return

@@ -43,7 +43,7 @@ type User struct {
 }
 
 func getUser(ctx *gin.Context) {
-	if !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}
@@ -60,7 +60,7 @@ func getUser(ctx *gin.Context) {
 		return
 	}
 
-	Q := fmt.Sprintf("tenant-id:%s customer-id:", middleware.GetAccessTokenClaims(ctx).TenantId)
+	Q := fmt.Sprintf("tenant-id:%s customer-id:", middleware.GetAuthenticatedUser(ctx).TenantId)
 	briefRepresentation := false
 	groups, err := middleware.GetKeycloakClient(ctx).GetUserGroups(
 		ctx,
@@ -87,7 +87,7 @@ func getUser(ctx *gin.Context) {
 		tenantId := (*group.Attributes)["tenant-id"]
 		customerId := (*group.Attributes)["customer-id"]
 
-		if tenantId != nil && tenantId[0] == middleware.GetAccessTokenClaims(ctx).TenantId && customerId != nil {
+		if tenantId != nil && tenantId[0] == middleware.GetAuthenticatedUser(ctx).TenantId && customerId != nil {
 			customers = append(customers, Customer{
 				ID:   *group.ID,
 				Name: *group.Name,
@@ -114,7 +114,7 @@ func getUser(ctx *gin.Context) {
 }
 
 func createUser(ctx *gin.Context) {
-	if !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}
@@ -156,7 +156,7 @@ func createUser(ctx *gin.Context) {
 			return
 		}
 
-		if (*group.Attributes)["tenant-id"][0] != middleware.GetAccessTokenClaims(ctx).TenantId {
+		if (*group.Attributes)["tenant-id"][0] != middleware.GetAuthenticatedUser(ctx).TenantId {
 			RespondWithForbidden(ctx)
 			return
 		}
@@ -191,7 +191,7 @@ func createUser(ctx *gin.Context) {
 			(*keycloakUser.Attributes)["thingsboard-user-id"] = []string{thingsboardUserId}
 		}
 	} else if user.IsAdmin {
-		keycloakUser.Groups = &[]string{middleware.GetAccessTokenClaims(ctx).TenantId}
+		keycloakUser.Groups = &[]string{middleware.GetAuthenticatedUser(ctx).TenantId}
 	} else {
 		RespondWithBadRequest(ctx, "Bad Request")
 		return
@@ -215,7 +215,7 @@ func createUser(ctx *gin.Context) {
 }
 
 func DeleteUser(ctx *gin.Context) {
-	if !middleware.IsAdmin(ctx) {
+	if !middleware.GetAuthenticatedUser(ctx).IsAdmin() {
 		RespondWithForbidden(ctx)
 		return
 	}

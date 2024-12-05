@@ -12,7 +12,8 @@ func AddRoutes(r *gin.Engine) {
 	addHealthRoutes(api)
 
 	// only use the middlewares in the api group
-	api.Use(middleware.TokenMiddleware())
+	api.Use(middleware.JwtMiddleware())
+	api.Use(middleware.AuthMiddleware())
 
 	if utils.GetConfig().EnableUsersApi {
 		api.Use(middleware.KeycloakMiddleware())
@@ -42,7 +43,7 @@ func AddRoutes(r *gin.Engine) {
 	addCatalogsRoutes(api)
 	addTransferProcessesRoutes(api)
 	addFederatedCatalogRoutes(api)
-	addUserRoutes(api)
+	addUserinfoRoutes(api)
 
 	if utils.GetConfig().EnableDeviceApi {
 		addDevicesRoutes(api)

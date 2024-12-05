@@ -77,17 +77,17 @@ func CreateQuerySpecWithoutFilterFromContext(ctx *gin.Context) (api.QuerySpec, e
 func BuildFilterExpressionFromContext(ctx *gin.Context) []api.Criterion {
 	filterExpressions := []api.Criterion{}
 
-	if middleware.IsCustomer(ctx) {
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
 		filterExpressions = append(filterExpressions, api.Criterion{
 			OperandLeft:  "privateProperties.'https://w3id.org/edc/v0.0.1/ns/tenantId'",
 			Operator:     "=",
-			OperandRight: middleware.GetAccessTokenClaims(ctx).TenantId,
+			OperandRight: middleware.GetAuthenticatedUser(ctx).TenantId,
 		})
 
 		filterExpressions = append(filterExpressions, api.Criterion{
 			OperandLeft:  "privateProperties.'https://w3id.org/edc/v0.0.1/ns/customerId'",
 			Operator:     "=",
-			OperandRight: middleware.GetAccessTokenClaims(ctx).CustomerId,
+			OperandRight: middleware.GetAuthenticatedUser(ctx).CustomerId,
 		})
 	}
 
@@ -96,24 +96,24 @@ func BuildFilterExpressionFromContext(ctx *gin.Context) []api.Criterion {
 
 func BuildPrivatePropertiesFromContext(ctx *gin.Context) map[string]string {
 	privateProperties := make(map[string]string)
-	privateProperties["https://w3id.org/edc/v0.0.1/ns/tenantId"] = middleware.GetAccessTokenClaims(ctx).TenantId
+	privateProperties["https://w3id.org/edc/v0.0.1/ns/tenantId"] = middleware.GetAuthenticatedUser(ctx).TenantId
 
-	if middleware.IsCustomer(ctx) {
-		privateProperties["https://w3id.org/edc/v0.0.1/ns/customerId"] = middleware.GetAccessTokenClaims(ctx).CustomerId
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
+		privateProperties["https://w3id.org/edc/v0.0.1/ns/customerId"] = middleware.GetAuthenticatedUser(ctx).CustomerId
 	}
 
 	return privateProperties
 }
 
 func CheckPrivateProperties(ctx *gin.Context, privateProperties map[string]string) bool {
-	if middleware.IsCustomer(ctx) {
-		if privateProperties["https://w3id.org/edc/v0.0.1/ns/customerId"] != middleware.GetAccessTokenClaims(ctx).CustomerId &&
-			privateProperties["customerId"] != middleware.GetAccessTokenClaims(ctx).CustomerId {
+	if middleware.GetAuthenticatedUser(ctx).IsCustomer() {
+		if privateProperties["https://w3id.org/edc/v0.0.1/ns/customerId"] != middleware.GetAuthenticatedUser(ctx).CustomerId &&
+			privateProperties["customerId"] != middleware.GetAuthenticatedUser(ctx).CustomerId {
 			return false
 		}
 
-		if privateProperties["https://w3id.org/edc/v0.0.1/ns/tenantId"] != middleware.GetAccessTokenClaims(ctx).TenantId &&
-			privateProperties["tenantId"] != middleware.GetAccessTokenClaims(ctx).TenantId {
+		if privateProperties["https://w3id.org/edc/v0.0.1/ns/tenantId"] != middleware.GetAuthenticatedUser(ctx).TenantId &&
+			privateProperties["tenantId"] != middleware.GetAuthenticatedUser(ctx).TenantId {
 			return false
 		}
 	}
