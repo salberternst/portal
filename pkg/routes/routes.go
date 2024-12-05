@@ -42,6 +42,7 @@ func AddRoutes(r *gin.Engine) {
 	addCatalogsRoutes(api)
 	addTransferProcessesRoutes(api)
 	addFederatedCatalogRoutes(api)
+	addUserRoutes(api)
 
 	if utils.GetConfig().EnableDeviceApi {
 		addDevicesRoutes(api)
