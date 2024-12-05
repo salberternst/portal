@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -17,13 +18,21 @@ type AuthenticatedUser struct {
 }
 
 func NewAuthenticatedUser(ctx *gin.Context) AuthenticatedUser {
+	getHeaderOrEnv := func(header, envVar string) string {
+		value := ctx.GetHeader(header)
+		if value == "" {
+			value = os.Getenv(envVar)
+		}
+		return value
+	}
+
 	return AuthenticatedUser{
-		Id:         ctx.GetHeader("X-User-Id"),
-		FullName:   ctx.GetHeader("X-User-Full-Name"),
-		Email:      ctx.GetHeader("X-User-Email"),
-		TenantId:   ctx.GetHeader("X-User-Tenant-Id"),
-		CustomerId: ctx.GetHeader("X-User-Customer-Id"),
-		Roles:      strings.Split(ctx.GetHeader("X-User-Roles"), ","),
+		Id:         getHeaderOrEnv("X-User-Id", "DEFAULT_USER_ID"),
+		FullName:   getHeaderOrEnv("X-User-Full-Name", "DEFAULT_USER_FULL_NAME"),
+		Email:      getHeaderOrEnv("X-User-Email", "DEFAULT_USER_EMAIL"),
+		TenantId:   getHeaderOrEnv("X-User-Tenant-Id", "DEFAULT_USER_TENANT_ID"),
+		CustomerId: getHeaderOrEnv("X-User-Customer-Id", "DEFAULT_USER_CUSTOMER_ID"),
+		Roles:      strings.Split(getHeaderOrEnv("X-User-Roles", "DEFAULT_USER_ROLES"), ","),
 	}
 }
 
