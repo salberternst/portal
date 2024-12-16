@@ -6,6 +6,7 @@ import "@fontsource/roboto/700.css";
 import { App } from "./App";
 import "./index.css";
 import "swagger-ui-react/swagger-ui.css";
+import "maplibre-gl/dist/maplibre-gl.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <>
