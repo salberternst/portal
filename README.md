@@ -29,6 +29,30 @@ The portal can be configured with the following environment variables:
 | KEYCLOAK_REALM                | The realm in Keycloak that organizes and manages user identities.          |
 | KEYCLOAK_URL                  | Base URL of the Keycloak server.                                           |
 
+## Users
+
+User identification is managed via the following custom headers:
+
+| Header Name              | Description                          |
+|--------------------------|--------------------------------------|
+| X-User-Id               | The unique identifier of the user.  |
+| X-User-Full-Name        | The full name of the user.          |
+| X-User-Email            | The email address of the user.      |
+| X-User-Tenant-Id        | The tenant ID associated with the user. |
+| X-User-Customer-Id      | The customer ID associated with the user. |
+| X-User-Roles            | A comma-separated list of user roles (admin,customer) |
+
+If any headers are missing, the following environment variables provide default values:
+
+| Environment Variable          | Default Value Description                |
+|-------------------------------|------------------------------------------|
+| DEFAULT_USER_ID              | Default value for the user ID.           |
+| DEFAULT_USER_FULL_NAME       | Default value for the user's full name.  |
+| DEFAULT_USER_EMAIL           | Default value for the user's email.      |
+| DEFAULT_USER_TENANT_ID       | Default value for the tenant ID.         |
+| DEFAULT_USER_CUSTOMER_ID     | Default value for the customer ID.       |
+| DEFAULT_USER_ROLES           | Default value for the user roles (comma-separated). |
+
 ## Authors
 
 Sebastian Alberternst <sebastian.alberternst@dfki.de>
