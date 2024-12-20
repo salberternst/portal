@@ -1,7 +1,7 @@
 var config = {
-  showDevices: true,
-  showThingDescriptions: true,
-  showQuery: true,
+  showDevices: false,
+  showThingDescriptions: false,
+  showQuery: false,
   showCustomers: true,
   showAssets: true,
   showPolicies: true,
@@ -11,5 +11,6 @@ var config = {
   showContractAgreements: true,
   showTransferProcesses: true,
   showThingsboard : true,
-  showKeycloak: true
+  showKeycloak: true,
+  logo: "ingeoforum.png",
 }
