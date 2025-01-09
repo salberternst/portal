@@ -82,6 +82,8 @@ import {
 import { darkTheme, theme } from "./theme";
 import SvgIcon from "@mui/material/SvgIcon";
 import SmartLivingNextIcon from "./assets/borlabs-cookie-icon-dynamic.svg?react";
+import SmartLivingNextLogo from "./assets/SmartLivingNEXT-bw-1.svg?react";
+import InGeoForumLogo from "./assets/ingeoforum.svg?react"
 import Box from "@mui/material/Box";
 
 const CustomUserMenu = () => {
@@ -97,40 +99,40 @@ const CustomUserMenu = () => {
   );
 };
 
-const CustomAppBar = () => {
-  const logo = window.config.logo || "SmartLivingNEXT-bw-1.svg";
-
-  return (
-    <AppBar userMenu={<CustomUserMenu />}>
-      <Toolbar>
-        <Box
-          sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+const CustomAppBar = () => (
+  <AppBar userMenu={<CustomUserMenu />}>
+    <Toolbar>
+      <Box
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+      >
+        <SvgIcon
+          color="primary"
+          fontSize="large"
+          style={{
+            marginRight: 10,
+            animation: "spin 20s linear infinite",
+          }}
         >
-          <SvgIcon
-            color="primary"
-            fontSize="large"
-            style={{
-              marginRight: 10,
-              animation: "spin 20s linear infinite",
-            }}
-          >
-            <SmartLivingNextIcon />
-          </SvgIcon>
-          <Box
-            sx={{
-              width: 200,
-              height: 35,
-              mixBlendMode: "difference",
-            }}
-          >
-            <img src={`src/assets/${logo}`} alt="Logo" style={{ width: '100%', height: '100%' }} />
-          </Box>
+          <SmartLivingNextIcon />
+        </SvgIcon>
+        <Box
+          sx={{
+            width: 200,
+            height: 35,
+            mixBlendMode: "difference",
+          }}
+        >
+          {window.config.useInGeoLogo ? (
+              <InGeoForumLogo />  
+          ) : (
+              <SmartLivingNextLogo />  
+            )}
         </Box>
-      </Toolbar>
-      <span style={{ flex: 1 }} />
-    </AppBar>
-  );
-};
+      </Box>
+    </Toolbar>
+    <span style={{ flex: 1 }} />
+  </AppBar>
+);
 
 const CustomMenu = () => {
   const { isLoading, identity } = useGetIdentity();

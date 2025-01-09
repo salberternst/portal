@@ -18,6 +18,8 @@ declare global {
       // edc settings
       showThingsboard: boolean;
       showKeycloak: boolean;
+      // portal settings
+      useInGeoLogo: boolean;
     };
   }
 }

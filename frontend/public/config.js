@@ -12,5 +12,5 @@ var config = {
   showTransferProcesses: true,
   showThingsboard : true,
   showKeycloak: true,
-  logo: "ingeoforum.png",
+  useInGeoLogo: true,
 }
